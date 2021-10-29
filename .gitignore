@@ -1,0 +1,23 @@
+# Configuration
+.env
+**/.env
+.env.release
+**/.env.release
+migrations/flyway.conf
+
+# Depedencies
+/vendor/
+/venv/
+
+# Output
+/bin/release/
+/bin/debug/
+
+# IDEs
+/.idea/
+/.vscode/
+
+# Misc
+*.bak
+/.tmp/
+.DS_Store
