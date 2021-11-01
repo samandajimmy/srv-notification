@@ -7,8 +7,8 @@ import (
 	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
 )
 
-func NewEmail(eventLogService contract.EmailService) *Email {
-	return &Email{eventLogService}
+func NewEmail(emailService contract.EmailService) *Email {
+	return &Email{emailService}
 }
 
 type Email struct {
