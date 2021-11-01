@@ -8,4 +8,7 @@ import (
 func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	// Common
 	router.Handle(http.MethodGet, "/", router.HandleFunc(handlers.Common.GetAPIStatus))
+
+	// Send Email
+	router.Handle(http.MethodPost, "/send-emails", router.HandleFunc(handlers.Email.PostEmail))
 }
