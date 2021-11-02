@@ -10,7 +10,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	router.Handle(http.MethodGet, "/", router.HandleFunc(handlers.Common.GetAPIStatus))
 
 	// Send Email
-	router.Handle(http.MethodPost, "/send-emails", router.HandleFunc(handlers.Email.PostEmail))
+	router.Handle(http.MethodPost, "/send-email", router.HandleFunc(handlers.Email.PostEmail))
 
 	// Send Notification
 	router.Handle(http.MethodPost, "/push-notification", router.HandleFunc(handlers.Notification.PostNotification))
