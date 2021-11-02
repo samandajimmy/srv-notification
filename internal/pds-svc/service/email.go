@@ -60,6 +60,7 @@ func (s *Email) SendEmail(payload dto.SendEmail) error {
 		return ncore.TraceError(err)
 	}
 
+	log.Infof("Email has been sent successfully!.")
 	return nil
 }
 
@@ -70,7 +71,14 @@ func (s *Email) ComposeEmail(payload dto.SendEmail) (*gomail.Message, *gomail.Di
 
 	// Set message
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", payload.From)
+
+	// Set sender format
+	from := fmt.Sprintf("%v", payload.From.Email)
+	if payload.From.Name != "" {
+		from = fmt.Sprintf("%v <%v>", payload.From.Name, payload.From.Email)
+	}
+
+	mailer.SetHeader("From", from)
 	mailer.SetHeader("To", payload.To)
 	mailer.SetHeader("Subject", payload.Subject)
 	mailer.SetBody("text/html", payload.Message)
