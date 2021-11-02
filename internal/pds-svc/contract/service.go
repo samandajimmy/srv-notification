@@ -11,3 +11,7 @@ type AuthService interface {
 type EmailService interface {
 	SendEmail(payload dto.SendEmail) error
 }
+
+type NotificationService interface {
+	SendNotificationByToken(payload dto.NotificationCreate) error
+}

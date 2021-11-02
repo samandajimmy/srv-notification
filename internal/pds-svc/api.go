@@ -27,8 +27,9 @@ func NewAPI(core *ncore.Core, config contract.Config) API {
 			Config:       config,
 			Repositories: contract.RepositoryMap{},
 			Services: contract.ServiceMap{
-				Auth:  new(service.Auth),
-				Email: new(service.Email),
+				Auth:         new(service.Auth),
+				Email:        new(service.Email),
+				Notification: new(service.Notification),
 			},
 		},
 		dataSources: repository.NewDataSourceMap(),

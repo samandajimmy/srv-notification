@@ -1,6 +1,7 @@
 package nfirebase
 
 import (
+	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
 	"context"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
@@ -23,7 +24,7 @@ func NewNucleoFirebase(credentialFile string) (*NucleoFirebase, error) {
 	return &NucleoFirebase{app: firebaseSvc}, nil
 }
 
-func (nf *NucleoFirebase) SendToTarget(token string, payload map[string]string) (string, error) {
+func (nf *NucleoFirebase) SendToTarget(payload dto.NotificationCreate) (string, error) {
 	ctx := context.Background()
 	client, err := nf.app.Messaging(ctx)
 	if err != nil {
@@ -32,8 +33,12 @@ func (nf *NucleoFirebase) SendToTarget(token string, payload map[string]string) 
 
 	// Create message
 	message := messaging.Message{
-		Data:  payload,
-		Token: token,
+		Notification: &messaging.Notification{
+			Title:    payload.Title,
+			Body:     payload.Body,
+			ImageURL: payload.ImageURL,
+		},
+		Token: payload.Token,
 	}
 
 	response, err := client.Send(ctx, &message)

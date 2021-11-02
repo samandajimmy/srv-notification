@@ -4,6 +4,7 @@
 .env.release
 **/.env.release
 migrations/flyway.conf
+pds-dev-f65b3-firebase-adminsdk-dr4fd-a56972c48a.json
 
 # Depedencies
 /vendor/

@@ -10,6 +10,7 @@ type ServiceInitializer interface {
 }
 
 type ServiceMap struct {
-	Auth  AuthService
-	Email EmailService
+	Auth         AuthService
+	Email        EmailService
+	Notification NotificationService
 }
