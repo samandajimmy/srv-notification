@@ -15,6 +15,7 @@ type Config struct {
 	DataSources DataSourcesConfig
 	CORS        nhttp.CORSConfig
 	SMTP        SMTPConfig
+	Firebase    FirebaseConfig
 }
 
 func (c *Config) LoadFromEnv() {
@@ -70,6 +71,10 @@ func (c *Config) LoadFromEnv() {
 		Username: nval.ParseStringFallback(os.Getenv("SMTP_USERNAME"), ""),
 		Password: nval.ParseStringFallback(os.Getenv("SMTP_PASSWORD"), ""),
 	}
+
+	// Load firebase
+	c.Firebase.Key = nval.ParseStringFallback(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"), "")
+
 }
 
 func (c Config) Validate() error {
@@ -114,5 +119,15 @@ func (c SMTPConfig) Validate() error {
 		validation.Field(&c.Port, validation.Required),
 		validation.Field(&c.Username, validation.Required),
 		validation.Field(&c.Password, validation.Required),
+	)
+}
+
+type FirebaseConfig struct {
+	Key string
+}
+
+func (c FirebaseConfig) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Key, validation.Required),
 	)
 }
