@@ -70,9 +70,9 @@ func (s *Email) ComposeEmail(payload dto.SendEmail) (*gomail.Message, *gomail.Di
 
 	// Set message
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", "no-reply@email.com")
-	mailer.SetHeader("To", payload.Subject)
-	mailer.SetHeader("Subject", "Test mail")
+	mailer.SetHeader("From", payload.From)
+	mailer.SetHeader("To", payload.To)
+	mailer.SetHeader("Subject", payload.Subject)
 	mailer.SetBody("text/html", payload.Message)
 
 	if payload.Attachment != "" {
