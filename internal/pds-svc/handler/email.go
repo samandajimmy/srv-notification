@@ -25,6 +25,12 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
+	// Validate payload
+	err = payload.Validate()
+	if err != nil {
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
 	// Set payload
 	err = h.emailService.SendEmail(payload)
 	if err != nil {
