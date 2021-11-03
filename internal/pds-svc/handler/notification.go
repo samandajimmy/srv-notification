@@ -25,6 +25,12 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
+	// Validate payload
+	err = payload.Validate()
+	if err != nil {
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
 	// Set payload
 	err = h.notificationService.SendNotificationByToken(payload)
 	if err != nil {
