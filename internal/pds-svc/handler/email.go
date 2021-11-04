@@ -28,6 +28,7 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Validate payload
 	err = payload.Validate()
 	if err != nil {
+		log.Errorf("Error appear when validate payload %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
