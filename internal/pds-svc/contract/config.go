@@ -14,6 +14,7 @@ type Config struct {
 	Client      ClientConfig
 	DataSources DataSourcesConfig
 	CORS        nhttp.CORSConfig
+	SMTP        SMTPConfig
 }
 
 func (c *Config) LoadFromEnv() {
@@ -33,8 +34,8 @@ func (c *Config) LoadFromEnv() {
 	c.Server.Debug = nval.ParseBooleanFallback(os.Getenv("DEBUG"), true)
 
 	// Set config client
-	c.Client.ClientID = os.Getenv("CLIENT_ID")
-	c.Client.ClientSecret = os.Getenv("CLIENT SECRET")
+	c.Client.ClientID = nval.ParseStringFallback(os.Getenv("CLIENT_ID"), "")
+	c.Client.ClientSecret = nval.ParseStringFallback(os.Getenv("CLIENT SECRET"), "")
 
 	// Set config data resource
 	c.DataSources.Postgres = nsql.Config{
@@ -59,6 +60,15 @@ func (c *Config) LoadFromEnv() {
 			AllowedMethods: nval.ParseStringArrayFallback(os.Getenv("CORS_ALLOWED_METHODS"), []string{http.MethodGet,
 				http.MethodHead, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodOptions}),
 		}
+	}
+
+	// Load smtp config
+	smtpPort, _ := nval.ParseInt(os.Getenv("SMTP_PORT"))
+	c.SMTP = SMTPConfig{
+		Host:     nval.ParseStringFallback(os.Getenv("SMTP_HOST"), ""),
+		Port:     nval.ParseIntFallback(smtpPort, 587),
+		Username: nval.ParseStringFallback(os.Getenv("SMTP_USERNAME"), ""),
+		Password: nval.ParseStringFallback(os.Getenv("SMTP_PASSWORD"), ""),
 	}
 }
 
@@ -88,5 +98,21 @@ func (c ClientConfig) Validate() error {
 	return validation.ValidateStruct(&c,
 		validation.Field(&c.ClientID, validation.Required),
 		validation.Field(&c.ClientSecret, validation.Required),
+	)
+}
+
+type SMTPConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+}
+
+func (c SMTPConfig) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Host, validation.Required),
+		validation.Field(&c.Port, validation.Required),
+		validation.Field(&c.Username, validation.Required),
+		validation.Field(&c.Password, validation.Required),
 	)
 }

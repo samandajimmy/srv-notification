@@ -7,12 +7,14 @@ import (
 )
 
 type HandlerMap struct {
-	Common   *handler.Common
+	Common *handler.Common
+	Email  *handler.Email
 }
 
 func initHandler(app *API) *HandlerMap {
 
 	return &HandlerMap{
-		Common:   handler.NewCommon(time.Now(), app.Manifest.AppVersion, app.Manifest.GetStringMetadata(constant.BuildHashKey)),
+		Common: handler.NewCommon(time.Now(), app.Manifest.AppVersion, app.Manifest.GetStringMetadata(constant.BuildHashKey)),
+		Email:  handler.NewEmail(app.Services.Email),
 	}
 }

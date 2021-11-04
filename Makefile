@@ -110,8 +110,6 @@ help: Makefile
 clean:
 	@-echo "  > Deleting output dir..."
 	@-rm -rf ${OUTPUT_DIR}
-	@-echo "  > Deleting python virtual environment..."
-	@-rm -rf ${SVC_VENV}
 	@-echo "  > Done"
 
 ## doctor: Check for prerequisites
@@ -131,6 +129,10 @@ setup:
 	@cp configs/.env-example .env
 	@-echo "  > Fix scripts permission..."
 	@chmod +x scripts/**/*.sh
+	@-echo "  > Removing tmp..."
+	@-rm -rf tmp
+	@-echo "  > Make new directory temp..."
+	@-mkdir tmp
 
 ## configure: Download dependencies
 .PHONY: configure

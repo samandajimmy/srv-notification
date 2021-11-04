@@ -23,12 +23,12 @@ type API struct {
 func NewAPI(core *ncore.Core, config contract.Config) API {
 	return API{
 		PdsApp: &contract.PdsApp{
-			Core:   core,
-			Config: config,
-			Repositories: contract.RepositoryMap{
-			},
+			Core:         core,
+			Config:       config,
+			Repositories: contract.RepositoryMap{},
 			Services: contract.ServiceMap{
-				Auth:       new(service.Auth),
+				Auth:  new(service.Auth),
+				Email: new(service.Email),
 			},
 		},
 		dataSources: repository.NewDataSourceMap(),
