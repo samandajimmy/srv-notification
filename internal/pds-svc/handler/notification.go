@@ -28,6 +28,7 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 	// Validate payload
 	err = payload.Validate()
 	if err != nil {
+		log.Errorf("Error when validate payload notification %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
