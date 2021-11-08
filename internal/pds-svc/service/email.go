@@ -52,11 +52,13 @@ func (s *Email) SendEmail(payload dto.SendEmail) error {
 	}
 
 	// Remove file if email has been sent
-	name := fmt.Sprintf("tmp/tmp.%v", payload.MimeType)
-	err = os.Remove(name)
-	if err != nil {
-		log.Error("Failed remove file after email sent!", nlogger.Error(err))
-		return ncore.TraceError(err)
+	if payload.Attachment != "" {
+		name := fmt.Sprintf("tmp/tmp.%v", payload.MimeType)
+		err = os.Remove(name)
+		if err != nil {
+			log.Error("Failed remove file after email sent!", nlogger.Error(err))
+			return ncore.TraceError(err)
+		}
 	}
 
 	log.Infof("Email has been sent successfully!.")
