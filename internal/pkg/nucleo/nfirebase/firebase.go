@@ -39,6 +39,7 @@ func (nf *NucleoFirebase) SendToTarget(payload dto.NotificationCreate) (string, 
 			ImageURL: payload.ImageURL,
 		},
 		Token: payload.Token,
+		Data:  payload.Data,
 	}
 
 	response, err := client.Send(ctx, &message)
