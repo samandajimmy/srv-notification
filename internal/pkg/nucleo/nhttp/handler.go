@@ -1,8 +1,8 @@
 package nhttp
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
 	"net/http"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )
 

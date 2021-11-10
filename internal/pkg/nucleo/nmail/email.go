@@ -1,14 +1,14 @@
 package nmail
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/contract"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nlogger"
 	"encoding/base64"
 	"fmt"
 	"gopkg.in/gomail.v2"
 	"os"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 )
 
 var log = nlogger.Get()

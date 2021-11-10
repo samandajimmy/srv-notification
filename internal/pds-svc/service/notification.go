@@ -1,10 +1,10 @@
 package service
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/contract"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nfirebase"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nfirebase"
 )
 
 type Notification struct {

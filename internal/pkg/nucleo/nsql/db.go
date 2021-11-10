@@ -1,9 +1,9 @@
 package nsql
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )
 

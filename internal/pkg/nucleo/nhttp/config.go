@@ -1,12 +1,12 @@
 package nhttp
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nval"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"net/url"
 	"os"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
 )
 

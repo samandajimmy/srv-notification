@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 )
 
 type Subject struct {

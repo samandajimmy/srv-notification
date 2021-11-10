@@ -1,4 +1,4 @@
-module code.nbs.dev/pegadaian/pds/microservice
+module repo.pegadaian.co.id/ms-pds/srv-notification
 
 go 1.16
 

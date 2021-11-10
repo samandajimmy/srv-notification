@@ -1,9 +1,9 @@
 package nhttp
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
 	"encoding/base64"
 	"net/http"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"strings"
 )
 

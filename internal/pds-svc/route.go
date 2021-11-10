@@ -1,8 +1,8 @@
 package pds_svc
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
 	"net/http"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
 func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {

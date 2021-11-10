@@ -1,11 +1,11 @@
 package nhttp
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nval"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 type CORSConfig struct {

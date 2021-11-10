@@ -1,5 +1,5 @@
 package handler
 
-import "code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nlogger"
+import "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 
 var log = nlogger.Get()

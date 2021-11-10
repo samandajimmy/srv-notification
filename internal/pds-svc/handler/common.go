@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"time"
 )
 

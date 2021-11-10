@@ -1,16 +1,16 @@
 package pds_svc
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/contract"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/repository"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/service"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nlogger"
 	"fmt"
 	_ "github.com/lib/pq"
 	"net/http"
 	"path"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/repository"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/service"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 )
 
 var log = nlogger.Get()

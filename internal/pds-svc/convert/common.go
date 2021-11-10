@@ -1,8 +1,8 @@
 package convert
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/model"
+	"pds/srv-notification/internal/pds-svc/dto"
+	"pds/srv-notification/internal/pds-svc/model"
 )
 
 func ModifierModelToDTO(model model.Modifier) dto.Modifier {

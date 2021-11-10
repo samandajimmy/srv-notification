@@ -2,7 +2,7 @@
 # Manifest
 # --------
 PROJECT_NAME:="PDS Service"
-PROJECT_PKG:=code.nbs.dev/pds-svc
+PROJECT_PKG:=repo.pegadaian.co.id/ms-pds/srv-notification
 DOCKER_NAMESPACE:=cr.nbs.dev/pds-svc
 
 # ---------------

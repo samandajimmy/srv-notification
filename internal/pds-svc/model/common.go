@@ -1,9 +1,9 @@
 package model
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nsql"
 	"database/sql/driver"
 	"encoding/json"
+	"pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
 )
 

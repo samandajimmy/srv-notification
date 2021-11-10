@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nsql"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 )
 
 type DataSourceMap struct {

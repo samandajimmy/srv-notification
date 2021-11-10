@@ -1,7 +1,7 @@
 package contract
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 )
 
 type AuthService interface {

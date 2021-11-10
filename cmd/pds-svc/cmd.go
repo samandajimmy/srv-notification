@@ -1,10 +1,10 @@
 package main
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
 	"flag"
 	"fmt"
 	"os"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 
 type CmdFlags struct {

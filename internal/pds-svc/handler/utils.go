@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/constant"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
 func GetSubject(rx *nhttp.Request) (*dto.Subject, error) {
@@ -12,7 +12,7 @@ func GetSubject(rx *nhttp.Request) (*dto.Subject, error) {
 	subject, ok := v.(*dto.Subject)
 	if !ok {
 		err := ncore.NewError("no Subject found in request context")
-		log.Errorf("an error occurred on getting subject in request context. Error => %s",err)
+		log.Errorf("an error occurred on getting subject in request context. Error => %s", err)
 		return nil, err
 	}
 	return subject, nil

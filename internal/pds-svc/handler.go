@@ -1,8 +1,8 @@
 package pds_svc
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/constant"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/handler"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/handler"
 	"time"
 )
 

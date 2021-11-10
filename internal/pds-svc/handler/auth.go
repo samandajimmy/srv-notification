@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/constant"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/contract"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nval"
 	"errors"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 func NewAuth(authService contract.AuthService) *Auth {
@@ -34,7 +34,7 @@ func (h *Auth) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
 		ClientSecret: clientSecret,
 	})
 	if err != nil {
-		log.Errorf("an error occurred on authentication app. Error => %s",err)
+		log.Errorf("an error occurred on authentication app. Error => %s", err)
 		return nil, err
 	}
 
@@ -43,7 +43,7 @@ func (h *Auth) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
 	subjectRefID, ok := nval.ParseInt64(subjectID)
 	if !ok {
 		err = errors.New("x-subject-id is required")
-		log.Errorf("an error occurred on getting subject from headers. Error => %s",err)
+		log.Errorf("an error occurred on getting subject from headers. Error => %s", err)
 		return nil, err
 	}
 

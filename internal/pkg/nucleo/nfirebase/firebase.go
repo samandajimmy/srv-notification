@@ -1,12 +1,12 @@
 package nfirebase
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pds-svc/dto"
 	"context"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"fmt"
 	"google.golang.org/api/option"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 )
 
 type NucleoFirebase struct {

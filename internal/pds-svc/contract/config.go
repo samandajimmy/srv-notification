@@ -1,12 +1,12 @@
 package contract
 
 import (
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nhttp"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nsql"
-	"code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/nval"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"net/http"
 	"os"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 type Config struct {

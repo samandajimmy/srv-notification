@@ -1,6 +1,6 @@
 package nhttp
 
-import "code.nbs.dev/pegadaian/pds/microservice/internal/pkg/nucleo/ncore"
+import "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 
 const (
 	// Standard error response codes
