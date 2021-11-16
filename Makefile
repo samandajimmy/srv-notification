@@ -129,6 +129,7 @@ setup:
 	@cp configs/.env-example .env
 	@-echo "  > Fix scripts permission..."
 	@chmod +x scripts/**/*.sh
+	@chmod +x scripts/*.sh
 	@-echo "  > Removing tmp..."
 	@-rm -rf tmp
 	@-echo "  > Make new directory temp..."
@@ -145,7 +146,7 @@ configure: go.mod
 .PHONY: serve
 serve: --dev-build ${DEBUG_ENV_FILES}
 	@-echo "  > Starting Server...\n"
-	@LOG_LEVEL=7;LOG_FORMAT=console; ${DEBUG_BIN} -dir=${PROJECT_ROOT} -load-env-file
+	@LOG_LEVEL=debug;LOG_FORMAT=console; ${DEBUG_BIN} -dir=${PROJECT_ROOT} -load-env-file
 
 ## vendor: Download dependencies to vendor folder
 vendor: go.mod
@@ -154,7 +155,6 @@ vendor: go.mod
 
 ## release: Compile binary for deployment.
 .PHONY: release
-release:
 release: vendor
 	@-echo "  > Compiling for release..."
 	@-echo "  >   Version: ${CI_COMMIT_TAG}"
@@ -171,8 +171,11 @@ release: vendor
 image: release
 	@-echo "  > Building image ${IMAGE_APP}:${IMAGE_APP_TAG}..."
 	${DOCKER_CMD} build -t ${IMAGE_APP}:${IMAGE_APP_TAG} \
-		--build-arg ARG_LOG_LEVEL=${RELEASE_ENV_LOG_LEVEL} --build-arg ARG_LOG_FORMAT=${RELEASE_ENV_LOG_FORMAT} \
-		--build-arg ARG_BIN_FILE=${BINARY_NAME} --build-arg ARG_APP_ENV=${RELEASE_ENV_APP_ENV} \
+		--build-arg ARG_LOG_LEVEL=${RELEASE_ENV_LOG_LEVEL} \
+		--build-arg ARG_LOG_FORMAT=${RELEASE_ENV_LOG_FORMAT} \
+		--build-arg ARG_BIN_FILE=${BINARY_NAME} \
+		--build-arg ARG_APP_ENV=${RELEASE_ENV_APP_ENV} \
+		--build-arg ARG_PORT=${PORT} \
 	    ${RELEASE_OUTPUT_DIR} -f ${PROJECT_DOCKERFILE_DIR}/app.Dockerfile
 
 ## image-push: Push app image
