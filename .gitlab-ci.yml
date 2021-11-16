@@ -1,0 +1,32 @@
+stages:
+  - build
+
+variables:
+  DOCKER_AUTH_CONFIG: '{"auths": {"artifactory.pegadaian.co.id:8084": {"auth": "$DOCKER_AU_CONFIG"},"artifactory.pegadaian.co.id:5443": {"auth": "$DOCKER_AU_CONFIG"}}}'
+  IMAGE_URL: artifactory.pegadaian.co.id:5443/$CI_PROJECT_PATH:$CI_COMMIT_REF_SLUG
+  OPENSHIFT_REGION: sby
+  OPENSHIFT_OC_URL: https://api.ocp-$OPENSHIFT_REGION.pegadaian.co.id:6443
+
+.store_commit_hash: &store_commit_hash
+  before_script:
+    - touch latest_commit_hash
+    - echo $CI_COMMIT_SHA > latest_commit_hash
+    - echo $CI_COMMIT_TIMESTAMP >> latest_commit_hash
+
+build:
+  stage: build
+  image: artifactory.pegadaian.co.id:8084/docker:latest
+  services:
+    - name: artifactory.pegadaian.co.id:8084/docker:dind
+      command: ["--insecure-registry=artifactory.pegadaian.co.id:8084"]
+  <<: *store_commit_hash
+  script:
+    # Copy Artifactory ssl certificate to root project
+    - cp ${ARTIFACTORY_SSL_CERT} ${CI_PROJECT_DIR}/ssl_certificate.crt
+    # Compile and Build Image
+    - make image
+    # Push image
+    - echo "  > Push image to Container Registry..."
+    - docker login -u $NEXUS_DOCKER_USER -p $NEXUS_DOCKER_PASS artifactory.pegadaian.co.id:5443
+    - docker push $IMAGE_URL
+    - echo "  > Done..."

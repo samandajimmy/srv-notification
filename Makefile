@@ -3,7 +3,7 @@
 # --------
 PROJECT_NAME:="PDS Service"
 PROJECT_PKG:=repo.pegadaian.co.id/ms-pds/srv-notification
-DOCKER_NAMESPACE:=cr.nbs.dev/pds-svc
+DOCKER_NAMESPACE:=artifactory.pegadaian.co.id:5443
 
 # ---------------
 # Command Aliases
@@ -25,7 +25,7 @@ PROJECT_CONFIG:=.env
 PROJECT_CONFIG_RELEASE:=.env
 PROJECT_WEB_TEMPLATES=web/templates
 PROJECT_WEB_STATIC=web/static
-PROJECT_DOCKERFILE_DIR?=${PROJECT_ROOT}/build/docker
+PROJECT_DOCKERFILE_DIR?=${PROJECT_ROOT}/deployments/pds-svc
 OUTPUT_DIR:=${PROJECT_ROOT}/bin
 DOCTOR_CMD:=${PROJECT_ROOT}/scripts/doctor.sh
 
@@ -55,10 +55,11 @@ RELEASE_ENV_LOG_FORMAT?=console
 # ----------------
 # Docker Variables
 # ----------------
-IMAGE_BASE?=${DOCKER_NAMESPACE}/app-base
-IMAGE_BASE_TAG?=latest
-IMAGE_APP?=${DOCKER_NAMESPACE}/app
-IMAGE_APP_TAG?=latest
+CI_PROJECT_PATH ?= srv-notification
+CI_COMMIT_REF_SLUG ?= local
+
+IMAGE_APP ?= $(DOCKER_NAMESPACE)/$(CI_PROJECT_PATH)
+IMAGE_APP_TAG ?= $(CI_COMMIT_REF_SLUG)
 
 # -------------------
 # Migration Variables
@@ -168,15 +169,15 @@ release: vendor
 
 ## image: Build a docker image from release
 .PHONY: image
-image: release
+image:
 	@-echo "  > Building image ${IMAGE_APP}:${IMAGE_APP_TAG}..."
-	${DOCKER_CMD} build -t ${IMAGE_APP}:${IMAGE_APP_TAG} \
+	${DOCKER_CMD} build -t ${IMAGE_APP}:$(IMAGE_APP_TAG) \
 		--build-arg ARG_LOG_LEVEL=${RELEASE_ENV_LOG_LEVEL} \
 		--build-arg ARG_LOG_FORMAT=${RELEASE_ENV_LOG_FORMAT} \
 		--build-arg ARG_BIN_FILE=${BINARY_NAME} \
 		--build-arg ARG_APP_ENV=${RELEASE_ENV_APP_ENV} \
 		--build-arg ARG_PORT=${PORT} \
-	    ${RELEASE_OUTPUT_DIR} -f ${PROJECT_DOCKERFILE_DIR}/app.Dockerfile
+	    --progress plain -f ${PROJECT_DOCKERFILE_DIR}/Dockerfile .
 
 ## image-push: Push app image
 .PHONY: image-push
