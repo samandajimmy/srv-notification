@@ -18,15 +18,16 @@ build:
   image: artifactory.pegadaian.co.id:8084/docker:latest
   services:
     - name: artifactory.pegadaian.co.id:8084/docker:dind
-      command: ["--insecure-registry=artifactory.pegadaian.co.id:8084"]
+      command: [ "--insecure-registry=artifactory.pegadaian.co.id:8084" ]
   <<: *store_commit_hash
   script:
-    # Install make
-    - apk add --no-cache make
-    # Copy Artifactory ssl certificate to root project
+    # Copy secret files
     - cp ${ARTIFACTORY_SSL_CERT} ${CI_PROJECT_DIR}/ssl_certificate.crt
+    - cp ${FIREBASE_CRED} ${CI_PROJECT_DIR}/firebase-secret.json
     # Compile and Build Image
-    - make image
+    - docker build -t ${IMAGE_URL} \
+      --build-arg ARG_PORT=${PORT} \
+      --progress plain -f ${CI_PROJECT_DIR}/deployments/pds-svc/Dockerfile .
     # Push image
     - echo "  > Push image to Container Registry..."
     - docker login -u $NEXUS_DOCKER_USER -p $NEXUS_DOCKER_PASS artifactory.pegadaian.co.id:5443

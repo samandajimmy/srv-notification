@@ -172,10 +172,6 @@ release: vendor
 image:
 	@-echo "  > Building image ${IMAGE_APP}:${IMAGE_APP_TAG}..."
 	${DOCKER_CMD} build -t ${IMAGE_APP}:$(IMAGE_APP_TAG) \
-		--build-arg ARG_LOG_LEVEL=${RELEASE_ENV_LOG_LEVEL} \
-		--build-arg ARG_LOG_FORMAT=${RELEASE_ENV_LOG_FORMAT} \
-		--build-arg ARG_BIN_FILE=${BINARY_NAME} \
-		--build-arg ARG_APP_ENV=${RELEASE_ENV_APP_ENV} \
 		--build-arg ARG_PORT=${PORT} \
 	    --progress plain -f ${PROJECT_DOCKERFILE_DIR}/Dockerfile .
 

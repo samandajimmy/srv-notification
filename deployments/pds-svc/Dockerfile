@@ -22,6 +22,7 @@ COPY Makefile go.mod responses.yml ./
 COPY .git ./.git
 COPY cmd ./cmd
 COPY internal ./internal
+COPY firebase-secret.json ./
 
 # Compiling...
 RUN ls -la && make release
@@ -32,21 +33,11 @@ RUN ls -la && make release
 
 FROM alpine:3.14
 
-ARG ARG_LOG_LEVEL=error
-ARG ARG_LOG_FORMAT=json
-ARG ARG_BIN_FILE=app
-ARG ARG_APP_ENV=1
 ARG ARG_PORT=3000
 
 RUN apk add --no-cache tzdata ca-certificates
 
 COPY --from=builder /usr/src/app/bin/release /usr/src/app
-
-ENV LOG_LEVEL ${ARG_LOG_LEVEL}
-ENV LOG_FORMAT ${ARG_LOG_FORMAT}
-ENV BIN_FILE ${ARG_BIN_FILE}
-ENV APP_ENV ${ARG_APP_ENV}
-
 
 # Running...
 WORKDIR /usr/src/app
