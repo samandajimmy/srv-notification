@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2
+
+- [CHANGED] Change docker image namespace to Pegadaian Artifactory
+- [FIXED] Skip database initialization
+- [FIXED] Fix build script
+- [FIXED] Add firebase secret on build
+- [FIXED] Install make on build stage
+- [CHANGED] Add port env on build
+- [CHANGED] Rename package to match repository
+
 ## 0.1.1
 
 - [CHANGED] Add port env on build
