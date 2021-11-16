@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- [CHANGED] Add port env on build
+- [CHANGED] Rename package to match repository
+
 ## 0.1.0
 
 - [CHANGED] Rename package to match repository
