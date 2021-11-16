@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- [FIXED] Add log-in to artifactory for pull docker images
+
 ## 0.1.2
 
 - [CHANGED] Change docker image namespace to Pegadaian Artifactory
