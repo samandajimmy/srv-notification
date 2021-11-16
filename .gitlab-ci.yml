@@ -21,6 +21,8 @@ build:
       command: ["--insecure-registry=artifactory.pegadaian.co.id:8084"]
   <<: *store_commit_hash
   script:
+    # Install make
+    - apk add --no-cache make
     # Copy Artifactory ssl certificate to root project
     - cp ${ARTIFACTORY_SSL_CERT} ${CI_PROJECT_DIR}/ssl_certificate.crt
     # Compile and Build Image
