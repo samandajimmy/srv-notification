@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+- [FIXED] Fix missing responses.yml and firebase-secret.json file on build docker
+
 ## 0.1.4
 
 - [FIXED] Copy firebase-secret on building release container
