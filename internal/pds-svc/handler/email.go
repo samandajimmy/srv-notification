@@ -1,22 +1,27 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
-func NewEmail(emailService contract.EmailService) *Email {
-	return &Email{emailService}
+func NewEmail(emailService contract.EmailService, publisher *gochannel.GoChannel) *Email {
+	return &Email{emailService, publisher}
 }
 
 type Email struct {
 	emailService contract.EmailService
+	publisher    *gochannel.GoChannel
 }
 
 func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
-
 	// Get Payload
 	var payload dto.SendEmail
 	err := rx.ParseJSONBody(&payload)
@@ -32,12 +37,19 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	// Set payload
-	err = h.emailService.SendEmail(payload)
+	// Publish to pubsub
+	pubsubPayload, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("Error when sending email in service %v", err)
-		return nil, ncore.TraceError(err)
+		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
 	}
 
+	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
+	err = h.publisher.Publish(constant.SendEmailTopic, msg)
+	if err != nil {
+		log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
+		return nil, err
+	}
+
+	// Set payload
 	return nhttp.OK(), nil
 }

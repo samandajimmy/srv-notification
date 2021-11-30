@@ -5,14 +5,17 @@ go 1.16
 require (
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/ThreeDotsLabs/watermill v1.1.1
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0
+	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	google.golang.org/api v0.60.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

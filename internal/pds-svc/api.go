@@ -2,6 +2,8 @@ package pds_svc
 
 import (
 	"fmt"
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	_ "github.com/lib/pq"
 	"net/http"
 	"path"
@@ -18,9 +20,14 @@ var log = nlogger.Get()
 type API struct {
 	*contract.PdsApp
 	dataSources repository.DataSourceMap
+	PubSub      *gochannel.GoChannel
 }
 
 func NewAPI(core *ncore.Core, config contract.Config) API {
+	// Init pubsub
+	subLogger := watermill.NewStdLogger(true, true)
+	pubSub := gochannel.NewGoChannel(gochannel.Config{}, subLogger)
+
 	return API{
 		PdsApp: &contract.PdsApp{
 			Core:         core,
@@ -33,6 +40,7 @@ func NewAPI(core *ncore.Core, config contract.Config) API {
 			},
 		},
 		dataSources: repository.NewDataSourceMap(),
+		PubSub:      pubSub,
 	}
 }
 
@@ -88,6 +96,10 @@ func (a *API) InitRouter() http.Handler {
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", staticServer))
 
 	return router
+}
+
+func (a *API) InitSubscriber() {
+	setUpSubscriber(a.PubSub, a.Services)
 }
 
 func (a *API) setUpStaticRoute(r *nhttp.Router) {

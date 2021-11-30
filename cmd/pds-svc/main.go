@@ -50,6 +50,9 @@ func start(app *pds_svc.API) {
 	// Get server config
 	config := app.Config.Server
 
+	// Init subscriber
+	app.InitSubscriber()
+
 	// Init router
 	router := app.InitRouter()
 
