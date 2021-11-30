@@ -24,3 +24,4 @@ firebase-secret.json
 *.bak
 /.tmp/
 .DS_Store
+/tmp
