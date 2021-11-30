@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- [FIXED] Copy firebase-secret on building release container
+
 ## 0.1.3
 
 - [FIXED] Add log-in to artifactory for pull docker images
