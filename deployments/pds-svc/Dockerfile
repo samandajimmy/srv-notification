@@ -36,7 +36,7 @@ FROM artifactory.pegadaian.co.id:8084/alpine:3.14
 ARG ARG_PORT=3000
 
 RUN apk add --no-cache tzdata ca-certificates \
-    && mkdir -p /app
+    && mkdir -p /app/tmp
 
 COPY --from=builder /usr/src/app/bin/release /app
 
