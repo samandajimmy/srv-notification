@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+
+- [FIXED] Missing tmp dir
+- [FIXED] Missing /app dir
+
 ## 0.1.5
 
 - [FIXED] Fix missing responses.yml and firebase-secret.json file on build docker
