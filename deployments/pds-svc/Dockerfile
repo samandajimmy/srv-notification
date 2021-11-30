@@ -22,7 +22,6 @@ COPY Makefile go.mod responses.yml ./
 COPY .git ./.git
 COPY cmd ./cmd
 COPY internal ./internal
-COPY firebase-secret.json ./
 
 # Compiling...
 RUN ls -la && make release
@@ -37,6 +36,7 @@ ARG ARG_PORT=3000
 
 RUN apk add --no-cache tzdata ca-certificates
 
+COPY firebase-secret.json /usr/src/app
 COPY --from=builder /usr/src/app/bin/release /usr/src/app
 
 # Running...
