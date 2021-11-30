@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+- [ADDED] Implement send email async with PubSub
+
 ## 0.1.6
 
 - [FIXED] Missing tmp dir
