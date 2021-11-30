@@ -35,13 +35,13 @@ FROM artifactory.pegadaian.co.id:8084/alpine:3.14
 
 ARG ARG_PORT=3000
 
-RUN apk add --no-cache tzdata ca-certificates
+RUN apk add --no-cache tzdata ca-certificates \
+    && mkdir -p /app
 
-COPY firebase-secret.json /usr/src/app
-COPY --from=builder /usr/src/app/bin/release /usr/src/app
+COPY --from=builder /usr/src/app/bin/release /app
 
 # Running...
-WORKDIR /usr/src/app
+WORKDIR /app
 
 EXPOSE ${ARG_PORT}
 
