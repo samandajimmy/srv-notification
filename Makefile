@@ -28,6 +28,7 @@ PROJECT_WEB_STATIC=web/static
 PROJECT_DOCKERFILE_DIR?=${PROJECT_ROOT}/deployments/pds-svc
 OUTPUT_DIR:=${PROJECT_ROOT}/bin
 DOCTOR_CMD:=${PROJECT_ROOT}/scripts/doctor.sh
+PROJECT_FIREBASE_CRED = firebase-secret.json
 
 # ---
 # API
@@ -163,9 +164,11 @@ release: vendor
 	@CGO_ENABLED=0 GOOS=linux ${GO_BUILD} -a -v -mod=vendor \
 		-ldflags "-X main.AppVersion=${CI_COMMIT_TAG} -X main.BuildHash=${CI_COMMIT_SHA}" \
 		-o ${RELEASE_OUTPUT_DIR}/${BINARY_NAME} ${PROJECT_ROOT}/${PROJECT_MAIN_PKG}
-	@-echo "  > Copying error codes..."
-	@cp ${PROJECT_RESPONSES} ${RELEASE_OUTPUT_DIR}/
-	@-echo "  > Output: $(RELEASE_OUTPUT_DIR)"
+	@-echo "  > Copying required file for release..."
+	@cp ${PROJECT_ROOT}/${PROJECT_RESPONSES} ${RELEASE_OUTPUT_DIR}/${PROJECT_RESPONSES}
+	@cp ${PROJECT_ROOT}/${PROJECT_FIREBASE_CRED} ${RELEASE_OUTPUT_DIR}/${PROJECT_FIREBASE_CRED}
+	@-echo "  > Output: ${RELEASE_OUTPUT_DIR}"
+	@-ls -la ${RELEASE_OUTPUT_DIR}
 
 ## image: Build a docker image from release
 .PHONY: image
