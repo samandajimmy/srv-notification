@@ -5,20 +5,19 @@ import (
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
-func NewEmail(emailService contract.EmailService, publisher *gochannel.GoChannel) *Email {
+func NewEmail(emailService contract.EmailService, publisher message.Publisher) *Email {
 	return &Email{emailService, publisher}
 }
 
 type Email struct {
 	emailService contract.EmailService
-	publisher    *gochannel.GoChannel
+	publisher    message.Publisher
 }
 
 func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
@@ -16,7 +15,7 @@ type SendEmailHandler struct {
 	EmailService contract.EmailService
 }
 
-func NewSendEmailHandler(sub *gochannel.GoChannel, emailService contract.EmailService) *SendEmailHandler {
+func NewSendEmailHandler(sub message.Subscriber, emailService contract.EmailService) *SendEmailHandler {
 	// Init Send Email Handler
 	h := SendEmailHandler{
 		SubscriberHandler: NewSubscriberHandler(sub, constant.SendEmailTopic),

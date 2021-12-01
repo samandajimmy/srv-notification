@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 )
 
 type HandlerFn = func(ctx context.Context, payload message.Payload) (ack bool, err error)
@@ -17,7 +16,7 @@ type SubscriberHandler struct {
 	handlerFn HandlerFn
 }
 
-func NewSubscriberHandler(sub *gochannel.GoChannel, topic string, args ...interface{}) *SubscriberHandler {
+func NewSubscriberHandler(sub message.Subscriber, topic string, args ...interface{}) *SubscriberHandler {
 	// Get context from args
 	var ctx context.Context
 	if len(args) > 0 {
