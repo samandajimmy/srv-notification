@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- [ADDED] Implement async send fcm push notification
+
 ## 0.2.0
 
 - [ADDED] Implement send email async with PubSub
