@@ -11,15 +11,15 @@ import (
 )
 
 type SendEmailHandler struct {
-	*SubscriberHandler
+	*Worker
 	EmailService contract.EmailService
 }
 
 func NewSendEmailHandler(sub message.Subscriber, emailService contract.EmailService) *SendEmailHandler {
 	// Init Send Email Handler
 	h := SendEmailHandler{
-		SubscriberHandler: NewSubscriberHandler(sub, constant.SendEmailTopic),
-		EmailService:      emailService,
+		Worker:       NewWorker(sub, constant.SendEmailTopic),
+		EmailService: emailService,
 	}
 
 	// Register handler function

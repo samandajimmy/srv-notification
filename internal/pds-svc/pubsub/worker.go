@@ -8,7 +8,7 @@ import (
 
 type HandlerFn = func(ctx context.Context, payload message.Payload) (ack bool, err error)
 
-type SubscriberHandler struct {
+type Worker struct {
 	Topic   string
 	Context context.Context
 	// Private members
@@ -16,8 +16,8 @@ type SubscriberHandler struct {
 	handlerFn HandlerFn
 }
 
-func NewSubscriberHandler(sub message.Subscriber, topic string, args ...interface{}) *SubscriberHandler {
-	// Get context from args
+func NewWorker(sub message.Subscriber, topic string, args ...interface{}) *Worker {
+	// Evaluate arguments
 	var ctx context.Context
 	if len(args) > 0 {
 		arg, ok := args[0].(context.Context)
@@ -36,7 +36,7 @@ func NewSubscriberHandler(sub message.Subscriber, topic string, args ...interfac
 		logger.Errorf("failed to Subscribe. Topic = %s", topic)
 	}
 
-	return &SubscriberHandler{
+	return &Worker{
 		Topic:     topic,
 		Context:   ctx,
 		messages:  messages,
@@ -44,12 +44,12 @@ func NewSubscriberHandler(sub message.Subscriber, topic string, args ...interfac
 	}
 }
 
-func (s *SubscriberHandler) Register(fn HandlerFn) {
+func (s *Worker) Register(fn HandlerFn) {
 	logger.Debugf("registering pubsub function for topic = %s", s.Topic)
 	s.handlerFn = fn
 }
 
-func (s *SubscriberHandler) Listen() {
+func (s *Worker) Listen() {
 	if s.handlerFn == nil {
 		panic(fmt.Errorf("HandlerFn is not initiated for subscriber. Topic = %s", s.Topic))
 	}

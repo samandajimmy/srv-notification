@@ -11,14 +11,14 @@ import (
 )
 
 type SendFcmPushHandler struct {
-	*SubscriberHandler
+	*Worker
 	NotificationService contract.NotificationService
 }
 
 func NewSendFcmPushHandler(sub message.Subscriber, notificationSvc contract.NotificationService) *SendFcmPushHandler {
 	// Init Send Email Handler
 	h := SendFcmPushHandler{
-		SubscriberHandler:   NewSubscriberHandler(sub, constant.SendFcmTopic),
+		Worker:              NewWorker(sub, constant.SendFcmTopic),
 		NotificationService: notificationSvc,
 	}
 
