@@ -33,11 +33,13 @@ func (s *Notification) Init(app *contract.PdsApp) error {
 func (s *Notification) SendNotificationByToken(payload dto.NotificationCreate) error {
 
 	// Send notification by token
-	_, err := s.Firebase.SendToTarget(payload)
+	result, err := s.Firebase.SendToTarget(payload)
 	if err != nil {
 		log.Errorf("Error when sending notification by token %v", err)
 		return err
 	}
+
+	log.Debugf("Success sending push notification. Result = %+v", result)
 
 	return nil
 }
