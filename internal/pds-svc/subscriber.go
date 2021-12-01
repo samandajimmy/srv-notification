@@ -9,7 +9,9 @@ import (
 func setUpSubscriber(sub message.Subscriber, services contract.ServiceMap) {
 	// Init subscriber handlers
 	sendEmailHandler := pubsub.NewSendEmailHandler(sub, services.Email)
+	sendFcmHandler := pubsub.NewSendFcmPushHandler(sub, services.Notification)
 
 	// Start listening
 	go sendEmailHandler.Listen()
+	go sendFcmHandler.Listen()
 }
