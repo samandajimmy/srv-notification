@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- [FIXED] Add logging on push notification sent
+- [FIXED] Publish event on fcm request
+
 ## 0.3.0
 
 - [ADDED] Implement async send fcm push notification
