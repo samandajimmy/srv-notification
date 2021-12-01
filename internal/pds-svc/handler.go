@@ -17,6 +17,6 @@ func initHandler(app *API) *HandlerMap {
 	return &HandlerMap{
 		Common:       handler.NewCommon(time.Now(), app.Manifest.AppVersion, app.Manifest.GetStringMetadata(constant.BuildHashKey)),
 		Email:        handler.NewEmail(app.Services.Email, app.PubSub),
-		Notification: handler.NewNotification(app.Services.Notification),
+		Notification: handler.NewNotification(app.Services.Notification, app.PubSub),
 	}
 }

@@ -1,18 +1,23 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
-func NewNotification(notificationService contract.NotificationService) *Notification {
-	return &Notification{notificationService}
+func NewNotification(notificationService contract.NotificationService, publisher message.Publisher) *Notification {
+	return &Notification{notificationService, publisher}
 }
 
 type Notification struct {
 	notificationService contract.NotificationService
+	publisher           message.Publisher
 }
 
 func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, error) {
@@ -32,11 +37,17 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	// Set payload
-	err = h.notificationService.SendNotificationByToken(payload)
+	// Publish to pubsub
+	pubsubPayload, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("Error when send notification by token %v", err)
-		return nil, ncore.TraceError(err)
+		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
+	}
+
+	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
+	err = h.publisher.Publish(constant.SendFcmTopic, msg)
+	if err != nil {
+		log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
+		return nil, err
 	}
 
 	return nhttp.OK(), nil
