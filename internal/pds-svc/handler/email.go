@@ -33,7 +33,7 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 	log.Debugf("Received PostEmail request. Payload: %+v", payload)
 	err = payload.Validate()
 	if err != nil {
-		log.Errorf("Error appear when validate payload %v", err)
+		log.Errorf("Error appear when validate payload: %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 

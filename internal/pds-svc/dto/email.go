@@ -30,6 +30,6 @@ type FromFormat struct {
 
 func (d FromFormat) Validate() error {
 	return validation.ValidateStruct(&d,
-		validation.Field(&d.Email, validation.Required, is.Email),
+		validation.Field(&d.Email, validation.Required, is.EmailFormat),
 	)
 }
