@@ -34,14 +34,14 @@ func (h *SendEmailHandler) sendEmail(_ context.Context, payload message.Payload)
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
 		logger.Errorf("failed to parse payload. Topic = %s", h.Topic)
-		return false, err
+		return true, err
 	}
 
 	// Send email
 	err = h.EmailService.SendEmail(p)
 	if err != nil {
 		logger.Errorf("Error when sending email in service %v", err)
-		return false, ncore.TraceError(err)
+		return true, ncore.TraceError(err)
 	}
 
 	return true, nil
