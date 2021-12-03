@@ -19,8 +19,7 @@ func (s *Notification) HasInitialized() bool {
 
 func (s *Notification) Init(app *contract.PdsApp) error {
 	var err error
-	s.FirebaseConfig.Key = app.Config.Firebase.Key
-	s.Firebase, err = nfirebase.NewNucleoFirebase(s.FirebaseConfig.Key)
+	s.Firebase, err = nfirebase.NewNucleoFirebase(app.Config.Firebase.ServiceAccountCredential)
 	if err != nil {
 		log.Errorf("Error initialise firebase config %v", err)
 		return err

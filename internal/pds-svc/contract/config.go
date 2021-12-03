@@ -2,6 +2,7 @@ package contract
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"net/http"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
@@ -73,8 +74,7 @@ func (c *Config) LoadFromEnv() {
 	}
 
 	// Load firebase
-	c.Firebase.Key = nval.ParseStringFallback(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"), "")
-
+	c.Firebase.ServiceAccountCredential = nval.ParseStringFallback(os.Getenv("FIREBASE_SERVICE_ACCOUNT_CRED"), "")
 }
 
 func (c Config) Validate() error {
@@ -123,11 +123,11 @@ func (c SMTPConfig) Validate() error {
 }
 
 type FirebaseConfig struct {
-	Key string
+	ServiceAccountCredential string
 }
 
 func (c FirebaseConfig) Validate() error {
 	return validation.ValidateStruct(&c,
-		validation.Field(&c.Key, validation.Required),
+		validation.Field(&c.ServiceAccountCredential, validation.Required, is.JSON),
 	)
 }

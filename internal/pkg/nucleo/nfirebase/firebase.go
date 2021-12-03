@@ -13,9 +13,9 @@ type NucleoFirebase struct {
 	app *firebase.App
 }
 
-func NewNucleoFirebase(credentialFile string) (*NucleoFirebase, error) {
+func NewNucleoFirebase(serviceAccountCredential string) (*NucleoFirebase, error) {
 	ctx := context.Background()
-	opt := option.WithCredentialsFile(credentialFile)
+	opt := option.WithCredentialsJSON([]byte(serviceAccountCredential))
 	firebaseSvc, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		return nil, err
