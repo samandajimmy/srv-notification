@@ -22,7 +22,7 @@ COPY Makefile go.mod responses.yml ./
 COPY .git ./.git
 COPY cmd ./cmd
 COPY internal ./internal
-COPY firebase-secret.json responses.yml ./
+COPY responses.yml ./
 
 # Compiling...
 RUN ls -la && make release
