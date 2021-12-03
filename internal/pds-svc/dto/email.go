@@ -17,7 +17,7 @@ type SendEmail struct {
 func (d SendEmail) Validate() error {
 	return validation.ValidateStruct(&d,
 		validation.Field(&d.Subject, validation.Required),
-		validation.Field(&d.From, validation.Required),
+		validation.Field(&d.From),
 		validation.Field(&d.To, validation.Required),
 		validation.Field(&d.Message, validation.Required),
 	)
