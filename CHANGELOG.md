@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4
+
+- [CHANGED] Remove firebase credential from build image
+- [CHANGED] Move Firebase Service Account from file to env
+- [FIXED] Add to email format validation
+
 ## 0.3.3
 
 - [FIXED] Prevent lookup for MX Record validation for From email
