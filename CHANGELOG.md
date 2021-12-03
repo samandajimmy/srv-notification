@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5
+
+- [FIXED] Prevent retrying pubsub on error sending email
+- [FIXED] Prevent retrying pubsub on error sending push notification
+
 ## 0.3.4
 
 - [CHANGED] Remove firebase credential from build image
