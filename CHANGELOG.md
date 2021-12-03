@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- [FIXED] Prevent lookup for MX Record validation for From email
+
 ## 0.3.2
 
 - [FIXED] Fix nested struct validation
