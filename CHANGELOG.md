@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- [FIXED] Fix nested struct validation
+
 ## 0.3.1
 
 - [FIXED] Add logging on push notification sent
