@@ -23,11 +23,8 @@ func LoadConfig() *Config {
 	c := new(Config)
 
 	// Set config server
-	port, _ := nval.ParseInt(os.Getenv("PORT"))
+	port := nval.ParseIntFallback(os.Getenv("PORT"), 3000)
 	c.Server.ListenPort = port
-	if c.Server.ListenPort == 0 {
-		c.Server.ListenPort = 3000
-	}
 
 	if c.Server.BasePath == "" {
 		c.Server.BasePath = os.Getenv("SERVER_BASE_PATH")
