@@ -5,6 +5,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	_ "github.com/lib/pq"
+	"github.com/nbs-go/nlogger"
 	"net/http"
 	"path"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
@@ -12,7 +13,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/service"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 )
 
 var log = nlogger.Get()

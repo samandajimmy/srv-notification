@@ -2,15 +2,19 @@ package main
 
 import (
 	"fmt"
+	"github.com/nbs-go/nlogger"
 	"net/http"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 	"time"
 )
 
-var log = nlogger.Get()
+var log nlogger.Logger
+
+func init() {
+	log = nlogger.Get()
+}
 
 func main() {
 	// Boot

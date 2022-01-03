@@ -2,11 +2,11 @@ package service
 
 import (
 	"fmt"
+	"github.com/nbs-go/nlogger"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nmail"
 )
 

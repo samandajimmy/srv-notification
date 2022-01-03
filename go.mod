@@ -16,6 +16,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
+	github.com/nbs-go/nlogger v1.2.0
 	github.com/stretchr/testify v1.7.0 // indirect
 	google.golang.org/api v0.60.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

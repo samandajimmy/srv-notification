@@ -3,12 +3,12 @@ package nmail
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/nbs-go/nlogger"
 	"gopkg.in/gomail.v2"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
 )
 
 var log = nlogger.Get()

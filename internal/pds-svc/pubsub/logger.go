@@ -1,6 +1,6 @@
 package pubsub
 
-import "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nlogger"
+import "github.com/nbs-go/nlogger"
 
 var logger nlogger.Logger
 

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"github.com/google/uuid"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"time"
 )
