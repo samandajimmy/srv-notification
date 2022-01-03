@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+
 	"fmt"
 	"github.com/nbs-go/nlogger"
 	"net/http"
