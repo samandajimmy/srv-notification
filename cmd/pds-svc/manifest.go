@@ -5,8 +5,8 @@ var (
 	AppSlug = "pds-svc"
 	// AppName Application Name
 	AppName = "PDS Service"
-	// AppVersion value will be override during automated build
+	// AppVersion value will be overridden during automated build
 	AppVersion = "0.0.0-local"
-	// BuildHash value will be override during automated build
+	// BuildHash value will be overridden during automated build
 	BuildHash = "local.build"
 )
