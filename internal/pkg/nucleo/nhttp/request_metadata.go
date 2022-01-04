@@ -2,9 +2,11 @@ package nhttp
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"html"
 	"net/http"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"time"
 )
 
@@ -25,6 +27,10 @@ func NewCaptureRequestMetadataHandler(trustProxy bool) mux.MiddlewareFunc {
 				ClientIP:  clientIP,
 				StartedAt: startedAt,
 			})
+
+			// Set request id value
+			reqId, _ := uuid.NewUUID()
+			ctx = context.WithValue(ctx, RequestIdKey, reqId.String())
 
 			// Continue
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -57,7 +63,8 @@ func HandleLogRequest(h http.Handler) http.Handler {
 			httpStatus = -1
 		}
 
-		log.Infof("Endpoint: %s %s, RespHTTPStatus: %d, ElapsedTime: %s, ClientIP: %s", r.Method,
-			html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP)
+		log.Info("Endpoint: %s %s, RespHTTPStatus: %d, ElapsedTime: %s, ClientIP: %s",
+			logger.Format(r.Method, html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP),
+			logger.Context(r.Context()))
 	})
 }
