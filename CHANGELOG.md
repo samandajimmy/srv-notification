@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- [FIXED] Fix import
+
 ## 0.4.0
 
 - [ADDED] Implement set request id on request context
