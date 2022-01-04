@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- [ADDED] Implement set request id on request context
+- [CHANGED] Implement json formatted logging
+- [CHANGED] Replace logging dependency with nbs-go/nlogger
+
 ## 0.3.5
 
 - [FIXED] Prevent retrying pubsub on error sending email
