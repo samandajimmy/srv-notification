@@ -14,7 +14,7 @@ type BootOptions struct {
 	LoadEnvFile     bool
 }
 
-func Boot(configDest interface{}, args ...BootOptions) *Core {
+func Boot(args ...BootOptions) *Core {
 	// Load Options
 	options := getBootOptions(args)
 
@@ -24,12 +24,6 @@ func Boot(configDest interface{}, args ...BootOptions) *Core {
 		Environment: options.Environment,
 		WorkDir:     options.WorkDir,
 		NodeNo:      options.NodeNo,
-	}
-
-	// Load config
-	err := loadConfig(options.LoadEnvFile, configDest, options.EnvFile)
-	if err != nil {
-		panic(err)
 	}
 
 	// Load responses
