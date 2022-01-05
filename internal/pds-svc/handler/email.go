@@ -5,19 +5,18 @@ import (
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/google/uuid"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
-func NewEmail(emailService contract.EmailService, publisher message.Publisher) *Email {
-	return &Email{emailService, publisher}
+func NewEmail(publisher message.Publisher) *Email {
+	return &Email{publisher}
 }
 
 type Email struct {
-	emailService contract.EmailService
-	publisher    message.Publisher
+	publisher message.Publisher
 }
 
 func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
@@ -37,6 +36,9 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
+	// Set
+	payload.RequestId = GetRequestId(rx)
+
 	// Publish to pubsub
 	pubsubPayload, err := json.Marshal(payload)
 	if err != nil {
@@ -52,4 +54,18 @@ func (h *Email) PostEmail(rx *nhttp.Request) (*nhttp.Response, error) {
 
 	// Set payload
 	return nhttp.OK(), nil
+}
+
+func GetRequestId(rx *nhttp.Request) string {
+	reqId, ok := rx.GetContextValue(nhttp.RequestIdKey).(string)
+	if !ok {
+		// Generate new request id
+		id, err := uuid.NewUUID()
+		if err != nil {
+			panic(fmt.Errorf("unable to generate new request id. %w", err))
+		}
+		return id.String()
+	}
+
+	return reqId
 }

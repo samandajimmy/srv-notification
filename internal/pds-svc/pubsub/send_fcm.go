@@ -4,22 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
 type SendFcmPushHandler struct {
 	*Worker
-	NotificationService contract.NotificationService
+	svc *contract.Service
 }
 
-func NewSendFcmPushHandler(sub message.Subscriber, notificationSvc contract.NotificationService) *SendFcmPushHandler {
+func NewSendFcmPushHandler(sub message.Subscriber, notificationSvc *contract.Service) *SendFcmPushHandler {
 	// Init Send Email Handler
 	h := SendFcmPushHandler{
-		Worker:              NewWorker(sub, constant.SendFcmTopic),
-		NotificationService: notificationSvc,
+		Worker: NewWorker(sub, constant.SendFcmTopic),
+		svc:    notificationSvc,
 	}
 
 	// Register handler function
@@ -28,19 +30,25 @@ func NewSendFcmPushHandler(sub message.Subscriber, notificationSvc contract.Noti
 	return &h
 }
 
-func (h *SendFcmPushHandler) sendFcm(_ context.Context, payload message.Payload) (ack bool, err error) {
+func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payload) (ack bool, err error) {
 	// Parse payload
-	var p dto.NotificationCreate
+	var p dto.SendPushNotification
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
-		logger.Errorf("failed to parse payload. Topic = %s", h.Topic)
+		log.Error("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
 		return true, err
 	}
 
+	// Set request id to context
+	ctx = context.WithValue(ctx, nhttp.RequestIdKey, p.RequestId)
+
+	// Get service context
+	svc := h.svc.WithContext(ctx)
+
 	// Send email
-	err = h.NotificationService.SendNotificationByToken(p)
+	err = svc.SendPushNotificationByTarget(p)
 	if err != nil {
-		logger.Errorf("Error when sending email in service %v", err)
+		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
 		return true, ncore.TraceError(err)
 	}
 

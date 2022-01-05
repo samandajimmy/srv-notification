@@ -2,8 +2,8 @@ package pubsub
 
 import "github.com/nbs-go/nlogger"
 
-var logger nlogger.Logger
+var log nlogger.Logger
 
 func init() {
-	logger = nlogger.Get()
+	log = nlogger.Get()
 }

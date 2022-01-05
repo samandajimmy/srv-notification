@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 )
 
 type HandlerFn = func(ctx context.Context, payload message.Payload) (ack bool, err error)
@@ -33,7 +34,7 @@ func NewWorker(sub message.Subscriber, topic string, args ...interface{}) *Worke
 	// Subscribe
 	messages, err := sub.Subscribe(ctx, topic)
 	if err != nil {
-		logger.Errorf("failed to Subscribe. Topic = %s", topic)
+		log.Error("failed to Subscribe. Topic = %s", logger.Format(topic), logger.Error(err))
 	}
 
 	return &Worker{
@@ -45,7 +46,7 @@ func NewWorker(sub message.Subscriber, topic string, args ...interface{}) *Worke
 }
 
 func (s *Worker) Register(fn HandlerFn) {
-	logger.Debugf("registering pubsub function for topic = %s", s.Topic)
+	log.Debugf("registering pubsub function for topic = %s", s.Topic)
 	s.handlerFn = fn
 }
 
@@ -55,11 +56,11 @@ func (s *Worker) Listen() {
 	}
 
 	for msg := range s.messages {
-		logger.Debug("received message. Topic: %s, MessageId: %s", s.Topic, msg.UUID)
+		log.Debugf("received message. Topic: %s, MessageId: %s", s.Topic, msg.UUID)
 		// Call handler
 		ack, err := s.handlerFn(msg.Context(), msg.Payload)
 		if err != nil {
-			logger.Errorf("an error occurred while listening to topic %s. Error = %s", s.Topic, err)
+			log.Error("an error occurred while listening to topic %s", logger.Format(s.Topic), logger.Error(err))
 		}
 
 		// If not ack, then retry

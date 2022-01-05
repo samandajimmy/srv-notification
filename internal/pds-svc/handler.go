@@ -1,8 +1,11 @@
 package pds_svc
 
 import (
+	"github.com/ThreeDotsLabs/watermill/message"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/handler"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )
 
@@ -12,11 +15,10 @@ type HandlerMap struct {
 	Notification *handler.Notification
 }
 
-func initHandler(app *API) *HandlerMap {
-
+func InitHandler(manifest *ncore.Manifest, _ *contract.Service, pubSub message.Publisher) *HandlerMap {
 	return &HandlerMap{
-		Common:       handler.NewCommon(time.Now(), app.Manifest.AppVersion, app.Manifest.GetStringMetadata(constant.BuildHashKey)),
-		Email:        handler.NewEmail(app.Services.Email, app.PubSub),
-		Notification: handler.NewNotification(app.Services.Notification, app.PubSub),
+		Common:       handler.NewCommon(time.Now(), manifest.AppVersion, manifest.GetStringMetadata(constant.BuildHashKey)),
+		Email:        handler.NewEmail(pubSub),
+		Notification: handler.NewNotification(pubSub),
 	}
 }

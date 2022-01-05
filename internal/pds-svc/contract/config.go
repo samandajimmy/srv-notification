@@ -19,7 +19,9 @@ type Config struct {
 	Firebase    FirebaseConfig
 }
 
-func (c *Config) LoadFromEnv() {
+func LoadConfig() *Config {
+	c := new(Config)
+
 	// Set config server
 	port, _ := nval.ParseInt(os.Getenv("PORT"))
 	c.Server.ListenPort = port
@@ -75,6 +77,8 @@ func (c *Config) LoadFromEnv() {
 
 	// Load firebase
 	c.Firebase.ServiceAccountCredential = nval.ParseStringFallback(os.Getenv("FIREBASE_SERVICE_ACCOUNT_CRED"), "")
+
+	return c
 }
 
 func (c Config) Validate() error {

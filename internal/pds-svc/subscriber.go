@@ -6,10 +6,10 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/pubsub"
 )
 
-func setUpSubscriber(sub message.Subscriber, services contract.ServiceMap) {
+func SetUpSubscriber(sub message.Subscriber, service *contract.Service) {
 	// Init subscriber handlers
-	sendEmailHandler := pubsub.NewSendEmailHandler(sub, services.Email)
-	sendFcmHandler := pubsub.NewSendFcmPushHandler(sub, services.Notification)
+	sendEmailHandler := pubsub.NewSendEmailHandler(sub, service)
+	sendFcmHandler := pubsub.NewSendFcmPushHandler(sub, service)
 
 	// Start listening
 	go sendEmailHandler.Listen()

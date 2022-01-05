@@ -1,11 +1,12 @@
 package main
 
 import (
-	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
-
 	"fmt"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/nbs-go/nlogger"
 	"net/http"
+	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -19,53 +20,51 @@ func init() {
 }
 
 func main() {
-	// Boot
-	bootStartedAt := time.Now()
-	app := boot()
-	log.Debugf("Boot Time: %s", time.Since(bootStartedAt))
+	// Capture started at
+	startedAt := time.Now()
 
-	// Start app
-	start(&app)
-}
-
-func boot() pds_svc.API {
-	// Handle command
+	// TODO: handle boot options
 	bootOptions := handleCmdFlags()
 
-	// Boot Core
-	config := contract.Config{}
-	core := ncore.Boot(&config, bootOptions.Core)
+	// Load config
+	config := contract.LoadConfig()
 
-	// Boot App
-	app := pds_svc.NewAPI(core, config)
-	err := app.Boot()
+	// Boot core
+	core := ncore.Boot(bootOptions.Core)
+
+	// Init service
+	svc, err := contract.NewService(core, config, notification.NewServiceContext)
 	if err != nil {
 		panic(err)
 	}
 
-	return app
-}
-
-func start(app *pds_svc.API) {
-	// Set server config from env
-	err := app.Config.Server.LoadFromEnv()
-	if err != nil {
-		panic(err)
-	}
-
-	// Get server config
-	config := app.Config.Server
+	// Init pubsub
+	//subLogger := watermill.NewStdLogger(true, true)
+	pubSub := gochannel.NewGoChannel(gochannel.Config{}, nil)
 
 	// Init subscriber
-	app.InitSubscriber()
+	pds_svc.SetUpSubscriber(pubSub, svc)
+
+	// Init handlers
+	handlers := pds_svc.InitHandler(&core.Manifest, svc, pubSub)
+
+	log.Debugf("Boot Time: %s", time.Since(startedAt))
 
 	// Init router
-	router := app.InitRouter()
+	router := pds_svc.InitRouter(core.WorkDir, config, handlers)
 
-	log.Infof("%s HTTP Server is listening to port %d", AppSlug, config.ListenPort)
-	log.Infof("%s HTTP Server Started. Base URL: %s", AppSlug, config.GetHttpBaseUrl())
-	err = http.ListenAndServe(config.GetListenPort(), router)
+	// Set server config from env
+	err = config.Server.LoadFromEnv()
 	if err != nil {
-		panic(fmt.Errorf("%s: failed to on listen.\n  > %w", AppSlug, err))
+		panic(err)
+	}
+	serverConfig := config.Server
+
+	// Start server
+	log.Infof("%s HTTP Server is listening to port %d", AppSlug, serverConfig.ListenPort)
+	log.Infof("%s HTTP Server Started. Base URL: %s", AppSlug, serverConfig.GetHttpBaseUrl())
+	err = http.ListenAndServe(serverConfig.GetListenPort(), router)
+	if err != nil {
+		panic(fmt.Errorf("%s: failed on listen.\n  > %w", AppSlug, err))
 	}
 }
