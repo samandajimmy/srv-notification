@@ -20,6 +20,7 @@ type Json struct {
 	ioWriter  io.Writer
 	namespace string
 	flags     int
+	ctx       context.Context
 }
 
 func (l Json) Fatal(msg string, args ...interface{}) {
@@ -83,10 +84,21 @@ func (l *Json) NewChild(args ...interface{}) nlogger.Logger {
 		n = l.namespace
 	}
 
-	return NewJson(l.level, l.ioWriter, n)
+	// Init logger
+	logger := NewJson(l.level, l.ioWriter, n)
+
+	// Set context if available
+	if options.context != nil {
+		logger.ctx = options.context
+	} else if l.ctx != nil {
+		// Fallback context to logger if set
+		logger.ctx = l.ctx
+	}
+
+	return logger
 }
 
-func NewJson(level nlogger.LogLevel, w io.Writer, namespace string) nlogger.Logger {
+func NewJson(level nlogger.LogLevel, w io.Writer, namespace string) *Json {
 	// If writer is nil, set default writer to Stdout
 	if w == nil {
 		w = os.Stdout
