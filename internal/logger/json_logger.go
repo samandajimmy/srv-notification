@@ -166,7 +166,7 @@ func (l *Json) print(outLevel nlogger.LogLevel, msg string, options *Options) {
 		jsonBody.Metadata = options.metadata
 	}
 
-	if reqId, ok := getContextValue(options.context, RequestIdKey); ok {
+	if reqId, ok := l.getContextValue(options.context, RequestIdKey); ok {
 		jsonBody.RequestId = reqId
 	}
 
@@ -175,9 +175,12 @@ func (l *Json) print(outLevel nlogger.LogLevel, msg string, options *Options) {
 	l.writer.Printf("%s\n", jsonStr)
 }
 
-func getContextValue(ctx context.Context, key string) (string, bool) {
+func (l *Json) getContextValue(ctx context.Context, key string) (string, bool) {
 	if ctx == nil {
-		return "", false
+		if l.ctx == nil {
+			return "", false
+		}
+		ctx = l.ctx
 	}
 
 	v, ok := ctx.Value(key).(string)
