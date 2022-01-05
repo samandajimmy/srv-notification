@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+
+- [CHANGED] Implement context aware Service
+- [CHANGED] Fallback to logger context if set
+- [ADDED] Add context aware logger and implement in on create log child
+- [FIXED] Change email attachment path
+- [FIXED] Remove config loader on Core boot
+
 ## 0.4.1
 
 - [FIXED] Fix import
