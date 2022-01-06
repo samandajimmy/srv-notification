@@ -28,7 +28,7 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 	}
 
 	// Validate payload
-	log.Debugf("Received PostNotification request. Payload: %+v", payload)
+	log.Debugf("Received PostNotification request.")
 	err = payload.Validate()
 	if err != nil {
 		log.Errorf("Error when validate payload notification %v", err)
