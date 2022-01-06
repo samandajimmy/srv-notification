@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- [FIXED] Remove payload message on sending email.
+
 ## 0.5.0
 
 - [CHANGED] Implement context aware Service
