@@ -10,16 +10,20 @@ import (
 type ServiceContext struct {
 	config *contract.Config
 	ctx    context.Context
-	repo   contract.RepositoryMap
+	repo   *RepositoryContext
 	log    nlogger.Logger
 }
 
-func NewServiceContext(ctx context.Context, config *contract.Config, source contract.Source) contract.ServiceContext {
-	repo := source.Repositories
+func NewServiceContext(ctx context.Context, config *contract.Config) contract.ServiceContext {
+	repo, err := NewRepository(&config.DataSources)
+	if err != nil {
+		return nil
+	}
+
 	return &ServiceContext{
 		config: config,
 		ctx:    ctx,
-		repo:   repo,
+		repo:   repo.WithContext(ctx),
 		log:    nlogger.Get().NewChild(logger.Context(ctx)),
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// String add functionality to handle null types of JSON strings
+// Int64 add functionality to handle null types of JSON strings
 type Int64 struct {
 	sql.NullInt64
 }

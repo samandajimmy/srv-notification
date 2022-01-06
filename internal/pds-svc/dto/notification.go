@@ -3,12 +3,13 @@ package dto
 import validation "github.com/go-ozzo/ozzo-validation/v4"
 
 type SendPushNotification struct {
-	RequestId string            `json:"requestId"`
-	Title     string            `json:"title"`
-	Body      string            `json:"body"`
-	ImageURL  string            `json:"imageUrl"`
-	Token     string            `json:"token"`
-	Data      map[string]string `json:"data"`
+	RequestId     string            `json:"requestId"`
+	Title         string            `json:"title"`
+	Body          string            `json:"body"`
+	ImageURL      string            `json:"imageUrl"`
+	Token         string            `json:"token"`
+	ApplicationId int               `json:"applicationId"`
+	Data          map[string]string `json:"data"`
 }
 
 func (d SendPushNotification) Validate() error {

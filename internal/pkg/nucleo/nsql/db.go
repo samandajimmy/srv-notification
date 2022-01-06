@@ -1,19 +1,40 @@
 package nsql
 
 import (
+	"context"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"strings"
 	"time"
 )
 
-type DB struct {
-	Conn *sqlx.DB
+func NewDatabase(config Config) (*Database, error) {
+	// Set default connection values
+	config.normalizeValue()
+
+	// Generate DSN
+	dsn, err := config.getDSN()
+	if err != nil {
+		return nil, err
+	}
+
+	// Set config
+	db := Database{
+		config: &config,
+		dsn:    dsn,
+	}
+	return &db, nil
+}
+
+type Database struct {
+	config *Config
+	dsn    string
+	conn   *sqlx.DB
 }
 
 // Prepare prepare sql statements or exit app if fails or error
-func (s *DB) Prepare(query string) *sqlx.Stmt {
-	stmt, err := s.Conn.Preparex(query)
+func (s *Database) Prepare(query string) *sqlx.Stmt {
+	stmt, err := s.conn.Preparex(query)
 	if err != nil {
 		panic(fmt.Errorf("nsql: error while preparing statment [%s] (%s)", query, err))
 	}
@@ -21,20 +42,20 @@ func (s *DB) Prepare(query string) *sqlx.Stmt {
 }
 
 // PrepareFmt prepare sql statements from string format or exit app if fails or error
-func (s *DB) PrepareFmt(queryFmt string, args ...interface{}) *sqlx.Stmt {
+func (s *Database) PrepareFmt(queryFmt string, args ...interface{}) *sqlx.Stmt {
 	query := fmt.Sprintf(queryFmt, args...)
 	return s.Prepare(query)
 }
 
 // PrepareNamedFmt prepare sql statements from string format with named bindvars or exit app if fails or error
-func (s *DB) PrepareNamedFmt(queryFmt string, args ...interface{}) *sqlx.NamedStmt {
+func (s *Database) PrepareNamedFmt(queryFmt string, args ...interface{}) *sqlx.NamedStmt {
 	query := fmt.Sprintf(queryFmt, args...)
 	return s.PrepareNamed(query)
 }
 
 // PrepareNamed prepare sql statements with named bindvars or exit app if fails or error
-func (s *DB) PrepareNamed(query string) *sqlx.NamedStmt {
-	stmt, err := s.Conn.PrepareNamed(query)
+func (s *Database) PrepareNamed(query string) *sqlx.NamedStmt {
+	stmt, err := s.conn.PrepareNamed(query)
 	if err != nil {
 		panic(fmt.Errorf("nsql: error while preparing statment [%s] (%s)", query, err))
 	}
@@ -42,7 +63,7 @@ func (s *DB) PrepareNamed(query string) *sqlx.NamedStmt {
 }
 
 // ReleaseTx clean db transaction by commit if no error, or rollback if an error occurred
-func (s *DB) ReleaseTx(tx *sqlx.Tx, err *error) {
+func (s *Database) ReleaseTx(tx *sqlx.Tx, err *error) {
 	if *err != nil {
 		// If an error occurred, rollback transaction
 		errRollback := tx.Rollback()
@@ -59,29 +80,49 @@ func (s *DB) ReleaseTx(tx *sqlx.Tx, err *error) {
 	}
 }
 
-func (s *DB) Init(config Config) error {
-	// Load configuration from env
-	config.loadFromEnv()
-
-	// Generate DSN
-	dsn, err := config.getDSN()
-	if err != nil {
-		return ncore.TraceError(err)
-	}
-
+func (s *Database) Init() error {
 	// Create connection
-	conn, err := sqlx.Connect(config.Driver, dsn)
+	conn, err := sqlx.Connect(s.config.Driver, s.dsn)
 	if err != nil {
-		return ncore.TraceError(err)
+		return err
 	}
 
 	// Set connection settings
-	conn.SetConnMaxLifetime(time.Duration(*config.MaxConnLifetime) * time.Second)
-	conn.SetMaxOpenConns(*config.MaxOpenConn)
-	conn.SetMaxIdleConns(*config.MaxIdleConn)
+	conn.SetConnMaxLifetime(time.Duration(*s.config.MaxConnLifetime) * time.Second)
+	conn.SetMaxOpenConns(*s.config.MaxOpenConn)
+	conn.SetMaxIdleConns(*s.config.MaxIdleConn)
 
 	// Set connection
-	s.Conn = conn
+	s.conn = conn
 
 	return nil
+}
+
+func (s *Database) IsConnected(ctx context.Context) (bool, error) {
+	if s.conn == nil {
+		return false, nil
+	}
+
+	// Ping to database
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	err := s.conn.PingContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *Database) GetConnection(ctx context.Context) (*sqlx.Conn, error) {
+	return s.conn.Connx(ctx)
+}
+
+// PrepareTemplate prepare sql statements from a string template format or exit app if fails or error
+func (s *Database) PrepareTemplate(q string, values map[string]string) *sqlx.Stmt {
+	for a, v := range values {
+		q = strings.ReplaceAll(q, ":"+a, v)
+	}
+	return s.Prepare(q)
 }

@@ -1,18 +1,34 @@
 package notification
 
 import (
+	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 
 func (s *ServiceContext) SendPushNotificationByTarget(payload dto.SendPushNotification) error {
-	// TODO: Load credential by config id from database
-	client, err := s.newFcmClient(s.config.Firebase.ServiceAccountCredential)
+	// Get client config firebase from db
+	clientConfig, err := s.repo.FindByKey(constant.Firebase, payload.ApplicationId)
 	if err != nil {
+		s.log.Error("failed to get configuration from db", logger.Error(err))
+		return ncore.TraceError(err)
+	}
+
+	// Marshalling config from db
+	configure, err := json.Marshal(clientConfig.Value)
+	if err != nil {
+		s.log.Error("failed to marshalling configuration from db", logger.Error(err))
+		return ncore.TraceError(err)
+	}
+
+	client, err := s.newFcmClient(string(configure))
+	if err != nil {
+		s.log.Error("failed to initialize new client", logger.Error(err))
 		return ncore.TraceError(err)
 	}
 
