@@ -32,8 +32,15 @@ func main() {
 	// Boot core
 	core := ncore.Boot(bootOptions.Core)
 
+	// Init repositories
+	resource := pds_svc.NewResource(*config)
+	err := resource.BootResource()
+	if err != nil {
+		panic(err)
+	}
+
 	// Init service
-	svc, err := contract.NewService(core, config, notification.NewServiceContext)
+	svc, err := contract.NewService(core, config, *resource.Source, notification.NewServiceContext)
 	if err != nil {
 		panic(err)
 	}
