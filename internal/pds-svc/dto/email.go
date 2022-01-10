@@ -6,13 +6,14 @@ import (
 )
 
 type SendEmail struct {
-	RequestId  string     `json:"requestId"`
-	Subject    string     `json:"subject"`
-	From       FromFormat `json:"from"`
-	To         string     `json:"to"`
-	Message    string     `json:"message"`
-	Attachment string     `json:"attachment"`
-	MimeType   string     `json:"mimeType"`
+	ApplicationId int        `json:"applicationId"`
+	RequestId     string     `json:"requestId"`
+	Subject       string     `json:"subject"`
+	From          FromFormat `json:"from"`
+	To            string     `json:"to"`
+	Message       string     `json:"message"`
+	Attachment    string     `json:"attachment"`
+	MimeType      string     `json:"mimeType"`
 }
 
 func (d SendEmail) Validate() error {

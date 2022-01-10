@@ -2,24 +2,39 @@ package notification
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"gopkg.in/gomail.v2"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 const tmpAttachmentDir = ".tmp/email-attachments"
 
 func (s *ServiceContext) SendEmail(payload dto.SendEmail) error {
-	// TODO: Load mail client config from database
-	config := s.config.SMTP
+	// Get client config from database
+	clientConfig, err := s.repo.FindByKey(constant.SMTP, payload.ApplicationId)
+	if err != nil {
+		s.log.Error("failed to get configuration from db", logger.Error(err))
+		return ncore.TraceError(err)
+	}
+
+	var config contract.SMTPConfig
+	err = json.Unmarshal(clientConfig.Value, &config)
+	if err != nil {
+		s.log.Error("Error when unmarshaling config", logger.Error(err))
+		return ncore.TraceError(err)
+	}
+	fmt.Println(config)
 
 	// Init mail client
-	mailClient := gomail.NewDialer(config.Host, config.Port, config.Username, config.Password)
+	mailClient := gomail.NewDialer(config.Host, nval.ParseIntFallback(config.Port, 465), config.Username, config.Password)
 
 	// Set message
 	message, tmpAttachment, err := s.composeEmail(payload)
@@ -45,7 +60,7 @@ func (s *ServiceContext) SendEmail(payload dto.SendEmail) error {
 }
 
 func (s *ServiceContext) newMailClient(config contract.SMTPConfig) *gomail.Dialer {
-	return gomail.NewDialer(config.Host, config.Port, config.Username, config.Password)
+	return gomail.NewDialer(config.Host, nval.ParseIntFallback(config.Port, 465), config.Username, config.Password)
 }
 
 func (s *ServiceContext) composeEmail(payload dto.SendEmail) (*gomail.Message, string, error) {

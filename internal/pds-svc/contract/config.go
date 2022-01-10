@@ -64,10 +64,9 @@ func LoadConfig() *Config {
 	}
 
 	// Load smtp config
-	smtpPort, _ := nval.ParseInt(os.Getenv("SMTP_PORT"))
 	c.SMTP = SMTPConfig{
 		Host:     nval.ParseStringFallback(os.Getenv("SMTP_HOST"), ""),
-		Port:     nval.ParseIntFallback(smtpPort, 587),
+		Port:     nval.ParseStringFallback(os.Getenv("SMTP_PORT"), "465"),
 		Username: nval.ParseStringFallback(os.Getenv("SMTP_USERNAME"), ""),
 		Password: nval.ParseStringFallback(os.Getenv("SMTP_PASSWORD"), ""),
 	}
@@ -108,10 +107,10 @@ func (c ClientConfig) Validate() error {
 }
 
 type SMTPConfig struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
+	Host     string `json:"SMTP_HOST"`
+	Port     string `json:"SMTP_PORT"`
+	Username string `json:"SMTP_USERNAME"`
+	Password string `json:"SMTP_PASSWORD"`
 }
 
 func (c SMTPConfig) Validate() error {
