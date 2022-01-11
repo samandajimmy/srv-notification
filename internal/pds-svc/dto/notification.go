@@ -14,6 +14,7 @@ type SendPushNotification struct {
 
 func (d SendPushNotification) Validate() error {
 	return validation.ValidateStruct(&d,
+		validation.Field(&d.ApplicationId, validation.Required),
 		validation.Field(&d.Title, validation.Required),
 		validation.Field(&d.Body, validation.Required),
 		validation.Field(&d.Token, validation.Required),
