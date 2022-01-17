@@ -27,7 +27,19 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	// Application
 	router.Handle(http.MethodPost, "/applications",
 		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.PostApplication))
+		router.HandleFunc(handlers.Application.PostCreateApplication))
+	router.Handle(http.MethodGet, "/applications", // TODO: List application
+		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Application.GetFindApplication))
+	router.Handle(http.MethodGet, "/applications/{xid}", // TODO: Get detail application
+		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Application.GetDetailApplication))
+	router.Handle(http.MethodPut, "/applications/{xid}", // TODO: Update application
+		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Application.PutUpdateApplication))
+	router.Handle(http.MethodDelete, "/applications/{xid}", // TODO: Delete application
+		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Application.DeleteApplication))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {

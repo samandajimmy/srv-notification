@@ -17,7 +17,7 @@ func NewApplication(svc *contract.Service) *Application {
 	}
 }
 
-func (h *Application) PostApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) PostCreateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
 	subject, err := GetSubject(rx)
 	if err != nil {
@@ -53,4 +53,24 @@ func (h *Application) PostApplication(rx *nhttp.Request) (*nhttp.Response, error
 
 	// Set payload
 	return nhttp.Success().SetData(resp), nil
+}
+
+func (h *Application) GetFindApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Get Find Application
+	return nhttp.OK(), nil
+}
+
+func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Get Detail Application
+	return nhttp.OK(), nil
+}
+
+func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Get Update Application
+	return nhttp.OK(), nil
+}
+
+func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Delete Application
+	return nhttp.OK(), nil
 }
