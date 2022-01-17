@@ -1,3 +1,18 @@
+# Unique db error
+
+E_UAL_1:
+  success: false
+  message: data given must be unique
+  metadata:
+    http_status: 400
+
+# Foreign key db error
+E_FK_1:
+  success: false
+  message: data fk violations error.
+  metadata:
+    http_status: 400
+
 # Common Error Response
 
 E_RES_1:
