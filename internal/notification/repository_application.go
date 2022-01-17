@@ -12,3 +12,8 @@ func (rc *RepositoryContext) FindApplicationByXID(xid string) (*model.Applicatio
 	err := rc.RepositoryStatement.Application.FindByXID.GetContext(rc.ctx, &application, xid)
 	return &application, err
 }
+
+func (rc *RepositoryContext) DeleteApplicationById(id int64) error {
+	_, err := rc.RepositoryStatement.Application.DeleteByID.ExecContext(rc.ctx, id)
+	return err
+}

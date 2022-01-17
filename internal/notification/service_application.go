@@ -61,6 +61,27 @@ func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.Applic
 	return composeDetailApplicationResponse(res)
 }
 
+func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
+	// Get application by xid
+	res, err := s.repo.FindApplicationByXID(payload.XID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data application. err: %v", err)
+			return s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data application. err: %v", err)
+		return err
+	}
+
+	// Delete application
+	err = s.repo.DeleteApplicationById(res.ID)
+	if err != nil {
+		panic(fmt.Errorf("failed to delete application. Error = %w", err))
+	}
+
+	return nil
+}
+
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {
 	return &dto.ApplicationResponse{
 		Name:                 row.Name,

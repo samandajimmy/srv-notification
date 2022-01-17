@@ -93,6 +93,26 @@ func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, 
 }
 
 func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// TODO: Delete Application
+	// Get xid
+	xid := mux.Vars(rx.Request)["xid"]
+	if xid == "" {
+		err := errors.New("xid is not found on params")
+		log.Errorf("xid is not found on params. err: %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set payload
+	var payload dto.GetApplication
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = xid
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	err := svc.DeleteApplication(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
 	return nhttp.OK(), nil
 }

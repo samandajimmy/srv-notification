@@ -6,8 +6,9 @@ import (
 )
 
 type Application struct {
-	Insert    *sqlx.NamedStmt
-	FindByXID *sqlx.Stmt
+	Insert     *sqlx.NamedStmt
+	FindByXID  *sqlx.Stmt
+	DeleteByID *sqlx.Stmt
 }
 
 func NewApplication(db *nsql.Database) *Application {
@@ -17,7 +18,8 @@ func NewApplication(db *nsql.Database) *Application {
 	namedColumns := `:metadata,:createdAt,:updatedAt,:modifiedBy,:version,:xid,:name`
 
 	return &Application{
-		Insert:    db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
-		FindByXID: db.PrepareFmt(`SELECT %s FROM "%s" WHERE "xid" = $1`, allColumns, tableName),
+		Insert:     db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
+		FindByXID:  db.PrepareFmt(`SELECT %s FROM "%s" WHERE "xid" = $1`, allColumns, tableName),
+		DeleteByID: db.PrepareFmt(`DELETE FROM "%s" WHERE id = $1`, tableName),
 	}
 }

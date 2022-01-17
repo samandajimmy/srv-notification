@@ -13,6 +13,7 @@ type ServiceContext interface {
 	SendPushNotificationByTarget(payload dto.SendPushNotification) error
 	CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error)
 	GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error)
+	DeleteApplication(payload dto.GetApplication) error
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {
