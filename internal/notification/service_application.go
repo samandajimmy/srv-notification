@@ -44,6 +44,17 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 
 }
 
+func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error) {
+	// Get application by xid
+	res, err := s.repo.FindApplicationByXID(payload.XID)
+	if err != nil {
+		log.Errorf("error when get data application. err: %v", err)
+		return nil, err
+	}
+
+	return composeDetailApplicationResponse(res)
+}
+
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {
 	return &dto.ApplicationResponse{
 		Name:                 row.Name,

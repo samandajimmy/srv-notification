@@ -28,18 +28,15 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	router.Handle(http.MethodPost, "/applications",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.Application.PostCreateApplication))
-	router.Handle(http.MethodGet, "/applications", // TODO: List application
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.GetFindApplication))
-	router.Handle(http.MethodGet, "/applications/{xid}", // TODO: Get detail application
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.GetDetailApplication))
-	router.Handle(http.MethodPut, "/applications/{xid}", // TODO: Update application
+	// TODO: List application
+	router.Handle(http.MethodGet, "/applications", router.HandleFunc(handlers.Application.GetFindApplication))
+	router.Handle(http.MethodGet, "/applications/{xid}", router.HandleFunc(handlers.Application.GetDetailApplication))
+	// TODO: Update application
+	router.Handle(http.MethodPut, "/applications/{xid}",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.Application.PutUpdateApplication))
-	router.Handle(http.MethodDelete, "/applications/{xid}", // TODO: Delete application
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.DeleteApplication))
+	// TODO: Delete application
+	router.Handle(http.MethodDelete, "/applications/{xid}", router.HandleFunc(handlers.Application.DeleteApplication))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {

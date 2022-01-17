@@ -41,6 +41,7 @@ func (c *Common) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
 	subjectID := r.Header.Get(constant.SubjectIDHeader)
 	subjectRefID, ok := nval.ParseInt64(subjectID)
 	if !ok {
+		log.Errorf("x-subject-id is required")
 		return nil, errors.New("x-subject-id is required")
 	}
 

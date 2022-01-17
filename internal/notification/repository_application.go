@@ -6,3 +6,9 @@ func (rc *RepositoryContext) InsertApplication(row model.Application) error {
 	_, err := rc.RepositoryStatement.Application.Insert.ExecContext(rc.ctx, row)
 	return err
 }
+
+func (rc *RepositoryContext) FindApplicationByXID(xid string) (*model.Application, error) {
+	var application model.Application
+	err := rc.RepositoryStatement.Application.FindByXID.GetContext(rc.ctx, &application, xid)
+	return &application, err
+}

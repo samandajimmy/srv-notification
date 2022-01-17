@@ -14,6 +14,11 @@ func (d Application) Validate() error {
 	)
 }
 
+type GetApplication struct {
+	RequestId string `json:"requestId"`
+	XID       string `json:"xid"`
+}
+
 type ApplicationResponse struct {
 	XID  string `json:"xid"`
 	Name string `json:"name"`

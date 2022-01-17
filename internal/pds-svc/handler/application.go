@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+	"github.com/gorilla/mux"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -61,8 +63,28 @@ func (h *Application) GetFindApplication(rx *nhttp.Request) (*nhttp.Response, er
 }
 
 func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// TODO: Get Detail Application
-	return nhttp.OK(), nil
+	// Get xid
+	xid := mux.Vars(rx.Request)["xid"]
+	if xid == "" {
+		err := errors.New("xid is not found on params")
+		log.Errorf("xid is not found on params. err: %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set payload
+	var payload dto.GetApplication
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = xid
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	resp, err := svc.GetApplication(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
 }
 
 func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
