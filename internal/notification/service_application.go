@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
 )
 
@@ -80,6 +83,46 @@ func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
 	}
 
 	return nil
+}
+
+func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*dto.ListApplicationResponse, error) {
+	// Handle sort request
+	rulesSortBy := []string{
+		"createdAt",
+		"updatedAt",
+		"name",
+	}
+
+	// Get orderBy
+	sortBy, sortDirection := s.GetOrderBy(
+		nval.ParseStringFallback(options.SortBy, `createdAt`),
+		nval.ParseStringFallback(options.SortDirection, `desc`),
+		rulesSortBy,
+	)
+
+	// Set sort by and direction
+	options.SortBy = sortBy
+	options.SortDirection = sortDirection
+
+	// Get list application
+	result, err := s.repo.FindApplication(options)
+	if err != nil {
+		log.Error("failed to find data application", nlogger.Error(err))
+		return nil, ncore.TraceError(err)
+	}
+
+	rows := make([]*dto.ApplicationResponse, len(result.Rows))
+	for idx, row := range result.Rows {
+		rows[idx], _ = composeDetailApplicationResponse(&row)
+	}
+
+	return &dto.ListApplicationResponse{
+		Items: rows,
+		Metadata: dto.ListMetadata{
+			Count:       result.Count,
+			FindOptions: options.FindOptions,
+		},
+	}, err
 }
 
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {

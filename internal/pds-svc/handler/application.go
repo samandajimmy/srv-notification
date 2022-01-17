@@ -7,6 +7,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 type Application struct {
@@ -58,8 +59,36 @@ func (h *Application) PostCreateApplication(rx *nhttp.Request) (*nhttp.Response,
 }
 
 func (h *Application) GetFindApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// TODO: Get Find Application
-	return nhttp.OK(), nil
+	// Get list parameters
+	q := rx.URL.Query()
+	//Get parameter
+	listParam := dto.ApplicationFindOptions{
+		FindOptions: dto.FindOptions{
+			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
+			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
+			SortBy:        nval.ParseStringFallback(q.Get("sortBy"), "createdAt"),
+			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
+			Filters:       map[string]interface{}{},
+		},
+	}
+
+	if v := q.Get("xid"); v != "" {
+		listParam.Filters["xid"] = v
+	}
+
+	if v := q.Get("name"); v != "" {
+		listParam.Filters["name"] = v
+	}
+
+	//Call service
+	svc := h.Service.WithContext(rx.Context())
+	resp, err := svc.ListApplication(&listParam)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.OK().SetData(resp), nil
 }
 
 func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, error) {

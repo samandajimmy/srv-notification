@@ -9,3 +9,8 @@ type Application struct {
 	Metadata json.RawMessage `db:"metadata"`
 	ItemMetadata
 }
+
+type ApplicationFindResult struct {
+	Rows  []Application
+	Count int64
+}

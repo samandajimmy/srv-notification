@@ -24,3 +24,12 @@ type ApplicationResponse struct {
 	Name string `json:"name"`
 	ItemMetadataResponse
 }
+
+type ApplicationFindOptions struct {
+	FindOptions
+}
+
+type ListApplicationResponse struct {
+	Items    []*ApplicationResponse `json:"items"`
+	Metadata ListMetadata           `json:"metadata"`
+}

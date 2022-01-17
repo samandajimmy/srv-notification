@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
@@ -82,4 +83,8 @@ func (r *Repository) WithContext(ctx context.Context) *RepositoryContext {
 		conn:                conn,
 		RepositoryStatement: r.stmt,
 	}
+}
+
+func (rc *RepositoryContext) GetOrderByQuery(sortBy string, sortDirection string) string {
+	return fmt.Sprintf(`"%s" %s`, sortBy, sortDirection)
 }
