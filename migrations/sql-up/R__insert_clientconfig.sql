@@ -1,6 +1,6 @@
-INSERT INTO public."ClientConfig"(id, "createdAt", "updatedAt", "modifiedBy", version, metadata, key, value,
+INSERT INTO public."ClientConfig"("createdAt", "updatedAt", "modifiedBy", version, metadata, key, value,
                                   "applicationId", "xid")
-VALUES (1, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
+VALUES ('2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
   "id": "0",
   "role": "SEEDER",
   "fullName": "Seeder"
@@ -19,7 +19,7 @@ VALUES (1, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
           "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dr4fd%40pds-dev-f65b3.iam.gserviceaccount.com"
         }',
         1, 'PDSFRBS'),
-       (2, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
+       ('2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
          "id": "0",
          "role": "SEEDER",
          "fullName": "Seeder"
@@ -32,7 +32,7 @@ VALUES (1, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
           "SMTP_PASSWORD": "e738b1fb441633906274b63ca515827e-10eedde5-288e6771"
         }',
         1, 'PDSSMTP'),
-       (3, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
+       ('2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
          "id": "0",
          "role": "SEEDER",
          "fullName": "Seeder"
@@ -51,7 +51,7 @@ VALUES (1, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
           "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dr4fd%40pds-dev-f65b3.iam.gserviceaccount.com"
         }',
         2, 'PSDSFRBS'),
-       (4, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
+       ('2020-01-01 00:00:00', '2020-01-01 00:00:00', '{
          "id": "0",
          "role": "SEEDER",
          "fullName": "Seeder"

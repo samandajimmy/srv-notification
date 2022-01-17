@@ -17,6 +17,7 @@ type ServiceContext struct {
 func NewServiceContext(ctx context.Context, config *contract.Config) contract.ServiceContext {
 	repo, err := NewRepository(&config.DataSources)
 	if err != nil {
+		log.Errorf("error create repository: %v", err)
 		return nil
 	}
 

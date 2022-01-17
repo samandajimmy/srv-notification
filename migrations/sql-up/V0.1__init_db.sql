@@ -1,6 +1,6 @@
 CREATE TABLE public."ClientConfig"
 (
-    "id"            bigint                      NOT NULL,
+    "id"            bigserial                   NOT NULL,
     "createdAt"     timestamp without time zone NOT NULL,
     "updatedAt"     timestamp without time zone NOT NULL,
     "metadata"      JSON                        NULL,
@@ -15,7 +15,7 @@ CREATE TABLE public."ClientConfig"
 
 CREATE TABLE public."Application"
 (
-    "id"         bigint                      NOT NULL,
+    "id"         bigserial                   NOT NULL,
     "createdAt"  timestamp without time zone NOT NULL,
     "updatedAt"  timestamp without time zone NOT NULL,
     "metadata"   JSON                        NULL,

@@ -6,13 +6,15 @@ import (
 )
 
 type RepositoryStatement struct {
-	ClientConfig *statement.ClientConfigStatement
+	ClientConfig *statement.ClientConfig
+	Application  *statement.Application
 }
 
 // NewRepositoryStatement prepare all sql statements
 func NewRepositoryStatement(db *nsql.Database) *RepositoryStatement {
 	rs := RepositoryStatement{
-		ClientConfig: statement.NewClientConfigStatement(db),
+		ClientConfig: statement.NewClientConfig(db),
+		Application:  statement.NewApplication(db),
 	}
 	return &rs
 }

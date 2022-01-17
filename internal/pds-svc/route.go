@@ -23,6 +23,11 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Send Notification
 	router.Handle(http.MethodPost, "/push-notification", router.HandleFunc(handlers.Notification.PostNotification))
+
+	// Application
+	router.Handle(http.MethodPost, "/applications",
+		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Application.PostApplication))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {

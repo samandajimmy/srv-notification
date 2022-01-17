@@ -11,6 +11,7 @@ type ServiceContextConstructor = func(ctx context.Context, config *Config) Servi
 type ServiceContext interface {
 	SendEmail(payload dto.SendEmail) error
 	SendPushNotificationByTarget(payload dto.SendPushNotification) error
+	CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {
