@@ -37,14 +37,12 @@ func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.Clie
 	// Persist application
 	err = s.repo.InsertClientConfig(clientConfig)
 	if err != nil {
-		log.Errorf("unable to insert client config: %v", err)
-
+		log.Error("unable to insert clientConfig.", nlogger.Error(err))
 		// Handle pq.Error
 		errCode, _ := nsql.GetPostgresError(err)
 		switch errCode {
 		case nsql.UniqueError:
-			// TODO: get response from ncore.Response s.responses.GetError("E_UAL_1").Wrap(err)
-			return nil, err
+			return nil, s.responses.GetError("E_UAL_1").Wrap(err)
 		default:
 			return nil, err
 		}
