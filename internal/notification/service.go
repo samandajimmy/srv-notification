@@ -5,16 +5,18 @@ import (
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 
 type ServiceContext struct {
-	config *contract.Config
-	ctx    context.Context
-	repo   *RepositoryContext
-	log    nlogger.Logger
+	config    *contract.Config
+	ctx       context.Context
+	repo      *RepositoryContext
+	log       nlogger.Logger
+	responses *ncore.ResponseMap
 }
 
-func NewServiceContext(ctx context.Context, config *contract.Config) contract.ServiceContext {
+func NewServiceContext(ctx context.Context, config *contract.Config, core *ncore.Core) contract.ServiceContext {
 	repo, err := NewRepository(&config.DataSources)
 	if err != nil {
 		log.Errorf("error create repository: %v", err)
@@ -22,9 +24,10 @@ func NewServiceContext(ctx context.Context, config *contract.Config) contract.Se
 	}
 
 	return &ServiceContext{
-		config: config,
-		ctx:    ctx,
-		repo:   repo.WithContext(ctx),
-		log:    nlogger.Get().NewChild(logger.Context(ctx)),
+		config:    config,
+		ctx:       ctx,
+		repo:      repo.WithContext(ctx),
+		log:       nlogger.Get().NewChild(logger.Context(ctx)),
+		responses: core.Responses,
 	}
 }

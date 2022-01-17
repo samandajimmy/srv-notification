@@ -6,7 +6,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 
-type ServiceContextConstructor = func(ctx context.Context, config *Config) ServiceContext
+type ServiceContextConstructor = func(ctx context.Context, config *Config, core *ncore.Core) ServiceContext
 
 type ServiceContext interface {
 	SendEmail(payload dto.SendEmail) error
@@ -30,5 +30,5 @@ type Service struct {
 }
 
 func (s *Service) WithContext(ctx context.Context) ServiceContext {
-	return s.constructorFn(ctx, s.config)
+	return s.constructorFn(ctx, s.config, s.Core)
 }

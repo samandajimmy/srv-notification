@@ -1,8 +1,11 @@
 package notification
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
@@ -27,14 +30,12 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 	// Persist application
 	err = s.repo.InsertApplication(apl)
 	if err != nil {
-		log.Errorf("unable to insert application: %v", err)
-
+		log.Error("unable to insert application", nlogger.Error(err))
 		// Handle pq.Error
 		errCode, _ := nsql.GetPostgresError(err)
 		switch errCode {
 		case nsql.UniqueError:
-			// TODO: get response from ncore.Response s.responses.GetError("E_UAL_1").Wrap(err)
-			return nil, err
+			return nil, s.responses.GetError("E_UAL_1").Wrap(err)
 		default:
 			return nil, err
 		}
@@ -48,7 +49,11 @@ func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.Applic
 	// Get application by xid
 	res, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
-		log.Errorf("error when get data application. err: %v", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data application.", nlogger.Error(err))
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data application.", nlogger.Error(err))
 		return nil, err
 	}
 
