@@ -1,6 +1,8 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type ClientConfig struct {
 	XID           string          `db:"xid"`
@@ -9,4 +11,9 @@ type ClientConfig struct {
 	ApplicationId int             `db:"applicationId"`
 	Metadata      json.RawMessage `db:"metadata"`
 	ItemMetadata
+}
+
+type ClientConfigSearchResult struct {
+	Rows  []ClientConfig
+	Count int64
 }

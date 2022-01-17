@@ -14,6 +14,7 @@ type HandlerMap struct {
 	Email        *handler.Email
 	Notification *handler.Notification
 	Application  *handler.Application
+	ClientConfig *handler.ClientConfig
 }
 
 func InitHandler(manifest *ncore.Manifest, svc *contract.Service, pubSub message.Publisher) *HandlerMap {
@@ -22,5 +23,6 @@ func InitHandler(manifest *ncore.Manifest, svc *contract.Service, pubSub message
 		Email:        handler.NewEmail(pubSub),
 		Notification: handler.NewNotification(pubSub),
 		Application:  handler.NewApplication(svc),
+		ClientConfig: handler.NewClientConfig(svc),
 	}
 }
