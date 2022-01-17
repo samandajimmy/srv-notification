@@ -25,6 +25,15 @@ CREATE TABLE public."Application"
     "xid"        varchar(64)                 NOT NULL,
     PRIMARY KEY ("id")
 );
+ALTER TABLE public."Application"
+    ADD UNIQUE (name);
+
+CREATE INDEX ON public."Application" (xid);
+CREATE INDEX ON public."Application" (name);
 
 ALTER TABLE public."ClientConfig"
     ADD CONSTRAINT "FK_Application__applicationId" FOREIGN KEY ("applicationId") REFERENCES public."Application" (id);
+
+CREATE INDEX ON public."ClientConfig" (xid);
+CREATE INDEX ON public."ClientConfig" ("applicationId");
+CREATE INDEX ON public."ClientConfig" ("key");
