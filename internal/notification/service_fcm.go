@@ -13,6 +13,7 @@ import (
 
 func (s *ServiceContext) SendPushNotificationByTarget(payload dto.SendPushNotification) error {
 	// Get client config firebase from db
+	// TODO: Refactor parse client config to a reusable function
 	clientConfig, err := s.repo.FindByKey(constant.Firebase, payload.ApplicationId)
 	if err != nil {
 		s.log.Error("failed to get configuration from db", logger.Error(err))

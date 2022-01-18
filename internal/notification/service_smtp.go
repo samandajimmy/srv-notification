@@ -19,6 +19,7 @@ const tmpAttachmentDir = ".tmp/email-attachments"
 
 func (s *ServiceContext) SendEmail(payload dto.SendEmail) error {
 	// Get client config from database
+	// TODO: Refactor parse client config to a reusable function
 	clientConfig, err := s.repo.FindByKey(constant.SMTP, payload.ApplicationId)
 	if err != nil {
 		s.log.Error("failed to get configuration from db", logger.Error(err))
@@ -31,10 +32,9 @@ func (s *ServiceContext) SendEmail(payload dto.SendEmail) error {
 		s.log.Error("Error when unmarshaling config", logger.Error(err))
 		return ncore.TraceError(err)
 	}
-	fmt.Println(config)
 
 	// Init mail client
-	mailClient := gomail.NewDialer(config.Host, nval.ParseIntFallback(config.Port, 465), config.Username, config.Password)
+	mailClient := s.newMailClient(config)
 
 	// Set message
 	message, tmpAttachment, err := s.composeEmail(payload)
