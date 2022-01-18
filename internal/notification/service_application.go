@@ -14,6 +14,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
+	"time"
 )
 
 func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error) {
@@ -123,6 +124,76 @@ func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*
 			FindOptions: options.FindOptions,
 		},
 	}, err
+}
+
+func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error) {
+
+	// Get application by xid
+	app, err := s.repo.FindApplicationByXID(payload.XID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data application. err: %v", err)
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data application. err: %v", err)
+		return nil, err
+	}
+
+	// Validate version
+	if app.Version != payload.Version {
+		log.Errorf("invalid version to change. expected: %v actual: %v",
+			app.Version,
+			payload.Version,
+		)
+		return nil, s.responses.GetError("E_RES_2").Wrap(err)
+	}
+
+	// Copy values from payload to job
+	d := payload.Data
+	changelog := payload.Changelog
+	changesCount := 0
+	d.Name = strings.ToUpper(d.Name)
+
+	for k, changed := range changelog {
+		// If not changed, then continue
+		if !changed {
+			continue
+		}
+		switch k {
+		case "name":
+			// If title is empty, or value is still the same, then skip
+			if d.Name == "" || d.Name == app.Name {
+				changelog[k] = false
+				continue
+			}
+
+			// Set updated value
+			app.Name = d.Name
+			changesCount += 1
+		}
+	}
+
+	// If changes count more than 0, then persist update
+	if changesCount > 0 {
+		// Update metadata
+		modifiedBy := convert.ModifierDTOToModel(payload.Subject.ModifiedBy)
+		app.UpdatedAt = time.Now()
+		app.ModifiedBy = &modifiedBy
+		app.Version += 1
+
+		// Persist
+		err := s.repo.UpdateApplication(app)
+		if err != nil {
+			if errors.Is(err, nsql.RowNotUpdatedError) {
+				err = s.responses.GetError("E_RES_3").Wrap(err)
+			} else {
+				log.Errorf("failed to persist application update. err: %v", err)
+			}
+			return nil, err
+		}
+	}
+
+	return composeDetailApplicationResponse(app)
 }
 
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {

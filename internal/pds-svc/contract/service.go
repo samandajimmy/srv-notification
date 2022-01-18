@@ -15,6 +15,7 @@ type ServiceContext interface {
 	GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error)
 	DeleteApplication(payload dto.GetApplication) error
 	ListApplication(options *dto.ApplicationFindOptions) (*dto.ListApplicationResponse, error)
+	UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {

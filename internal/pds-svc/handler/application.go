@@ -117,8 +117,42 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 }
 
 func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// TODO: Get Update Application
-	return nhttp.OK(), nil
+	// Get Auth Subject
+	actor, err := GetSubject(rx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get Payload
+	var payload dto.ApplicationUpdateOptions
+	err = rx.ParseJSONBody(&payload)
+	if err != nil {
+		log.Errorf("Error when parse json body from request %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set modifier and id
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = mux.Vars(rx.Request)["xid"]
+	payload.Subject = actor
+
+	// Validate payload
+	err = payload.Validate()
+	if err != nil {
+		log.Errorf("Error when validate body from request %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+
+	resp, err := svc.UpdateApplication(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
 }
 
 func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, error) {

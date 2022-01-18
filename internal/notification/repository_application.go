@@ -5,6 +5,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"strings"
 	"time"
 )
@@ -94,4 +95,12 @@ func (rc *RepositoryContext) FindApplication(params *dto.ApplicationFindOptions)
 		Count: count,
 	}
 	return &result, err
+}
+
+func (rc *RepositoryContext) UpdateApplication(row *model.Application) error {
+	result, err := rc.Application.Update.ExecContext(rc.ctx, row)
+	if err != nil {
+		return err
+	}
+	return nsql.IsUpdated(result)
 }
