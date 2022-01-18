@@ -15,8 +15,6 @@ type Config struct {
 	Client      ClientConfig
 	DataSources DataSourcesConfig
 	CORS        nhttp.CORSConfig
-	SMTP        SMTPConfig
-	Firebase    FirebaseConfig
 }
 
 func LoadConfig() *Config {
@@ -62,17 +60,6 @@ func LoadConfig() *Config {
 				http.MethodHead, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodOptions}),
 		}
 	}
-
-	// Load smtp config
-	c.SMTP = SMTPConfig{
-		Host:     nval.ParseStringFallback(os.Getenv("SMTP_HOST"), ""),
-		Port:     nval.ParseStringFallback(os.Getenv("SMTP_PORT"), "465"),
-		Username: nval.ParseStringFallback(os.Getenv("SMTP_USERNAME"), ""),
-		Password: nval.ParseStringFallback(os.Getenv("SMTP_PASSWORD"), ""),
-	}
-
-	// Load firebase
-	c.Firebase.ServiceAccountCredential = nval.ParseStringFallback(os.Getenv("FIREBASE_SERVICE_ACCOUNT_CRED"), "")
 
 	return c
 }
