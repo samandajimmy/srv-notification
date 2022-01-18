@@ -10,7 +10,7 @@ import (
 type Modifier struct {
 	ID       string `json:"id"`
 	Role     string `json:"role"`
-	FullName string `json:"full_name"`
+	FullName string `json:"fullName"`
 }
 
 func (m *Modifier) Scan(src interface{}) error {
