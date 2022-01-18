@@ -37,7 +37,6 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.Application.PutUpdateApplication))
 	// TODO: Delete application
 	router.Handle(http.MethodDelete, "/applications/{xid}", router.HandleFunc(handlers.Application.DeleteApplication))
-		router.HandleFunc(handlers.Application.PostApplication))
 
 	// Client Config
 	router.Handle(http.MethodGet, "/client-configs",

@@ -11,6 +11,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.ClientConfigItemResponse, error) {
@@ -48,9 +49,26 @@ func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.Clie
 	return composeClientConfigResponse(&clientConfig)
 }
 
-func (s *ServiceContext) ListClientConfig(params dto.ClientConfigFindOptions) (*dto.ClientConfigListResponse, error) {
+func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (*dto.ClientConfigListResponse, error) {
+	// Handle sort request
+	rulesSortBy := []string{
+		"createdAt",
+		"updatedAt",
+		"name",
+	}
+
+	// Get orderBy
+	sortBy, sortDirection := s.GetOrderBy(
+		nval.ParseStringFallback(options.SortBy, `createdAt`),
+		nval.ParseStringFallback(options.SortDirection, `desc`),
+		rulesSortBy,
+	)
+
+	// Set sort by and direction
+	options.SortBy = sortBy
+	options.SortDirection = sortDirection
 	// Query
-	queryResult, err := s.repo.Find(&params.FindOptions)
+	queryResult, err := s.repo.Find(&options.FindOptions)
 	if err != nil {
 		log.Error("failed to find data client config.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
@@ -73,7 +91,7 @@ func (s *ServiceContext) ListClientConfig(params dto.ClientConfigFindOptions) (*
 		ClientConfig: rowsResp,
 		Metadata: dto.ListMetadata{
 			Count:       queryResult.Count,
-			FindOptions: params.FindOptions,
+			FindOptions: options.FindOptions,
 		},
 	}, nil
 }

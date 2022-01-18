@@ -43,7 +43,7 @@ func (rc *RepositoryContext) Find(params *dto.FindOptions) (*model.ClientConfigS
 	// Prepare query
 	columns := `"createdAt", "updatedAt", "metadata", "modifiedBy", "version", "key", "value", "applicationId", "xid"`
 	from := `ClientConfig`
-	orderBy := rc.getOrderByQuery(params)
+	orderBy := rc.GetOrderByQuery(params.SortBy, params.SortDirection)
 	q := fmt.Sprintf(`SELECT %s FROM "%s" %s ORDER BY %s LIMIT %d OFFSET %d`,
 		columns, from, where, orderBy, params.Limit, params.Skip)
 
