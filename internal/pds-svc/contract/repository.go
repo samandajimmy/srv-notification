@@ -8,7 +8,8 @@ import (
 type ClientConfigure interface {
 	FindClientConfigByXID(xid string) (*model.ClientConfig, error)
 	FindByKey(key string, appId int) (*model.ClientConfig, error)
+	FindClientConfig(params *dto.FindOptions) (*model.ClientConfigSearchResult, error)
 	InsertClientConfig(row model.ClientConfig) error
-	Find(params *dto.FindOptions) (*model.ClientConfigSearchResult, error)
+	UpdateClientConfig(row *model.ClientConfig) error
 	DeleteClientConfigById(id int64) error
 }

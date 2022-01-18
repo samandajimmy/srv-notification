@@ -29,7 +29,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 		return nil, ncore.TraceError(err)
 	}
 	// Get Payload
-	var payload dto.ClientConfig
+	var payload dto.ClientConfigRequest
 	err = rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request.", nlogger.Error(err))
@@ -106,7 +106,7 @@ func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Set payload
-	var payload dto.ClientConfig
+	var payload dto.ClientConfigRequest
 	payload.RequestId = GetRequestId(rx)
 	payload.XID = xid
 
@@ -122,7 +122,42 @@ func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 }
 
 func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
-	return nil, nil // TODO Implement
+	// Get Auth Subject
+	actor, err := GetSubject(rx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get Payload
+	var payload dto.ClientConfigUpdateOptions
+	err = rx.ParseJSONBody(&payload)
+	if err != nil {
+		log.Errorf("Error when parse json body from request %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set modifier and id
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = mux.Vars(rx.Request)["xid"]
+	payload.Subject = actor
+
+	// Validate payload
+	err = payload.Validate()
+	if err != nil {
+		log.Errorf("Error when validate body from request %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+
+	resp, err := svc.UpdateClientConfig(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
 }
 
 func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {

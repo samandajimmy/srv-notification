@@ -5,29 +5,48 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/nbs-go/nlogger"
+	"reflect"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
+	"time"
 )
 
-func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.ClientConfigItemResponse, error) {
+func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
+	// Initialize data to insert
+	xid, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 8)
+	if err != nil {
+		panic(fmt.Errorf("failed to generate xid. Error = %w", err))
+	}
+
 	// Initialize data to insert
 	value, err := json.Marshal(payload.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO Check ApplicationId is exists
+	// check application exist
+	application, err := s.repo.FindApplicationByXID(payload.ApplicationXid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data application.", nlogger.Error(err))
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data application.", nlogger.Error(err))
+		return nil, err
+	}
 
 	clientConfig := model.ClientConfig{
-		XID:           payload.XID,
+		XID:           xid,
 		Key:           payload.Key,
 		Value:         value,
-		ApplicationId: payload.ApplicationId,
+		ApplicationId: application.ID,
 		Metadata:      []byte("{}"),
 		ItemMetadata:  model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
 	}
@@ -54,7 +73,7 @@ func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (
 	rulesSortBy := []string{
 		"createdAt",
 		"updatedAt",
-		"name",
+		"key",
 	}
 
 	// Get orderBy
@@ -68,7 +87,7 @@ func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (
 	options.SortBy = sortBy
 	options.SortDirection = sortDirection
 	// Query
-	queryResult, err := s.repo.Find(&options.FindOptions)
+	queryResult, err := s.repo.FindClientConfig(&options.FindOptions)
 	if err != nil {
 		log.Error("failed to find data client config.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
@@ -96,7 +115,7 @@ func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (
 	}, nil
 }
 
-func (s *ServiceContext) GetClientConfig(payload dto.ClientConfig) (*dto.ClientConfigItemResponse, error) {
+func (s *ServiceContext) GetClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
 	// Get client config by xid
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
@@ -108,6 +127,92 @@ func (s *ServiceContext) GetClientConfig(payload dto.ClientConfig) (*dto.ClientC
 	}
 
 	return composeDetailClientConfigResponse(res)
+}
+
+func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error) {
+	// Get client config by xid
+	clientConfig, err := s.repo.FindClientConfigByXID(payload.XID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data client config.", nlogger.Error(err))
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data client config.", nlogger.Error(err))
+		return nil, err
+	}
+
+	// Validate version
+	if clientConfig.Version != payload.Version {
+		return nil, s.responses.GetError("E_RES_2").Wrap(err)
+	}
+
+	// Copy values from payload
+	d := payload.Data
+	changelog := payload.Changelog
+	changesCount := 0
+	for k, changed := range changelog {
+		// If not changed, then continue
+		if !changed {
+			continue
+		}
+
+		switch k {
+		case "key":
+			// If title is empty, or value is still the same, then skip
+			if d.Key == "" || d.Key == clientConfig.Key {
+				changelog[k] = false
+				continue
+			}
+			// Set updated value
+			clientConfig.Key = d.Key
+			changesCount += 1
+		case "applicationId":
+			// If title is empty, or value is still the same, then skip
+			if d.ApplicationId == 0 || d.ApplicationId == clientConfig.ApplicationId {
+				changelog[k] = false
+				continue
+			}
+			// Set updated value
+			clientConfig.ApplicationId = d.ApplicationId
+			changesCount += 1
+		case "value":
+			var clientConfigValue map[string]string
+			err := json.Unmarshal(clientConfig.Value, &clientConfigValue)
+			if err != nil {
+				return nil, ncore.TraceError(err)
+			}
+			// comparing
+			payloadValue := d.Value
+			if payloadValue == nil || reflect.DeepEqual(payloadValue, clientConfigValue) {
+				changelog[k] = false
+				continue
+			}
+			// convert to byte
+			value, err := json.Marshal(d.Value)
+			if err != nil {
+				return nil, ncore.TraceError(err)
+			}
+			// Set updated value
+			clientConfig.Value = value
+			changesCount += 1
+		}
+	}
+
+	// If changes count more than 0, then persist update
+	if changesCount > 0 {
+		// Update metadata
+		modifiedBy := convert.ModifierDTOToModel(payload.Subject.ModifiedBy)
+		clientConfig.UpdatedAt = time.Now()
+		clientConfig.ModifiedBy = &modifiedBy
+		clientConfig.Version += 1
+		// Update client config
+		err = s.repo.UpdateClientConfig(clientConfig)
+		if err != nil {
+			panic(fmt.Errorf("failed to delete client config. Error = %w", err))
+		}
+	}
+
+	return composeDetailClientConfigResponse(clientConfig)
 }
 
 func (s *ServiceContext) DeleteClientConfig(payload dto.GetClientConfig) error {

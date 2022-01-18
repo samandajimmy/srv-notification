@@ -46,7 +46,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	router.Handle(http.MethodPost, "/client-configs", router.HandleFunc(handlers.Common.ValidateClient), router.HandleFunc(handlers.ClientConfig.CreateClientConfig))
 	router.Handle(http.MethodPut, "/client-configs/{xid}",
 		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.ClientConfig.UpdateClientConfig)) // TODO
+		router.HandleFunc(handlers.ClientConfig.UpdateClientConfig))
 	router.Handle(http.MethodDelete, "/client-configs/{xid}",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.ClientConfig.DeleteClientConfig))

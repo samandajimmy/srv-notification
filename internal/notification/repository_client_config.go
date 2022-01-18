@@ -6,6 +6,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ func (rc *RepositoryContext) InsertClientConfig(row model.ClientConfig) error {
 	return err
 }
 
-func (rc *RepositoryContext) Find(params *dto.FindOptions) (*model.ClientConfigSearchResult, error) {
+func (rc *RepositoryContext) FindClientConfig(params *dto.FindOptions) (*model.ClientConfigSearchResult, error) {
 	// Prepare where
 	var args []interface{}
 	var whereQuery []string
@@ -71,6 +72,14 @@ func (rc *RepositoryContext) Find(params *dto.FindOptions) (*model.ClientConfigS
 		Count: count,
 	}
 	return &result, err
+}
+
+func (rc *RepositoryContext) UpdateClientConfig(row *model.ClientConfig) error {
+	result, err := rc.RepositoryStatement.ClientConfig.UpdateByID.Exec(row)
+	if err != nil {
+		return err
+	}
+	return nsql.IsUpdated(result)
 }
 
 func (rc *RepositoryContext) DeleteClientConfigById(id int64) error {
