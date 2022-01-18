@@ -1,3 +1,18 @@
+-- Create tables
+
+CREATE TABLE public."Application"
+(
+    "id"         bigserial                   NOT NULL,
+    "createdAt"  timestamp without time zone NOT NULL,
+    "updatedAt"  timestamp without time zone NOT NULL,
+    "metadata"   JSON                        NULL,
+    "modifiedBy" JSON                        NOT NULL,
+    "version"    bigint                      NOT NULL DEFAULT 1,
+    "name"       varchar(255)                NOT NULL,
+    "xid"        varchar(64)                 NOT NULL,
+    PRIMARY KEY ("id")
+);
+
 CREATE TABLE public."ClientConfig"
 (
     "id"            bigserial                   NOT NULL,
@@ -13,23 +28,13 @@ CREATE TABLE public."ClientConfig"
     PRIMARY KEY ("id")
 );
 
-CREATE TABLE public."Application"
-(
-    "id"         bigserial                   NOT NULL,
-    "createdAt"  timestamp without time zone NOT NULL,
-    "updatedAt"  timestamp without time zone NOT NULL,
-    "metadata"   JSON                        NULL,
-    "modifiedBy" JSON                        NOT NULL,
-    "version"    bigint                      NOT NULL DEFAULT 1,
-    "name"       varchar(255)                NOT NULL,
-    "xid"        varchar(64)                 NOT NULL,
-    PRIMARY KEY ("id")
-);
-ALTER TABLE public."Application"
-    ADD UNIQUE (name);
 
-CREATE INDEX ON public."Application" (xid);
+-- Create Index for table "Application"
+
+CREATE UNIQUE INDEX ON public."Application" (xid);
 CREATE INDEX ON public."Application" (name);
+
+-- Create Index for table "ClientConfig"
 
 ALTER TABLE public."ClientConfig"
     ADD CONSTRAINT "FK_Application__applicationId" FOREIGN KEY ("applicationId") REFERENCES public."Application" (id);

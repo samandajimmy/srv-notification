@@ -26,7 +26,7 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 
 	apl := model.Application{
 		XID:          xid,
-		Name:         strings.ToUpper(payload.Name),
+		Name:         payload.Name,
 		Metadata:     []byte("{}"),
 		ItemMetadata: model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
 	}
