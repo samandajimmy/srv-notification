@@ -6,7 +6,9 @@ import (
 )
 
 type ClientConfigure interface {
+	FindClientConfigByXID(xid string) (*model.ClientConfig, error)
 	FindByKey(key string, appId int) (*model.ClientConfig, error)
 	InsertClientConfig(row model.ClientConfig) error
 	Find(params *dto.FindOptions) (*model.ClientConfigSearchResult, error)
+	DeleteClientConfigById(id int64) error
 }

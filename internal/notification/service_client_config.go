@@ -1,11 +1,11 @@
 package notification
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
@@ -15,18 +15,15 @@ import (
 
 func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.ClientConfigItemResponse, error) {
 	// Initialize data to insert
-	xid, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 8)
-	if err != nil {
-		panic(fmt.Errorf("failed to generate xid. Error = %w", err))
-	}
-
 	value, err := json.Marshal(payload.Value)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO Check ApplicationId is exists
+
 	clientConfig := model.ClientConfig{
-		XID:           xid,
+		XID:           payload.XID,
 		Key:           payload.Key,
 		Value:         value,
 		ApplicationId: payload.ApplicationId,
@@ -49,7 +46,6 @@ func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.Clie
 	}
 
 	return composeClientConfigResponse(&clientConfig)
-
 }
 
 func (s *ServiceContext) ListClientConfig(params dto.ClientConfigFindOptions) (*dto.ClientConfigListResponse, error) {
@@ -82,8 +78,51 @@ func (s *ServiceContext) ListClientConfig(params dto.ClientConfigFindOptions) (*
 	}, nil
 }
 
+func (s *ServiceContext) GetClientConfig(payload dto.ClientConfig) (*dto.ClientConfigItemResponse, error) {
+	// Get client config by xid
+	res, err := s.repo.FindClientConfigByXID(payload.XID)
+	if err != nil {
+		log.Errorf("error when get data application. err: %v", err)
+		return nil, err
+	}
+
+	return composeDetailClientConfigResponse(res)
+}
+
+func (s *ServiceContext) DeleteClientConfig(payload dto.GetClientConfig) error {
+	// Get application by xid
+	res, err := s.repo.FindClientConfigByXID(payload.XID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data client config. err: %v", err)
+			return s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data client config. err: %v", err)
+		return err
+	}
+
+	// Delete application
+	err = s.repo.DeleteClientConfigById(res.ID)
+	if err != nil {
+		panic(fmt.Errorf("failed to delete client config. Error = %w", err))
+	}
+
+	return nil
+}
+
 func composeClientConfigResponse(row *model.ClientConfig) (*dto.ClientConfigItemResponse, error) {
 	return &dto.ClientConfigItemResponse{
+		ApplicationId:        row.ApplicationId,
+		Key:                  row.Key,
+		Value:                row.Value,
+		XID:                  row.XID,
+		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
+	}, nil
+}
+
+func composeDetailClientConfigResponse(row *model.ClientConfig) (*dto.ClientConfigItemResponse, error) {
+	return &dto.ClientConfigItemResponse{
+		ApplicationId:        row.ApplicationId,
 		Key:                  row.Key,
 		Value:                row.Value,
 		XID:                  row.XID,

@@ -14,6 +14,11 @@ type ClientConfig struct {
 	Subject       *Subject          `json:"-"`
 }
 
+type GetClientConfig struct {
+	XID       string `json:"xid"`
+	RequestId string `json:"requestId"`
+}
+
 func (d ClientConfig) Validate() error {
 	return validation.ValidateStruct(&d,
 		validation.Field(&d.XID, validation.Required),

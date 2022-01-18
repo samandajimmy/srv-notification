@@ -5,6 +5,7 @@ import (
 )
 
 type ClientConfig struct {
+	ID            int64           `db:"id"`
 	XID           string          `db:"xid"`
 	Key           string          `db:"key"`
 	Value         json.RawMessage `db:"value"`

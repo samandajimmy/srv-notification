@@ -15,12 +15,18 @@ func (rc *RepositoryContext) HasInitialized() bool {
 
 func (rc *RepositoryContext) FindByKey(key string, appId int) (*model.ClientConfig, error) {
 	var row model.ClientConfig
-	err := rc.ClientConfig.FindByKey.Get(&row, key, appId)
+	err := rc.RepositoryStatement.ClientConfig.FindByKey.Get(&row, key, appId)
+	return &row, err
+}
+
+func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfig, error) {
+	var row model.ClientConfig
+	err := rc.RepositoryStatement.ClientConfig.FindByXID.Get(&row, xid)
 	return &row, err
 }
 
 func (rc *RepositoryContext) InsertClientConfig(row model.ClientConfig) error {
-	_, err := rc.ClientConfig.Insert.Exec(row)
+	_, err := rc.RepositoryStatement.ClientConfig.Insert.Exec(row)
 	return err
 }
 
@@ -39,8 +45,7 @@ func (rc *RepositoryContext) Find(params *dto.FindOptions) (*model.ClientConfigS
 	from := `ClientConfig`
 	orderBy := rc.getOrderByQuery(params)
 	q := fmt.Sprintf(`SELECT %s FROM "%s" %s ORDER BY %s LIMIT %d OFFSET %d`,
-		columns, from, where, orderBy, params.Limit, params.Skip,
-	)
+		columns, from, where, orderBy, params.Limit, params.Skip)
 
 	// Execute query
 	q = rc.conn.Rebind(q)
@@ -66,4 +71,9 @@ func (rc *RepositoryContext) Find(params *dto.FindOptions) (*model.ClientConfigS
 		Count: count,
 	}
 	return &result, err
+}
+
+func (rc *RepositoryContext) DeleteClientConfigById(id int64) error {
+	_, err := rc.RepositoryStatement.ClientConfig.DeleteByID.ExecContext(rc.ctx, id)
+	return err
 }

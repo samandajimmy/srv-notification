@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+	"github.com/gorilla/mux"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
@@ -20,9 +22,15 @@ func NewClientConfig(svc *contract.Service) *ClientConfig {
 }
 
 func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get authenticated entity
+	subject, err := GetSubject(rx)
+	if err != nil {
+		log.Errorf("Error when get subject authenticated entity.", nlogger.Error(err))
+		return nil, ncore.TraceError(err)
+	}
 	// Get Payload
 	var payload dto.ClientConfig
-	err := rx.ParseJSONBody(&payload)
+	err = rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request.", nlogger.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -38,13 +46,14 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Set request id
 	payload.RequestId = GetRequestId(rx)
+	payload.Subject = subject
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
 	resp, err := svc.CreateClientConfig(payload)
 	if err != nil {
-		log.Error("failed to create client config.", nlogger.Error(err))
+		log.Error("failed to create client .", nlogger.Error(err))
 		return nil, err
 	}
 
@@ -88,7 +97,28 @@ func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 }
 
 func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
-	return nil, nil // TODO Implement
+	// Get xid
+	xid := mux.Vars(rx.Request)["xid"]
+	if xid == "" {
+		err := errors.New("xid is not found on params")
+		log.Errorf("xid is not found on params. err: %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set payload
+	var payload dto.ClientConfig
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = xid
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	resp, err := svc.GetClientConfig(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
 }
 
 func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
@@ -96,5 +126,26 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 }
 
 func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
-	return nil, nil // TODO Implement
+	// Get xid
+	xid := mux.Vars(rx.Request)["xid"]
+	if xid == "" {
+		err := errors.New("xid is not found on params")
+		log.Errorf("xid is not found on params. err: %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set payload
+	var payload dto.GetClientConfig
+	payload.RequestId = GetRequestId(rx)
+	payload.XID = xid
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	err := svc.DeleteClientConfig(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.OK(), nil
 }
