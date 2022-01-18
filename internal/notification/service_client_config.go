@@ -31,7 +31,7 @@ func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfig) (*dto.Clie
 		ItemMetadata:  model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
 	}
 
-	// Persist application
+	// Persist client config
 	err = s.repo.InsertClientConfig(clientConfig)
 	if err != nil {
 		log.Error("unable to insert clientConfig.", nlogger.Error(err))
@@ -82,8 +82,11 @@ func (s *ServiceContext) GetClientConfig(payload dto.ClientConfig) (*dto.ClientC
 	// Get client config by xid
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
-		log.Errorf("error when get data application. err: %v", err)
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("failed to client config", nlogger.Error(err))
+		return nil, ncore.TraceError(err)
 	}
 
 	return composeDetailClientConfigResponse(res)
@@ -101,7 +104,7 @@ func (s *ServiceContext) DeleteClientConfig(payload dto.GetClientConfig) error {
 		return err
 	}
 
-	// Delete application
+	// Delete client config
 	err = s.repo.DeleteClientConfigById(res.ID)
 	if err != nil {
 		panic(fmt.Errorf("failed to delete client config. Error = %w", err))
