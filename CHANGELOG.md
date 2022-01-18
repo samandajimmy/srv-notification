@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0
+
+- [FIXED] Remove formatting app name on create
+- [ADDED] Update application service.
+- [ADDED] List application service.
+- [ADDED] Delete application service.
+- [FIXED] Generalize application name to uppercase.
+- [ADDED] Get detail application service
+- [ADDED] Initialize handler for application service
+- [ADDED] Create application service.
+- [ADDED] Implement load config from database send fcm notification.
+- [FIXED] Remove smtp and firebase config from env
+- [ADDED] Implement load config from database send email.
+- [ADDED] Implement load config from database send fcm notification.
+- [ADDED] Initialize config from database.
+- [ADDED] Initialize migration for multiple client management.
+
 ## 0.5.1
 
 - [FIXED] Remove payload message on sending email.
