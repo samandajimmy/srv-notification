@@ -20,9 +20,9 @@ func (rc *RepositoryContext) FindByKey(key string, appId int) (*model.ClientConf
 	return &row, err
 }
 
-func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfig, error) {
-	var row model.ClientConfig
-	err := rc.RepositoryStatement.ClientConfig.FindByXID.Get(&row, xid)
+func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfigVO, error) {
+	var row model.ClientConfigVO
+	err := rc.RepositoryStatement.ClientConfig.FindJoinApplicationByXID.Get(&row, xid)
 	return &row, err
 }
 
@@ -36,28 +36,39 @@ func (rc *RepositoryContext) FindClientConfig(params *dto.FindOptions) (*model.C
 	var args []interface{}
 	var whereQuery []string
 
+	if applicationXid, ok := params.Filters["applicationXid"]; ok {
+		whereQuery = append(whereQuery, `"Application"."xid" = ?`)
+		args = append(args, applicationXid)
+	}
+
 	where := ""
 	if len(whereQuery) > 0 {
 		where = "WHERE " + strings.Join(whereQuery, " AND ")
 	}
 
 	// Prepare query
-	columns := `"createdAt", "updatedAt", "metadata", "modifiedBy", "version", "key", "value", "applicationId", "xid"`
+	columns := `"ClientConfig"."createdAt", "ClientConfig"."updatedAt", "ClientConfig"."metadata", "ClientConfig"."modifiedBy", "ClientConfig"."version", "ClientConfig"."key", "ClientConfig"."value", "ClientConfig"."xid", "Application"."xid" AS "applicationXid"`
 	from := `ClientConfig`
+	// Join Table
+	joinApplication := `LEFT JOIN "Application" ON "Application"."id" = "ClientConfig"."applicationId"`
+	// Order By
 	orderBy := rc.GetOrderByQuery(params.SortBy, params.SortDirection)
-	q := fmt.Sprintf(`SELECT %s FROM "%s" %s ORDER BY %s LIMIT %d OFFSET %d`,
-		columns, from, where, orderBy, params.Limit, params.Skip)
-
+	// query string
+	q := fmt.Sprintf(
+		`SELECT %s FROM "%s" %s %s ORDER BY %s LIMIT %d OFFSET %d`,
+		columns, from, joinApplication, where, orderBy, params.Limit, params.Skip)
+	//log2.Fatalf("q: %s", q)
+	// count query string
+	countQuery := fmt.Sprintf(`SELECT COUNT("ClientConfig"."id") FROM "%s" %s %s`, from, joinApplication, where)
 	// Execute query
 	q = rc.conn.Rebind(q)
-	var rows []model.ClientConfig
+	var rows []model.ClientConfigVO
 	err := rc.conn.SelectContext(rc.ctx, &rows, q, args...)
 	if err != nil {
 		log.Error("Error when execute query.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 	// Count all
-	countQuery := fmt.Sprintf(`SELECT COUNT(id) FROM "%s" %s`, from, where)
 	countQuery = rc.conn.Rebind(countQuery)
 	var count int64
 	err = rc.conn.GetContext(rc.ctx, &count, countQuery, args...)

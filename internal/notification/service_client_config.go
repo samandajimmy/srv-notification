@@ -65,7 +65,12 @@ func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfigRequest) (*d
 		}
 	}
 
-	return composeClientConfigResponse(&clientConfig)
+	clientConfigFindByXID, err := s.repo.FindClientConfigByXID(xid)
+	if err != nil {
+		return nil, err
+	}
+
+	return composeDetailClientConfigResponse(clientConfigFindByXID)
 }
 
 func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (*dto.ClientConfigListResponse, error) {
@@ -100,7 +105,7 @@ func (s *ServiceContext) ListClientConfig(options dto.ClientConfigFindOptions) (
 			XID:                  row.XID,
 			Key:                  row.Key,
 			Value:                row.Value,
-			ApplicationId:        row.ApplicationId,
+			ApplicationXid:       row.ApplicationXid,
 			ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
 		}
 		rowsResp[idx] = rowItem
@@ -132,6 +137,16 @@ func (s *ServiceContext) GetClientConfig(payload dto.ClientConfigRequest) (*dto.
 func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error) {
 	// Get client config by xid
 	clientConfig, err := s.repo.FindClientConfigByXID(payload.XID)
+
+	modelClientConfig := model.ClientConfig{
+		ID:           clientConfig.ID,
+		XID:          clientConfig.XID,
+		Key:          clientConfig.Key,
+		Value:        clientConfig.Value,
+		Metadata:     clientConfig.Metadata,
+		ItemMetadata: clientConfig.ItemMetadata,
+	}
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data client config.", nlogger.Error(err))
@@ -164,16 +179,22 @@ func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOption
 				continue
 			}
 			// Set updated value
-			clientConfig.Key = d.Key
+			modelClientConfig.Key = d.Key
 			changesCount += 1
-		case "applicationId":
+		case "applicationXid":
 			// If title is empty, or value is still the same, then skip
-			if d.ApplicationId == 0 || d.ApplicationId == clientConfig.ApplicationId {
+			if d.ApplicationXid == "" || d.ApplicationXid == clientConfig.ApplicationXid {
 				changelog[k] = false
 				continue
 			}
+			// check application by applicationXid
+			application, err := s.repo.FindApplicationByXID(d.ApplicationXid)
+			if err != nil {
+				log.Error("application not found when Update ClientConfig.", nlogger.Error(err))
+				return nil, s.responses.GetError("E_RES_1")
+			}
 			// Set updated value
-			clientConfig.ApplicationId = d.ApplicationId
+			modelClientConfig.ApplicationId = application.ID
 			changesCount += 1
 		case "value":
 			var clientConfigValue map[string]string
@@ -193,7 +214,7 @@ func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOption
 				return nil, ncore.TraceError(err)
 			}
 			// Set updated value
-			clientConfig.Value = value
+			modelClientConfig.Value = value
 			changesCount += 1
 		}
 	}
@@ -202,11 +223,11 @@ func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOption
 	if changesCount > 0 {
 		// Update metadata
 		modifiedBy := convert.ModifierDTOToModel(payload.Subject.ModifiedBy)
-		clientConfig.UpdatedAt = time.Now()
-		clientConfig.ModifiedBy = &modifiedBy
-		clientConfig.Version += 1
+		modelClientConfig.UpdatedAt = time.Now()
+		modelClientConfig.ModifiedBy = &modifiedBy
+		modelClientConfig.Version += 1
 		// Update client config
-		err = s.repo.UpdateClientConfig(clientConfig)
+		err = s.repo.UpdateClientConfig(&modelClientConfig)
 		if err != nil {
 			panic(fmt.Errorf("failed to delete client config. Error = %w", err))
 		}
@@ -236,19 +257,9 @@ func (s *ServiceContext) DeleteClientConfig(payload dto.GetClientConfig) error {
 	return nil
 }
 
-func composeClientConfigResponse(row *model.ClientConfig) (*dto.ClientConfigItemResponse, error) {
+func composeDetailClientConfigResponse(row *model.ClientConfigVO) (*dto.ClientConfigItemResponse, error) {
 	return &dto.ClientConfigItemResponse{
-		ApplicationId:        row.ApplicationId,
-		Key:                  row.Key,
-		Value:                row.Value,
-		XID:                  row.XID,
-		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
-	}, nil
-}
-
-func composeDetailClientConfigResponse(row *model.ClientConfig) (*dto.ClientConfigItemResponse, error) {
-	return &dto.ClientConfigItemResponse{
-		ApplicationId:        row.ApplicationId,
+		ApplicationXid:       row.ApplicationXid,
 		Key:                  row.Key,
 		Value:                row.Value,
 		XID:                  row.XID,

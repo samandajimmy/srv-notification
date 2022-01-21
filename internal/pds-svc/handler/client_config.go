@@ -82,6 +82,10 @@ func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 		Subject: subject,
 	}
 
+	if v := q.Get("applicationXid"); v != "" {
+		listParam.Filters["applicationXid"] = v
+	}
+
 	// Call service
 	srv := h.Service.WithContext(rx.Context())
 	respData, err := srv.ListClientConfig(listParam)

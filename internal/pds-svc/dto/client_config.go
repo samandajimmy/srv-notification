@@ -24,8 +24,7 @@ type ClientConfigRequest struct {
 }
 
 type ClientConfig struct {
-	ApplicationXid string            `json:"-"`
-	ApplicationId  int64             `json:"applicationId,omitempty"`
+	ApplicationXid string            `json:"applicationXid"`
 	Key            string            `json:"key"`
 	Value          map[string]string `json:"value"`
 }
@@ -39,7 +38,7 @@ func (d ClientConfig) Validate() error {
 	return validation.ValidateStruct(&d,
 		validation.Field(&d.Key, validation.Required),
 		validation.Field(&d.Value, validation.Required),
-		validation.Field(&d.ApplicationId, validation.Required),
+		validation.Field(&d.ApplicationXid, validation.Required),
 	)
 }
 
@@ -64,10 +63,10 @@ func (d ClientConfigUpdateOptions) Validate() error {
 }
 
 type ClientConfigItemResponse struct {
-	XID           string          `json:"xid"`
-	Key           string          `json:"key"`
-	Value         json.RawMessage `json:"value"`
-	ApplicationId int64           `json:"applicationId"`
+	ApplicationXid string          `json:"applicationXid"`
+	XID            string          `json:"xid"`
+	Key            string          `json:"key"`
+	Value          json.RawMessage `json:"value"`
 	ItemMetadataResponse
 }
 
