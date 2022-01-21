@@ -34,6 +34,7 @@ build:
     - echo "  > Done..."
   only:
     - master
+    - /^release-*$/
 
 deploy_dev:
   image: artifactory.pegadaian.co.id:8084/tj/openshift-client:latest
