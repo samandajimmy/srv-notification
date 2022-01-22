@@ -23,6 +23,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Send Notification
 	router.Handle(http.MethodPost, "/push-notification", router.HandleFunc(handlers.Notification.PostNotification))
+	router.Handle(http.MethodPost, "/send-notification", router.HandleFunc(handlers.Notification.SendNotification))
 
 	// Application
 	router.Handle(http.MethodPost, "/applications",

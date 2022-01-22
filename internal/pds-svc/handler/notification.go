@@ -53,3 +53,39 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 
 	return nhttp.OK(), nil
 }
+
+func (h *Notification) SendNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get Payload
+	var payload dto.SendNotificationOptionsRequest
+	err := rx.ParseJSONBody(&payload)
+	if err != nil {
+		log.Errorf("Error when parse json body from request %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Validate payload
+	log.Debugf("Received SendNotification request.")
+	err = payload.Validate()
+	if err != nil {
+		log.Errorf("Error when validate payload send notification %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Set request id
+	payload.RequestId = GetRequestId(rx)
+
+	// Publish to pubsub
+	pubsubPayload, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
+	}
+
+	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
+	err = h.publisher.Publish(constant.SendNotificationTopic, msg)
+	if err != nil {
+		log.Errorf("failed to publish message to topic = %s", constant.SendNotificationTopic)
+		return nil, err
+	}
+
+	return nhttp.OK(), nil
+}
