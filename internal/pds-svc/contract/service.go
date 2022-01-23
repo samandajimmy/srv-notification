@@ -24,6 +24,7 @@ type ServiceContext interface {
 	UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error)
 
 	CreateNotification(payload dto.SendNotificationOptionsRequest) error
+	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {

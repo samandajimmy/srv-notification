@@ -11,11 +11,35 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
 	"time"
 )
+
+func (s *ServiceContext) AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error) {
+	applicationXid := username
+	apiKey := password
+
+	application, err := s.repo.FindApplicationByXID(applicationXid)
+	if err != nil {
+		return nil, err
+	}
+
+	if application.ApiKey != apiKey {
+		return nil, nhttp.UnauthorizedError
+	}
+
+	result := &dto.AuthApplicationResponse{
+		ID:     application.ID,
+		XID:    application.XID,
+		Name:   application.Name,
+		ApiKey: application.ApiKey,
+	}
+
+	return result, err
+}
 
 func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error) {
 	// Initialize data to insert

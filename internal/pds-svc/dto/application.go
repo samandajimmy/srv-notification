@@ -24,6 +24,13 @@ type GetApplication struct {
 	XID       string `json:"xid"`
 }
 
+type AuthApplicationResponse struct {
+	ID     int64  `json:"id"`
+	XID    string `json:"XID"`
+	Name   string `json:"name"`
+	ApiKey string `json:"apiKey"`
+}
+
 type ApplicationResponse struct {
 	XID  string `json:"xid"`
 	Name string `json:"name"`

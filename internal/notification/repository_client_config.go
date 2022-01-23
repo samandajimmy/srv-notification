@@ -14,7 +14,7 @@ func (rc *RepositoryContext) HasInitialized() bool {
 	return true
 }
 
-func (rc *RepositoryContext) FindByKey(key string, appId int) (*model.ClientConfig, error) {
+func (rc *RepositoryContext) FindByKey(key string, appId int64) (*model.ClientConfig, error) {
 	var row model.ClientConfig
 	err := rc.RepositoryStatement.ClientConfig.FindByKey.Get(&row, key, appId)
 	return &row, err

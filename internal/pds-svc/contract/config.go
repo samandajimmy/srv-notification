@@ -34,7 +34,7 @@ func LoadConfig() *Config {
 
 	// Set config client
 	c.Client.ClientID = nval.ParseStringFallback(os.Getenv("CLIENT_ID"), "")
-	c.Client.ClientSecret = nval.ParseStringFallback(os.Getenv("CLIENT SECRET"), "")
+	c.Client.ClientSecret = nval.ParseStringFallback(os.Getenv("CLIENT_SECRET"), "")
 
 	// Set config data resource
 	c.DataSources.Postgres = nsql.Config{

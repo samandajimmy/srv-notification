@@ -21,7 +21,7 @@ func InitHandler(manifest *ncore.Manifest, svc *contract.Service, pubSub message
 	return &HandlerMap{
 		Common:       handler.NewCommon(time.Now(), manifest.AppVersion, manifest.GetStringMetadata(constant.BuildHashKey)),
 		Email:        handler.NewEmail(pubSub),
-		Notification: handler.NewNotification(pubSub),
+		Notification: handler.NewNotification(pubSub, svc),
 		Application:  handler.NewApplication(svc),
 		ClientConfig: handler.NewClientConfig(svc),
 	}

@@ -7,7 +7,7 @@ import (
 
 type ClientConfigure interface {
 	FindClientConfigByXID(xid string) (*model.ClientConfigVO, error)
-	FindByKey(key string, appId int) (*model.ClientConfig, error)
+	FindByKey(key string, appId int64) (*model.ClientConfig, error)
 	FindClientConfig(params *dto.FindOptions) (*model.ClientConfigSearchResult, error)
 	InsertClientConfig(row model.ClientConfig) error
 	UpdateClientConfig(row *model.ClientConfig) error

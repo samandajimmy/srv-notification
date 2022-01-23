@@ -2,6 +2,7 @@ package dto
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type SendPushNotification struct {
@@ -10,7 +11,7 @@ type SendPushNotification struct {
 	Body          string            `json:"body"`
 	ImageURL      string            `json:"imageUrl"`
 	Token         string            `json:"token"`
-	ApplicationId int               `json:"applicationId"`
+	ApplicationId int64             `json:"applicationId"`
 	Data          map[string]string `json:"data"`
 }
 
@@ -50,13 +51,14 @@ type NotificationOptionVO struct {
 }
 
 type SendNotificationOptionsRequest struct {
-	RequestId      string               `json:"-"`
-	Options        NotificationOptionVO `json:"options"`
-	UserId         int64                `json:"userId"`
-	Title          string               `json:"title"`
-	Content        string               `json:"content"`
-	ContentEncoded string               `json:"contentEncoded"`
-	ContentShort   string               `json:"contentShort"`
+	RequestId      string                   `json:"-"`
+	Auth           *AuthApplicationResponse `json:"auth"`
+	Options        NotificationOptionVO     `json:"options"`
+	UserId         int64                    `json:"userId"`
+	Title          string                   `json:"title"`
+	Content        string                   `json:"content"`
+	ContentEncoded string                   `json:"contentEncoded"`
+	ContentShort   string                   `json:"contentShort"`
 }
 
 func (d SendNotificationOptionsRequest) Validate() error {
@@ -64,7 +66,7 @@ func (d SendNotificationOptionsRequest) Validate() error {
 		validation.Field(&d.Options, validation.Required),
 		validation.Field(&d.Title, validation.Required),
 		validation.Field(&d.Content, validation.Required),
-		validation.Field(&d.ContentEncoded, validation.Required),
+		validation.Field(&d.ContentEncoded, validation.Required, is.Base64),
 		validation.Field(&d.ContentShort, validation.Required),
 		validation.Field(&d.UserId, validation.Required),
 	)

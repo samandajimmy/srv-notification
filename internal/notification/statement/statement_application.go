@@ -14,9 +14,9 @@ type Application struct {
 
 func NewApplication(db *nsql.Database) *Application {
 	tableName := `Application`
-	columns := `"metadata","createdAt","updatedAt","modifiedBy","version","xid","name"`
+	columns := `"metadata","createdAt","updatedAt","modifiedBy","version","xid","name","apiKey"`
 	allColumns := `"id",` + columns
-	namedColumns := `:metadata,:createdAt,:updatedAt,:modifiedBy,:version,:xid,:name`
+	namedColumns := `:metadata,:createdAt,:updatedAt,:modifiedBy,:version,:xid,:name,:apiKey`
 	updateNamedColumns := `metadata = :metadata, "createdAt" = :createdAt, "updatedAt" = :updatedAt, "modifiedBy" = :modifiedBy, version = :version, xid = :xid, name = :name`
 
 	return &Application{

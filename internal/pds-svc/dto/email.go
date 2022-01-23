@@ -6,7 +6,7 @@ import (
 )
 
 type SendEmail struct {
-	ApplicationId int        `json:"applicationId"`
+	ApplicationId int64      `json:"applicationId"`
 	RequestId     string     `json:"requestId"`
 	Subject       string     `json:"subject"`
 	From          FromFormat `json:"from"`
