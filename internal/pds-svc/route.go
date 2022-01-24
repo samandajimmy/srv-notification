@@ -31,14 +31,11 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	router.Handle(http.MethodPost, "/applications",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.Application.PostCreateApplication))
-	// TODO: List application
 	router.Handle(http.MethodGet, "/applications", router.HandleFunc(handlers.Application.GetFindApplication))
 	router.Handle(http.MethodGet, "/applications/{xid}", router.HandleFunc(handlers.Application.GetDetailApplication))
-	// TODO: Update application
 	router.Handle(http.MethodPut, "/applications/{xid}",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.Application.PutUpdateApplication))
-	// TODO: Delete application
 	router.Handle(http.MethodDelete, "/applications/{xid}", router.HandleFunc(handlers.Application.DeleteApplication))
 
 	// Client Config
@@ -53,6 +50,9 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	router.Handle(http.MethodDelete, "/client-configs/{xid}",
 		router.HandleFunc(handlers.Common.ValidateClient),
 		router.HandleFunc(handlers.ClientConfig.DeleteClientConfig))
+
+	// Notification
+	router.Handle(http.MethodGet, "/notifications/{id}", router.HandleFunc(handlers.Notification.GetDetailNotification))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {

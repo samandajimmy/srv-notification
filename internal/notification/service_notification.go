@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/nbs-go/nlogger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
@@ -71,4 +72,45 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 	}
 
 	return nil
+}
+
+func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error) {
+	// Get detail notification
+	notification, err := s.repo.FindNotificationByID(payload.ID)
+	if err != nil {
+		log.Error("error when get notification data", nlogger.Error(err))
+		if err == sql.ErrNoRows {
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		return nil, err
+	}
+
+	// Update is read and read at when get detail notification
+	if notification.IsRead != false && notification.ReadAt.Valid != false {
+		return composeDetailNotification(notification), nil
+	}
+
+	notification.IsRead = true
+	notification.ReadAt.Time = time.Now()
+	notification.ReadAt.Valid = true
+
+	err = s.repo.UpdateNotificationByID(notification)
+	if err != nil {
+		log.Error("error when update notification data", nlogger.Error(err))
+		return nil, s.responses.GetError("E_RES_2")
+	}
+
+	return composeDetailNotification(notification), nil
+}
+
+func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {
+	return &dto.DetailNotificationResponse{
+		Id:                   m.ID,
+		ApplicationId:        m.ApplicationId,
+		UserRefId:            m.UserRefId,
+		IsRead:               m.IsRead,
+		ReadAt:               m.ReadAt.Time.Unix(),
+		Options:              m.Options,
+		ItemMetadataResponse: convert.ItemMetadataModelToResponse(m.ItemMetadata),
+	}
 }

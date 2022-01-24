@@ -25,6 +25,7 @@ type ServiceContext interface {
 
 	CreateNotification(payload dto.SendNotificationOptionsRequest) error
 	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
+	GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {

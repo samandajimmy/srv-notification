@@ -3,6 +3,8 @@ package dto
 import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/google/uuid"
 )
 
 type SendPushNotificationRequest struct {
@@ -87,4 +89,25 @@ func (d SendNotificationOptionsRequest) Validate() error {
 		validation.Field(&d.Options, validation.Required),
 		validation.Field(&d.UserId, validation.Required),
 	)
+}
+
+type GetNotification struct {
+	RequestId string `json:"requestId"`
+	ID        string `json:"id"`
+}
+
+func (d GetNotification) Validate() error {
+	return validation.ValidateStruct(&d,
+		validation.Field(&d.ID, validation.Required, is.UUID),
+	)
+}
+
+type DetailNotificationResponse struct {
+	Id            uuid.UUID       `json:"id"`
+	ApplicationId int64           `json:"applicationId"`
+	UserRefId     int64           `json:"userRefId"`
+	IsRead        bool            `json:"isRead"`
+	ReadAt        int64           `json:"readAt"`
+	Options       json.RawMessage `json:"options"`
+	ItemMetadataResponse
 }
