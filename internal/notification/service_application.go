@@ -52,6 +52,7 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 
 	apl := model.Application{
 		XID:          xid,
+		ApiKey:       payload.ApiKey,
 		Name:         payload.Name,
 		Metadata:     []byte("{}"),
 		ItemMetadata: model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
@@ -196,6 +197,16 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 			// Set updated value
 			app.Name = d.Name
 			changesCount += 1
+		case "apiKey":
+			// If title is empty, or value is still the same, then skip
+			if d.ApiKey == "" || d.ApiKey == app.ApiKey {
+				changelog[k] = false
+				continue
+			}
+
+			// Set updated value
+			app.ApiKey = d.ApiKey
+			changesCount += 1
 		}
 	}
 
@@ -226,6 +237,7 @@ func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationR
 	return &dto.ApplicationResponse{
 		Name:                 row.Name,
 		XID:                  row.XID,
+		ApiKey:               row.ApiKey,
 		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
 	}, nil
 }

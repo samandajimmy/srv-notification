@@ -10,6 +10,7 @@ import (
 type Application struct {
 	RequestId string   `json:"requestId"`
 	Name      string   `json:"name"`
+	ApiKey    string   `json:"apiKey"`
 	Subject   *Subject `json:"-"`
 }
 
@@ -32,8 +33,9 @@ type AuthApplicationResponse struct {
 }
 
 type ApplicationResponse struct {
-	XID  string `json:"xid"`
-	Name string `json:"name"`
+	XID    string `json:"xid"`
+	Name   string `json:"name"`
+	ApiKey string `json:"apiKey"`
 	ItemMetadataResponse
 }
 
