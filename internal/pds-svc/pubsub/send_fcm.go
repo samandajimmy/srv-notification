@@ -35,7 +35,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	var p dto.SendPushNotificationRequest
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
-		log.Error("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
+		log.Errorf("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
 		return true, err
 	}
 
