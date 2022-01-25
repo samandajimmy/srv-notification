@@ -39,13 +39,19 @@ type ApplicationResponse struct {
 	ItemMetadataResponse
 }
 
+type ApplicationItem struct {
+	XID  string `json:"xid"`
+	Name string `json:"name"`
+	ItemMetadataResponse
+}
+
 type ApplicationFindOptions struct {
 	FindOptions
 }
 
 type ListApplicationResponse struct {
-	Items    []*ApplicationResponse `json:"items"`
-	Metadata ListMetadata           `json:"metadata"`
+	Items    []*ApplicationItem `json:"items"`
+	Metadata ListMetadata       `json:"metadata"`
 }
 
 type ApplicationUpdateOptions struct {

@@ -145,9 +145,9 @@ func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*
 		return nil, ncore.TraceError(err)
 	}
 
-	rows := make([]*dto.ApplicationResponse, len(result.Rows))
+	rows := make([]*dto.ApplicationItem, len(result.Rows))
 	for idx, row := range result.Rows {
-		rows[idx], _ = composeDetailApplicationResponse(&row)
+		rows[idx], _ = composeListApplicationResponse(&row)
 	}
 
 	return &dto.ListApplicationResponse{
@@ -237,6 +237,14 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 	}
 
 	return composeDetailApplicationResponse(app)
+}
+
+func composeListApplicationResponse(row *model.Application) (*dto.ApplicationItem, error) {
+	return &dto.ApplicationItem{
+		Name:                 row.Name,
+		XID:                  row.XID,
+		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
+	}, nil
 }
 
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {
