@@ -58,7 +58,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	// Send email
 	err = svc.SendPushNotificationByTarget(pushNotificationPayload)
 	if err != nil {
-		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
+		log.Error("Error when sending email in service", logger.Error(err), logger.Context(ctx))
 		return true, ncore.TraceError(err)
 	}
 
