@@ -1,7 +1,6 @@
 package pubsub
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"golang.org/x/net/context"
@@ -44,12 +43,6 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 	application := p.Auth
 
 	// decode html
-	contentDecodedByte, err := base64.StdEncoding.DecodeString(p.ContentEncoded)
-	if err != nil {
-		log.Error("failed to decode content. Topic = %s.", logger.Format(h.Topic), logger.Error(err))
-		return true, err
-	}
-	contentDecodeString := string(contentDecodedByte)
 	// Send email
 	payloadSendEmail := dto.SendEmail{
 		ApplicationId: application.ID,
@@ -59,7 +52,7 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 			Email: p.Options.SMTP.From.Email,
 		},
 		To:         p.Options.SMTP.To,
-		Message:    contentDecodeString,
+		Message:    p.Options.SMTP.Message,
 		Attachment: p.Options.SMTP.Attachment,
 		MimeType:   p.Options.SMTP.MimeType,
 	}
@@ -73,8 +66,8 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 	// Prepare payload push notification
 	payloadSendPushNotification := dto.SendPushNotification{
 		ApplicationId: application.ID,
-		Title:         p.Title,
-		Body:          p.Content,
+		Title:         p.Options.FCM.Title,
+		Body:          p.Options.FCM.Body,
 		ImageURL:      p.Options.FCM.ImageUrl,
 		Token:         p.Options.FCM.Token,
 	}
@@ -87,6 +80,8 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
 		return true, err
 	}
+
+	//svc.CreateNotification()
 
 	return true, nil
 }

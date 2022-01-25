@@ -24,10 +24,12 @@ func (s *ServiceContext) AuthApplication(username string, password string) (*dto
 
 	application, err := s.repo.FindApplicationByXID(applicationXid)
 	if err != nil {
-		return nil, err
+		log.Error("application not found", nlogger.Error(err))
+		return nil, nhttp.UnauthorizedError
 	}
 
 	if application.ApiKey != apiKey {
+		log.Error("Incorrect apiKey", nlogger.Error(err))
 		return nil, nhttp.UnauthorizedError
 	}
 

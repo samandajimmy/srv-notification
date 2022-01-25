@@ -26,8 +26,14 @@ type Notification struct {
 }
 
 func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// validate basic auth
+	username, password, ok := rx.BasicAuth()
+	if !ok {
+		return nil, nhttp.BadRequestError
+	}
+
 	// Get Payload
-	var payload dto.SendPushNotification
+	var payload dto.SendPushNotificationRequest
 	err := rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request %v", err)
@@ -40,6 +46,17 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 	if err != nil {
 		log.Errorf("Error when validate payload notification %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Call service Auth
+	srv := h.Service.WithContext(rx.Context())
+	application, err := srv.AuthApplication(username, password)
+	if err != nil {
+		log.Error("failed to auth application", nlogger.Error(err))
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+	if application != nil {
+		payload.Auth = application
 	}
 
 	// Set request id

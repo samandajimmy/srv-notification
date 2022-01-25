@@ -9,15 +9,13 @@ import (
 )
 
 type Notification struct {
-	ID             uuid.UUID       `db:"id"`
-	UserRefId      int64           `db:"userRefId"`
-	Title          string          `db:"title"`
-	Content        string          `db:"content"`
-	ContentShort   string          `db:"contentShort"`
-	ContentEncoded string          `db:"contentEncoded"`
-	IsRead         bool            `db:"isRead"`
-	ReadAt         sql.NullTime    `db:"readAt"`
-	Metadata       json.RawMessage `db:"metadata"`
+	ID            uuid.UUID       `db:"id"`
+	ApplicationId int64           `db:"applicationId"`
+	UserRefId     int64           `db:"userRefId"`
+	IsRead        bool            `db:"isRead"`
+	ReadAt        sql.NullTime    `db:"readAt"`
+	Options       json.RawMessage `db:"options"`
+	Metadata      json.RawMessage `db:"metadata"`
 	ItemMetadata
 }
 

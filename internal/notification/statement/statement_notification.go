@@ -11,8 +11,8 @@ type Notification struct {
 
 func NewNotification(db *nsql.Database) *Notification {
 	tableName := `Notification`
-	columns := `"id","createdAt","updatedAt","modifiedBy","metadata","version","userRefId","title","content","contentShort","contentEncoded","isRead","readAt"`
-	namedColumns := `:id,:createdAt,:updatedAt,:modifiedBy,:metadata,:version,:userRefId,:title,:content,:contentShort,:contentEncoded,:isRead,:readAt`
+	columns := `"id","createdAt","updatedAt","modifiedBy","metadata","version","applicationId","userRefId","isRead","readAt","options"`
+	namedColumns := `:id,:createdAt,:updatedAt,:modifiedBy,:metadata,:version,:applicationId,:userRefId,:isRead,:readAt,:options`
 
 	return &Notification{
 		Insert: db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),

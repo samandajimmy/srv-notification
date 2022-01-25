@@ -20,85 +20,39 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 	}
 
 	payloadFCM := payload.Options.FCM
-	payloadSMTP := payload.Options.SMTP
-	//
+
 	now := time.Now()
-	var metadata map[string]interface{}
+
+	// init options
+	options := map[string]interface{}{}
 	// Initialize data to insert
 	notification := model.Notification{
-		ID:        id,
-		UserRefId: payload.UserId,
-		Title:     payload.Title,
-		IsRead:    false,
-		ReadAt:    sql.NullTime{},
-		Metadata:  nil,
+		ID:            id,
+		ApplicationId: payload.Auth.ID,
+		UserRefId:     payload.UserId,
+		IsRead:        false,
+		ReadAt:        sql.NullTime{},
+		Metadata:      []byte("{}"),
 		ItemMetadata: model.ItemMetadata{
 			CreatedAt:  now,
 			UpdatedAt:  now,
-			ModifiedBy: &model.Modifier{ID: "", Role: "", FullName: ""},
+			ModifiedBy: &model.Modifier{ID: "", Role: "", FullName: ""}, // TODO Get Subject
 			Version:    1,
 		},
 	}
 
-	if payload.Content != "" {
-		notification.Content = payload.Content
-	}
-
-	if payload.ContentShort != "" {
-		notification.ContentShort = payload.ContentShort
-	}
-
-	if payload.ContentEncoded != "" {
-		notification.ContentEncoded = payload.ContentEncoded
-	}
-
 	if payloadFCM != nil {
-		if payloadFCM.Data != nil {
-			payloadFcmData := make(map[string]interface{}, len(payloadFCM.Data))
-			for keyData, valueData := range payloadFCM.Data {
-				payloadFcmData[keyData] = valueData
-			}
-			metadata = payloadFcmData
-		}
-
-		additionalButton := dto.AdditionalButton{
-			ButtonLabel:   payloadFCM.AdditionalButton.ButtonLabel,
-			TransactionId: payloadFCM.AdditionalButton.TransactionId,
-			ScreenName:    payloadFCM.AdditionalButton.ScreenName,
-		}
-
-		additionalBtn, err := json.Marshal(additionalButton)
-		if err != nil {
-			log.Errorf("error marshal additionalBtn.", nlogger.Error(err))
-			return err
-		}
-		// assign additionalButton to Metadata
-		metadata["additionalButton"] = additionalBtn
-		metadata["token"] = payloadFCM.Token
-		metadata["imageUrl"] = payloadFCM.ImageUrl
-
-		metaData, err := json.Marshal(metadata)
-		if err != nil {
-			log.Errorf("error marshal metaData.", nlogger.Error(err))
-			return err
-		}
-		notification.Metadata = metaData
+		options["fcm"] = payloadFCM
 	}
 
-	if payloadSMTP != nil {
-		dtoFrom := dto.FromFormat{
-			Name:  payloadSMTP.From.Name,
-			Email: payloadSMTP.From.Email,
-		}
-		from, err := json.Marshal(dtoFrom)
-		if err != nil {
-			log.Errorf("error marshal fromEmail.", nlogger.Error(err))
-			return err
-		}
-		metadata["from"] = from
-		metadata["to"] = payloadSMTP.To
-		metadata["attachment"] = payloadSMTP.Attachment
-		metadata["mimeType"] = payloadSMTP.MimeType
+	opt, err := json.Marshal(options)
+	if err != nil {
+		log.Errorf("error marshalling options.", nlogger.Error(err))
+		return err
+	}
+
+	if opt != nil {
+		notification.Options = opt
 	}
 
 	// Persist Notification
