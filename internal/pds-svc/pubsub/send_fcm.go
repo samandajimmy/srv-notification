@@ -45,24 +45,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	// Get service context
 	svc := h.svc.WithContext(ctx)
 
-	pushNotificationPayload := dto.SendPushNotification{
-		RequestId:     p.RequestId,
-		Title:         p.Title,
-		Body:          p.Body,
-		ImageURL:      p.ImageUrl,
-		Token:         p.Token,
-		ApplicationId: p.Auth.ID,
-		Data:          p.Data,
-	}
-
-	// Send email
-	err = svc.SendPushNotificationByTarget(pushNotificationPayload)
-	if err != nil {
-		log.Error("Error when sending email in service", logger.Error(err), logger.Context(ctx))
-		return true, ncore.TraceError(err)
-	}
-
-	// prepare FCM Options
+	// Prepare FCM Options
 	fcmOption := &dto.FCMOption{
 		UserId:   p.UserId,
 		Title:    p.Title,
@@ -86,6 +69,24 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	if err != nil {
 		log.Error("Error when create notification %v", logger.Error(err), logger.Context(ctx))
 		return true, err
+	}
+
+	// Prepare send push notification
+	pushNotificationPayload := dto.SendPushNotification{
+		RequestId:     p.RequestId,
+		Title:         p.Title,
+		Body:          p.Body,
+		ImageURL:      p.ImageUrl,
+		Token:         p.Token,
+		ApplicationId: p.Auth.ID,
+		Data:          p.Data,
+	}
+
+	// Send Push Notification
+	err = svc.SendPushNotificationByTarget(pushNotificationPayload)
+	if err != nil {
+		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
+		return true, ncore.TraceError(err)
 	}
 
 	return true, nil
