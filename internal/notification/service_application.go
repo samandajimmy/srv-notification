@@ -50,9 +50,15 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 		panic(fmt.Errorf("failed to generate xid. Error = %w", err))
 	}
 
+	// Initialize data to insert
+	apiKey, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 32)
+	if err != nil {
+		panic(fmt.Errorf("failed to generate apiKey. Error = %w", err))
+	}
+
 	apl := model.Application{
 		XID:          xid,
-		ApiKey:       payload.ApiKey,
+		ApiKey:       apiKey,
 		Name:         payload.Name,
 		Metadata:     []byte("{}"),
 		ItemMetadata: model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
