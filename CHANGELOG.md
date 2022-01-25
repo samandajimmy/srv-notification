@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.1
+
+- [ADDED] Refactor client config detail response and added filter by application xid
+
+## 0.7.0
+
+- [ADDED] Update client config
+- [CHANGED] Modifier `FullName` using camelCase from snake case
+- [ADDED] Route delete and detail client config
+- [ADDED] List client config
+
 ## 0.6.0
 
 - [FIXED] Remove formatting app name on create
