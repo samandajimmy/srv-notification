@@ -22,4 +22,4 @@ CREATE INDEX ON public."Notification" ("applicationId");
 
 -- Alter Application
 alter table "Application"
-    add "apiKey" varchar(255);
+    add "apiKey" varchar(255) NOT NULL DEFAULT '';
