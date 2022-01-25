@@ -18,3 +18,8 @@ CREATE TABLE "public"."Notification"
 -- Create Index for table "Notification"
 CREATE INDEX ON public."Notification" ("userRefId");
 CREATE INDEX ON public."Notification" ("applicationId");
+
+
+-- Alter Application
+alter table "Application"
+    add "apiKey" varchar(255);

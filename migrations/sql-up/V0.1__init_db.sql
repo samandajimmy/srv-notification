@@ -10,7 +10,6 @@ CREATE TABLE public."Application"
     "version"    bigint                      NOT NULL DEFAULT 1,
     "name"       varchar(255)                NOT NULL,
     "xid"        varchar(64)                 NOT NULL,
-    "apiKey"     varchar(255)                NULL,
     PRIMARY KEY ("id")
 );
 
