@@ -7,15 +7,14 @@ CREATE TABLE "public"."Notification"
     "modifiedBy"     json                        NOT NULL,
     "metadata"       json                        NULL,
     "version"        bigint                      NOT NULL DEFAULT 1,
+    "applicationId"  bigint                      NOT NULL,
     "userRefId"      bigint,
-    "title"          varchar(255)                NOT NULL,
-    "content"        text                        NULL,
-    "contentShort"   varchar(255)                NULL,
-    "contentEncoded" text                        NULL,
     "isRead"         bool                        NULL     DEFAULT FALSE,
     "readAt"         timestamp without time zone NULL,
+    "options"        json                        NULL,
     PRIMARY KEY ("id")
 );
 
 -- Create Index for table "Notification"
 CREATE INDEX ON public."Notification" ("userRefId");
+CREATE INDEX ON public."Notification" ("applicationId");
