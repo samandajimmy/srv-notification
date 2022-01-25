@@ -3,12 +3,15 @@ package notification
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
 )
 
@@ -78,6 +81,26 @@ func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dt
 	}
 
 	return composeDetailNotification(notification), nil
+}
+
+func (s *ServiceContext) DeleteNotification(payload dto.GetNotification) error {
+	// Get notification by xid
+	notification, err := s.repo.FindNotificationByID(payload.ID)
+	if err != nil {
+		log.Error("error when get data notification. err: %v", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return s.responses.GetError("E_RES_1")
+		}
+		return err
+	}
+
+	// Delete application
+	err = s.repo.DeleteNotificationByID(nval.ParseStringFallback(notification.ID, ""))
+	if err != nil {
+		panic(fmt.Errorf("failed to delete notification. Error = %w", err))
+	}
+
+	return nil
 }
 
 func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {

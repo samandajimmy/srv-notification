@@ -6,9 +6,10 @@ import (
 )
 
 type Notification struct {
-	Insert   *sqlx.NamedStmt
-	FindByID *sqlx.Stmt
-	Update   *sqlx.NamedStmt
+	Insert     *sqlx.NamedStmt
+	FindByID   *sqlx.Stmt
+	Update     *sqlx.NamedStmt
+	DeleteByID *sqlx.Stmt
 }
 
 func NewNotification(db *nsql.Database) *Notification {
@@ -18,8 +19,9 @@ func NewNotification(db *nsql.Database) *Notification {
 	updateNamedColumns := `"id" = :id,"createdAt" = :createdAt,"updatedAt" = :updatedAt,"modifiedBy" = :modifiedBy,"metadata" = :metadata,"version" = :version,"applicationId" = :applicationId,"userRefId" = :userRefId,"isRead" = :isRead,"readAt" = :readAt,"options" = :options`
 
 	return &Notification{
-		Insert:   db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
-		FindByID: db.PrepareFmt(`SELECT %s FROM "%s" WHERE id = $1`, columns, tableName),
-		Update:   db.PrepareNamedFmt(`UPDATE "%s" SET %s WHERE "id" = :id`, tableName, updateNamedColumns),
+		Insert:     db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
+		FindByID:   db.PrepareFmt(`SELECT %s FROM "%s" WHERE id = $1`, columns, tableName),
+		Update:     db.PrepareNamedFmt(`UPDATE "%s" SET %s WHERE "id" = :id`, tableName, updateNamedColumns),
+		DeleteByID: db.PrepareFmt(`DELETE FROM "%s" WHERE id = $1`, tableName),
 	}
 }

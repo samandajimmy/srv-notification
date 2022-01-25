@@ -23,3 +23,8 @@ func (rc *RepositoryContext) UpdateNotificationByID(row *model.Notification) err
 	}
 	return nsql.IsUpdated(result)
 }
+
+func (rc *RepositoryContext) DeleteNotificationByID(id string) error {
+	_, err := rc.Notification.DeleteByID.ExecContext(rc.ctx, id)
+	return err
+}

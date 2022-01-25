@@ -53,6 +53,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Notification
 	router.Handle(http.MethodGet, "/notifications/{id}", router.HandleFunc(handlers.Notification.GetDetailNotification))
+	router.Handle(http.MethodDelete, "/notifications/{id}", router.HandleFunc(handlers.Notification.DeleteNotification))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {
