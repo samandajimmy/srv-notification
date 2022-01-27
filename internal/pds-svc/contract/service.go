@@ -26,6 +26,7 @@ type ServiceContext interface {
 	CreateNotification(payload dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error)
 	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
 	GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error)
+	GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error)
 	DeleteNotification(payload dto.GetNotification) error
 }
 

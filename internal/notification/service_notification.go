@@ -103,6 +103,22 @@ func (s *ServiceContext) DeleteNotification(payload dto.GetNotification) error {
 	return nil
 }
 
+func (s *ServiceContext) GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error) {
+	// Get count notification
+	count, err := s.repo.CountNotification(payload)
+	if err != nil {
+		s.log.Error("error when get data count notification. err: %v", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		return nil, err
+	}
+
+	return &dto.DetailCountNotificationResponse{
+		Count: count,
+	}, err
+}
+
 func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {
 	var readAt int64
 	if m.ReadAt.Valid {

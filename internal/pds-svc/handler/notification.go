@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -13,6 +14,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 func NewNotification(publisher message.Publisher, service *contract.Service) *Notification {
@@ -197,4 +199,40 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	return nhttp.OK(), nil
+}
+
+func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get user id
+	userId := rx.URL.Query().Get("userId")
+	if nval.ParseInt64Fallback(userId, 0) <= 0 {
+		return nil, nhttp.BadRequestError.Wrap(errors.New("User id is required."))
+	}
+
+	// validate basic auth
+	username, password, ok := rx.BasicAuth()
+	if !ok {
+		return nil, nhttp.BadRequestError
+	}
+
+	// Set payload
+	var payload dto.GetCountNotification
+	payload.RequestId = GetRequestId(rx)
+	payload.UserRefId = nval.ParseInt64Fallback(userId, 0)
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	application, err := svc.AuthApplication(username, password)
+	if err != nil {
+		log.Error("failed to auth application", nlogger.Error(err))
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+	payload.Application = application
+
+	resp, err := svc.GetCountNotification(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
 }

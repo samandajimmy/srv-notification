@@ -102,6 +102,12 @@ func (d GetNotification) Validate() error {
 	)
 }
 
+type GetCountNotification struct {
+	RequestId   string                   `json:"requestId"`
+	Application *AuthApplicationResponse `json:"applicationId"`
+	UserRefId   int64                    `json:"userRefId"`
+}
+
 type DetailNotificationResponse struct {
 	Id            uuid.UUID       `json:"id"`
 	ApplicationId int64           `json:"applicationId"`
@@ -110,4 +116,8 @@ type DetailNotificationResponse struct {
 	ReadAt        int64           `json:"readAt"`
 	Options       json.RawMessage `json:"options"`
 	ItemMetadataResponse
+}
+
+type DetailCountNotificationResponse struct {
+	Count int64 `json:"count"`
 }

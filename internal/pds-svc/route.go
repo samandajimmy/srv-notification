@@ -52,6 +52,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.ClientConfig.DeleteClientConfig))
 
 	// Notification
+	router.Handle(http.MethodGet, "/notifications/count", router.HandleFunc(handlers.Notification.GetCountNotification))
 	router.Handle(http.MethodGet, "/notifications/{id}", router.HandleFunc(handlers.Notification.GetDetailNotification))
 	router.Handle(http.MethodDelete, "/notifications/{id}", router.HandleFunc(handlers.Notification.DeleteNotification))
 }
