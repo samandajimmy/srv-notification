@@ -121,3 +121,13 @@ type DetailNotificationResponse struct {
 type DetailCountNotificationResponse struct {
 	Count int64 `json:"count"`
 }
+
+type NotificationFindOptions struct {
+	FindOptions
+	Subject *Subject
+}
+
+type ListNotificationResponse struct {
+	Items    []*DetailNotificationResponse `json:"items"`
+	Metadata ListMetadata                  `json:"metadata"`
+}

@@ -236,3 +236,51 @@ func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response,
 
 	return nhttp.Success().SetData(resp), nil
 }
+
+func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get list parameters
+	q := rx.URL.Query()
+	//Get parameter
+	listParam := dto.NotificationFindOptions{
+		FindOptions: dto.FindOptions{
+			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
+			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
+			SortBy:        nval.ParseStringFallback(q.Get("sortBy"), "createdAt"),
+			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
+			Filters:       map[string]interface{}{},
+		},
+	}
+
+	// validate basic auth
+	username, password, ok := rx.BasicAuth()
+	if !ok {
+		return nil, nhttp.BadRequestError
+	}
+
+	//Call service
+	svc := h.Service.WithContext(rx.Context())
+	application, err := svc.AuthApplication(username, password)
+	if err != nil {
+		log.Error("failed to auth application", nlogger.Error(err))
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	if application != nil {
+		listParam.Filters["applicationId"] = application.ID
+	}
+
+	if v := nval.ParseInt64Fallback(q.Get("userId"), 0); v > 0 {
+		listParam.Filters["userId"] = v
+	} else {
+		log.Error("userId is required to get list data", nlogger.Error(err))
+		return nil, nhttp.BadRequestError
+	}
+
+	resp, err := svc.ListNotification(listParam)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.OK().SetData(resp), nil
+}

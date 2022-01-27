@@ -11,6 +11,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
 )
@@ -117,6 +118,47 @@ func (s *ServiceContext) GetCountNotification(payload dto.GetCountNotification) 
 	return &dto.DetailCountNotificationResponse{
 		Count: count,
 	}, err
+}
+
+func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (*dto.ListNotificationResponse, error) {
+	// Handle sort request
+	rulesSortBy := []string{
+		"createdAt",
+		"updatedAt",
+	}
+
+	// Get orderBy
+	sortBy, sortDirection := s.GetOrderBy(
+		nval.ParseStringFallback(options.SortBy, `createdAt`),
+		nval.ParseStringFallback(options.SortDirection, `desc`),
+		rulesSortBy,
+	)
+
+	// Set sort by and direction
+	options.SortBy = sortBy
+	options.SortDirection = sortDirection
+
+	// Get list notification
+	result, err := s.repo.FindNotification(&options)
+	if err != nil {
+		s.log.Error("failed to find data notification", nlogger.Error(err))
+		return nil, ncore.TraceError(err)
+	}
+
+	// Set item response
+	items := make([]*dto.DetailNotificationResponse, len(result.Rows))
+	for idx, row := range result.Rows {
+		item := composeDetailNotification(&row)
+		items[idx] = item
+	}
+
+	return &dto.ListNotificationResponse{
+		Items: items,
+		Metadata: dto.ListMetadata{
+			Count:       result.Count,
+			FindOptions: options.FindOptions,
+		},
+	}, nil
 }
 
 func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {

@@ -64,3 +64,57 @@ func (rc *RepositoryContext) CountNotification(options dto.GetCountNotification)
 
 	return count, nil
 }
+
+func (rc *RepositoryContext) FindNotification(params *dto.NotificationFindOptions) (*model.FindNotificationResult, error) {
+	// Prepare where
+	var args []interface{}
+	var whereQuery []string
+
+	if userId, ok := params.Filters["userId"]; ok {
+		whereQuery = append(whereQuery, `"userRefId" = ?`)
+		args = append(args, userId)
+	}
+
+	if applicationId, ok := params.Filters["applicationId"]; ok {
+		whereQuery = append(whereQuery, `"applicationId" = ?`)
+		args = append(args, applicationId)
+	}
+
+	where := ""
+	if len(whereQuery) > 0 {
+		where = "WHERE " + strings.Join(whereQuery, " AND ")
+	}
+
+	// Prepare query
+	columns := `"id","createdAt","updatedAt","modifiedBy","metadata","version","applicationId","userRefId","isRead","readAt","options"`
+	from := `FROM "Notification"`
+	queryList := fmt.Sprintf(`SELECT %s %s %s ORDER BY %s LIMIT %d OFFSET %d`,
+		columns,
+		from,
+		where,
+		rc.GetOrderByQuery(params.SortBy, params.SortDirection),
+		params.Limit,
+		params.Skip)
+
+	// Execute query
+	queryList = rc.conn.Rebind(queryList)
+	var rows []model.Notification
+	err := rc.conn.SelectContext(rc.ctx, &rows, queryList, args...)
+	if err != nil {
+		return nil, ncore.TraceError(err)
+	}
+
+	// Prepare query
+	queryCount := fmt.Sprintf(`SELECT COUNT(id) %s %s`, from, where)
+	queryCount = rc.conn.Rebind(queryCount)
+	var count int64
+	err = rc.conn.GetContext(rc.ctx, &count, queryCount, args...)
+	if err != nil {
+		return nil, ncore.TraceError(err)
+	}
+
+	return &model.FindNotificationResult{
+		Rows:  rows,
+		Count: count,
+	}, nil
+}

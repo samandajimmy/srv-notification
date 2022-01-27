@@ -28,6 +28,7 @@ type ServiceContext interface {
 	GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error)
 	GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error)
 	DeleteNotification(payload dto.GetNotification) error
+	ListNotification(options dto.NotificationFindOptions) (*dto.ListNotificationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {

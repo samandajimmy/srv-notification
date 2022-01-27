@@ -19,6 +19,11 @@ type Notification struct {
 	ItemMetadata
 }
 
+type FindNotificationResult struct {
+	Rows  []Notification
+	Count int64
+}
+
 type AdditionalButton struct {
 	ButtonLabel   string `db:"buttonLabel"`
 	TransactionId string `db:"transactionId"`
