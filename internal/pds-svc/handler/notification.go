@@ -284,3 +284,42 @@ func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, 
 
 	return nhttp.OK().SetData(resp), nil
 }
+
+func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get user id
+	id := mux.Vars(rx.Request)["id"]
+
+	// validate basic auth
+	username, password, ok := rx.BasicAuth()
+	if !ok {
+		return nil, nhttp.BadRequestError
+	}
+
+	// Set payload
+	var payload dto.GetCountNotification
+	payload.RequestId = GetRequestId(rx)
+	payload.ID = id
+
+	err := payload.Validate()
+	if err != nil {
+		log.Errorf("id is not found on params. err: %v", err)
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+
+	// Call service
+	svc := h.Service.WithContext(rx.Context())
+	application, err := svc.AuthApplication(username, password)
+	if err != nil {
+		log.Error("failed to auth application", nlogger.Error(err))
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
+	payload.Application = application
+
+	resp, err := svc.UpdateIsRead(payload)
+	if err != nil {
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
+	}
+
+	return nhttp.Success().SetData(resp), nil
+}

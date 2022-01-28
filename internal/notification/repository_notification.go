@@ -118,3 +118,35 @@ func (rc *RepositoryContext) FindNotification(params *dto.NotificationFindOption
 		Count: count,
 	}, nil
 }
+
+func (rc *RepositoryContext) CountNotificationNotRead(options dto.GetCountNotification) (int64, error) {
+	// Prepare where
+	var args []interface{}
+	var whereQuery []string
+
+	if options.UserRefId > 0 {
+		whereQuery = append(whereQuery, `"userRefId" = ?`)
+		args = append(args, options.UserRefId)
+	}
+
+	if options.Application.ID > 0 {
+		whereQuery = append(whereQuery, `"applicationId" = ?`)
+		args = append(args, options.Application.ID)
+	}
+
+	where := ""
+	if len(whereQuery) > 0 {
+		where = "WHERE " + strings.Join(whereQuery, " AND ")
+	}
+
+	// Prepare query
+	queryCount := fmt.Sprintf(`SELECT COUNT(id) FROM "Notification" %s AND "readAt" IS NULL AND "isRead" = 'false'`, where)
+	queryCount = rc.conn.Rebind(queryCount)
+	var count int64
+	err := rc.conn.GetContext(rc.ctx, &count, queryCount, args...)
+	if err != nil {
+		return 0, ncore.TraceError(err)
+	}
+
+	return count, nil
+}

@@ -161,6 +161,33 @@ func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (
 	}, nil
 }
 
+func (s *ServiceContext) UpdateIsRead(payload dto.GetCountNotification) (*dto.DetailNotificationResponse, error) {
+	// Get detail notification
+	notification, err := s.repo.FindNotificationByID(payload.ID)
+	if err != nil {
+		s.log.Error("error when get notification data", nlogger.Error(err))
+		if err == sql.ErrNoRows {
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		return nil, err
+	}
+
+	// Set notification read at and is read true.
+	notification.ReadAt = sql.NullTime{
+		Time:  time.Now(),
+		Valid: true,
+	}
+	notification.IsRead = true
+
+	err = s.repo.UpdateNotificationByID(notification)
+	if err != nil {
+		s.log.Error("error when update notification data", nlogger.Error(err))
+		return nil, s.responses.GetError("E_RES_2")
+	}
+
+	return composeDetailNotification(notification), nil
+}
+
 func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {
 	var readAt int64
 	if m.ReadAt.Valid {
