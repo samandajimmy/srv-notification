@@ -85,21 +85,6 @@ func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dt
 		return nil, err
 	}
 
-	// Update is read and read at when get detail notification
-	if notification.IsRead != false && notification.ReadAt.Valid != false {
-		return composeDetailNotification(notification), nil
-	}
-
-	notification.IsRead = true
-	notification.ReadAt.Time = time.Now()
-	notification.ReadAt.Valid = true
-
-	err = s.repo.UpdateNotificationByID(notification)
-	if err != nil {
-		log.Error("error when update notification data", nlogger.Error(err))
-		return nil, s.responses.GetError("E_RES_2")
-	}
-
 	return composeDetailNotification(notification), nil
 }
 
