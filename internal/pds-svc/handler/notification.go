@@ -111,6 +111,16 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	if application != nil {
 		payload.Auth = application
 	}
+
+	// Set user id on fcm options
+	if o := payload.Options.FCM; o != nil {
+		o.UserId = payload.UserId
+	}
+
+	if o := payload.Options.SMTP; o != nil {
+		o.UserId = payload.UserId
+	}
+
 	// Set request id
 	payload.RequestId = GetRequestId(rx)
 
