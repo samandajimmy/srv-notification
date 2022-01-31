@@ -8,7 +8,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
 )
 
@@ -59,16 +58,8 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 	// Persist Notification
 	err = s.repo.InsertNotification(notification)
 	if err != nil {
-		log.Errorf("unable to insert notification. err: %v", err)
-		// Handle pq.Error
-		errCode, _ := nsql.GetPostgresError(err)
-
-		switch errCode {
-		case nsql.UniqueError:
-			return s.responses.GetError("E_UAL_1").Wrap(err)
-		default:
-			return err
-		}
+		s.log.Error("unable to insert notification. err: %v", logger.Error(err))
+		return nil, err
 	}
 
 	return nil
