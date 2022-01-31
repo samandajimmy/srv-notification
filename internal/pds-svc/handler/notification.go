@@ -78,8 +78,8 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 	return nhttp.OK(), nil
 }
 
-func (h *Notification) SendNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-
+func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Refactor to Auth Middleware
 	// validate basic auth
 	username, password, ok := rx.BasicAuth()
 	if !ok {
