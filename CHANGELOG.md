@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0
+
+- [ADDED] API Delete Notification
+
 ## 0.9.0
 
 - [CHANGED] Return notification detail on Create Notification
