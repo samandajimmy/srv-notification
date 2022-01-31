@@ -12,8 +12,9 @@ const (
 )
 
 const (
-	SubjectKey   = "subject"
-	BuildHashKey = "build_hash"
+	SubjectKey     = "subject"
+	BuildHashKey   = "build_hash"
+	ApplicationKey = "app"
 )
 
 const (

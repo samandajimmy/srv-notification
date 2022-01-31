@@ -23,7 +23,9 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Send Notification
 	router.Handle(http.MethodPost, "/push-notification", router.HandleFunc(handlers.Notification.PostNotification))
-	router.Handle(http.MethodPost, "/notifications", router.HandleFunc(handlers.Notification.PostCreateNotification))
+	router.Handle(http.MethodPost, "/notifications",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.PostCreateNotification))
 
 	// Application
 	router.Handle(http.MethodPost, "/applications",

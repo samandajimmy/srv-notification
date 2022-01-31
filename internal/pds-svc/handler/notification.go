@@ -82,41 +82,33 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 }
 
 func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-	// TODO: Refactor to Auth Middleware
-	// validate basic auth
-	username, password, ok := rx.BasicAuth()
-	if !ok {
-		return nil, nhttp.BadRequestError
+	// Get context
+	ctx := rx.Context()
+
+	// Get app
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		return nil, ncore.TraceError(err)
 	}
+
 	// Get Payload
 	var payload dto.SendNotificationOptionsRequest
-	err := rx.ParseJSONBody(&payload)
+	err = rx.ParseJSONBody(&payload)
 	if err != nil {
-		log.Errorf("Error when parse json body from request %v", err)
+		log.Error("Error when parse json body from request", logger.Error(err), logger.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
 	// Validate payload
-	log.Debugf("Received SendNotification request.")
 	err = payload.Validate()
 	if err != nil {
-		log.Errorf("Error when validate payload send notification %v", err)
+		log.Error("Error when validate payload send notification", logger.Error(err), logger.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	// TODO: Refactor to Auth Middleware
-	// Call service
-	svc := h.Service.WithContext(rx.Context())
-	application, err := svc.AuthApplication(username, password)
-	if err != nil {
-		log.Error("failed to call service.", nlogger.Error(err))
-		return nil, ncore.TraceError(err)
-	}
-	if application != nil {
-		payload.Auth = application
-	}
-
-	// Set user id on fcm options
+	// Normalize request value
+	// -- Set user id on fcm options
 	if o := payload.Options.FCM; o != nil {
 		o.UserId = payload.UserId
 	}
@@ -125,10 +117,14 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		o.UserId = payload.UserId
 	}
 
-	// Set request id
+	// -- Set app to auth
+	payload.Auth = app
+
+	// -- Set request id
 	payload.RequestId = GetRequestId(rx)
 
 	// Create notification
+	svc := h.Service.WithContext(rx.Context())
 	err = svc.CreateNotification(payload)
 	if err != nil {
 		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
@@ -140,7 +136,6 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
 	}
-
 	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
 	err = h.publisher.Publish(constant.SendNotificationTopic, msg)
 	if err != nil {
