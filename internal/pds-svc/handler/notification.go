@@ -173,32 +173,6 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get id
-	id := mux.Vars(rx.Request)["id"]
-
-	// Set payload
-	var payload dto.GetNotification
-	payload.RequestId = GetRequestId(rx)
-	payload.ID = id
-
-	err := payload.Validate()
-	if err != nil {
-		log.Errorf("id is not found on params. err: %v", err)
-		return nil, nhttp.BadRequestError.Wrap(err)
-	}
-
-	// Call service
-	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetDetailNotification(payload)
-	if err != nil {
-		log.Errorf("error when call service err: %v", err)
-		return nil, err
-	}
-
-	return nhttp.Success().SetData(resp), nil
-}
-
 func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get ID
 	id := mux.Vars(rx.Request)["id"]
