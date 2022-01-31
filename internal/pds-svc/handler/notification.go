@@ -269,7 +269,7 @@ func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, 
 		listParam.Filters["applicationId"] = application.ID
 	}
 
-	if v := nval.ParseInt64Fallback(q.Get("userId"), 0); v > 0 {
+	if v := nval.ParseInt64Fallback(q.Get("filters[userId]"), 0); v > 0 {
 		listParam.Filters["userId"] = v
 	} else {
 		log.Error("userId is required to get list data", nlogger.Error(err))
