@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0
+
+- [CHANGED] Return notification detail on Create Notification
+- [ADDED] API Get Detail Notification
+
 ## 0.8.1
 
 - [CHANGED] Add prefix for migration config
