@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0
+
+- [FIXED] set apiKey when create update delete application
+- [ADDED] Add Column apiKey to Application table
+- [ADDED] implement create notification when send push notification
+- [ADDED] Add apiKey to Application table and implement apikey when send notification
+- [ADDED] Send notification handler and pubsub
+- [ADDED] Create notification service
+- [ADDED] notification repository
+- [ADDED] notification table schema
+
 ## 0.7.1
 
 - [ADDED] Refactor client config detail response and added filter by application xid
