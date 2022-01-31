@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsRequest) error {
+func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error) {
 	// Generate temporary id
 	id, err := uuid.NewUUID()
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 		return nil, err
 	}
 
-	return nil
+	return composeDetailNotification(&notification), nil
 }
 
 func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error) {

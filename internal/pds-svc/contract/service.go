@@ -23,7 +23,7 @@ type ServiceContext interface {
 	DeleteClientConfig(payload dto.GetClientConfig) error
 	UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error)
 
-	CreateNotification(payload dto.SendNotificationOptionsRequest) error
+	CreateNotification(payload dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error)
 	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
 	GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error)
 }
