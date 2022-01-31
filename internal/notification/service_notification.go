@@ -89,12 +89,17 @@ func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dt
 }
 
 func composeDetailNotification(m *model.Notification) *dto.DetailNotificationResponse {
+	var readAt int64
+	if m.ReadAt.Valid {
+		readAt = m.ReadAt.Time.Unix()
+	}
+
 	return &dto.DetailNotificationResponse{
 		Id:                   m.ID,
 		ApplicationId:        m.ApplicationId,
 		UserRefId:            m.UserRefId,
 		IsRead:               m.IsRead,
-		ReadAt:               m.ReadAt.Time.Unix(),
+		ReadAt:               readAt,
 		Options:              m.Options,
 		ItemMetadataResponse: convert.ItemMetadataModelToResponse(m.ItemMetadata),
 	}
