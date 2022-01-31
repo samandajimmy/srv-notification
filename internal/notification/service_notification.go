@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/nbs-go/nlogger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/convert"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
@@ -15,8 +16,8 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 	// Generate temporary id
 	id, err := uuid.NewUUID()
 	if err != nil {
-		log.Error("error when get uuid", nlogger.Error(err))
-		return err
+		s.log.Error("error when get uuid", nlogger.Error(err))
+		return nil, err
 	}
 
 	payloadFCM := payload.Options.FCM
@@ -47,8 +48,8 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 
 	opt, err := json.Marshal(options)
 	if err != nil {
-		log.Errorf("error marshalling options.", nlogger.Error(err))
-		return err
+		s.log.Errorf("error marshalling options.", nlogger.Error(err))
+		return nil, err
 	}
 
 	if opt != nil {
@@ -69,7 +70,7 @@ func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dt
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
-		log.Error("error when get notification data", nlogger.Error(err))
+		s.log.Error("error when get notification data", nlogger.Error(err))
 		if err == sql.ErrNoRows {
 			return nil, s.responses.GetError("E_RES_1")
 		}
