@@ -22,3 +22,7 @@ const (
 	SubjectNameHeader = "x-subject-name"
 	SubjectRoleHeader = "x-subject-role"
 )
+
+const (
+	DefaultConfig = "DEFAULT_CONFIG"
+)

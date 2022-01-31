@@ -2,6 +2,7 @@ package notification
 
 import (
 	"fmt"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -28,8 +29,8 @@ func (rc *RepositoryContext) DeleteApplicationById(id int64) error {
 
 func (rc *RepositoryContext) FindApplication(params *dto.ApplicationFindOptions) (*model.ApplicationFindResult, error) {
 	// Prepare where
-	var args []interface{}
-	var whereQuery []string
+	args := []interface{}{constant.DefaultConfig}
+	whereQuery := []string{"xid != ?"}
 
 	if xid, ok := params.Filters["xid"]; ok {
 		whereQuery = append(whereQuery, `xid = ?`)

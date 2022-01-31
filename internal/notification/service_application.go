@@ -22,6 +22,11 @@ func (s *ServiceContext) AuthApplication(username string, password string) (*dto
 	applicationXid := username
 	apiKey := password
 
+	if applicationXid == constant.DefaultConfig {
+		log.Warn("cannot use default configuration as app")
+		return nil, nhttp.ForbiddenError
+	}
+
 	application, err := s.repo.FindApplicationByXID(applicationXid)
 	if err != nil {
 		log.Error("application not found", nlogger.Error(err))
@@ -94,6 +99,11 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 }
 
 func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error) {
+	if payload.XID == constant.DefaultConfig {
+		log.Warn("did not allowed retrieve default config as app")
+		return nil, nhttp.ForbiddenError
+	}
+
 	// Get application by xid
 	res, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
@@ -109,6 +119,11 @@ func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.Applic
 }
 
 func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
+	if payload.XID == constant.DefaultConfig {
+		log.Warn("cannot delete default config app")
+		return nhttp.ForbiddenError
+	}
+
 	// Get application by xid
 	res, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
@@ -170,6 +185,10 @@ func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*
 }
 
 func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error) {
+	if payload.XID == constant.DefaultConfig {
+		log.Warn("cannot update default config app")
+		return nil, nhttp.ForbiddenError
+	}
 
 	// Get application by xid
 	app, err := s.repo.FindApplicationByXID(payload.XID)
