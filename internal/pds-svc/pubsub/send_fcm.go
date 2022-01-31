@@ -45,32 +45,6 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	// Get service context
 	svc := h.svc.WithContext(ctx)
 
-	// Prepare FCM Options
-	fcmOption := &dto.FCMOption{
-		UserId:   p.UserId,
-		Title:    p.Title,
-		Body:     p.Body,
-		ImageUrl: p.ImageUrl,
-		Token:    p.Token,
-		Metadata: p.Metadata,
-		Data:     p.Data,
-	}
-	// prepare create notification
-	notification := dto.SendNotificationOptionsRequest{
-		UserId:    p.UserId,
-		RequestId: p.RequestId,
-		Auth:      p.Auth,
-		Options: dto.NotificationOptionVO{
-			FCM: fcmOption,
-		},
-	}
-	// execute Create Notification service
-	err = svc.CreateNotification(notification)
-	if err != nil {
-		log.Error("Error when create notification %v", logger.Error(err), logger.Context(ctx))
-		return true, err
-	}
-
 	// Prepare send push notification
 	pushNotificationPayload := dto.SendPushNotification{
 		RequestId:     p.RequestId,

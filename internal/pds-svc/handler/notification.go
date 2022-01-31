@@ -6,6 +6,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/nbs-go/nlogger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
@@ -26,6 +27,7 @@ type Notification struct {
 }
 
 func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// TODO: Refactor to Auth Middleware
 	// validate basic auth
 	username, password, ok := rx.BasicAuth()
 	if !ok {
@@ -48,6 +50,7 @@ func (h *Notification) PostNotification(rx *nhttp.Request) (*nhttp.Response, err
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
+	// TODO: Refactor to Auth Middleware
 	// Call service Auth
 	srv := h.Service.WithContext(rx.Context())
 	application, err := srv.AuthApplication(username, password)
@@ -101,9 +104,10 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
+	// TODO: Refactor to Auth Middleware
 	// Call service
-	srv := h.Service.WithContext(rx.Context())
-	application, err := srv.AuthApplication(username, password)
+	svc := h.Service.WithContext(rx.Context())
+	application, err := svc.AuthApplication(username, password)
 	if err != nil {
 		log.Error("failed to call service.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
@@ -123,6 +127,13 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 
 	// Set request id
 	payload.RequestId = GetRequestId(rx)
+
+	// Create notification
+	err = svc.CreateNotification(payload)
+	if err != nil {
+		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
+		return nil, err
+	}
 
 	// Publish to pubsub
 	pubsubPayload, err := json.Marshal(payload)
