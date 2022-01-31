@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- [CHANGED] Add prefix for migration config
+
 ## 0.8.0
 
 - [FIXED] set apiKey when create update delete application
