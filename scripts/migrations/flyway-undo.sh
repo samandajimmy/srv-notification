@@ -6,7 +6,7 @@ echo \
 -------------------------------------------------"
 
 # Init DSN
-DSN="postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+DSN="postgres://${MIGRATION_DB_USER}:${MIGRATION_DB_PASS}@${MIGRATION_DB_HOST}:${MIGRATION_DB_PORT}/${MIGRATION_DB_NAME}"
 SRC_DOWN_DIR=$1
 
 # If SSL Mode set to false, then set option
