@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.13.0
+
+- [ADDED] API Update Is Read Notification
+
 ## 0.12.0
 
 - [ADDED] API List Notification
