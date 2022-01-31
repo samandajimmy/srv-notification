@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.0
+
+- [ADDED] API Count Notification
+
 ## 0.10.0
 
 - [ADDED] API Delete Notification
