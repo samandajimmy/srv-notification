@@ -126,7 +126,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 
 	// Create notification
 	svc := h.Service.WithContext(rx.Context())
-	err = svc.CreateNotification(payload)
+	data, err := svc.CreateNotification(payload)
 	if err != nil {
 		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
 		return nil, err
@@ -144,7 +144,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		return nil, err
 	}
 
-	return nhttp.OK(), nil
+	return nhttp.Success().SetData(data), nil
 }
 
 func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response, error) {
