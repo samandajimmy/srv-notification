@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0
+
+- [ADDED] API List Notification
+
 ## 0.11.0
 
 - [ADDED] API Count Notification
