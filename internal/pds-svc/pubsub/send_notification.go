@@ -82,13 +82,17 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 
 		// Send webhook if email failed to sent
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
-		h.SendWebhook(optionsWebhook)
+		if optionsWebhook.WebhookURL != "" {
+			h.SendWebhook(optionsWebhook)
+		}
 
 		return true, err
 	} else {
 		// Send webhook if email success to sent
 		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
-		h.SendWebhook(optionsWebhook)
+		if optionsWebhook.WebhookURL != "" {
+			h.SendWebhook(optionsWebhook)
+		}
 	}
 
 	// Prepare payload push notification
@@ -103,10 +107,22 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 		payloadSendPushNotification.Data = p.Options.FCM.Data
 	}
 	// send to fcm
+	optionsWebhook.NotificationType = constant.NotificationFCM
 	err = svc.SendPushNotificationByTarget(payloadSendPushNotification)
 	if err != nil {
 		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
+		// Send webhook if push notification failed to sent
+		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
+		if optionsWebhook.WebhookURL != "" {
+			h.SendWebhook(optionsWebhook)
+		}
 		return true, err
+	} else {
+		// Send webhook if email success to sent
+		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
+		if optionsWebhook.WebhookURL != "" {
+			h.SendWebhook(optionsWebhook)
+		}
 	}
 
 	return true, nil
