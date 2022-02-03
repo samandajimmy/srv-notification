@@ -44,7 +44,7 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 	var p dto.SendNotificationOptionsRequest
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
-		log.Error("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
+		log.Errorf("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err), logger.Context(ctx))
 		return true, err
 	}
 
@@ -78,7 +78,7 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 	// Send to Email
 	err = svc.SendEmail(payloadSendEmail)
 	if err != nil {
-		log.Errorf("failed while sending email. Topic = %s.", logger.Format(h.Topic), nlogger.Error(err), logger.Context(ctx))
+		log.Errorf("failed while sending email. Topic = %s.", logger.Format(h.Topic), logger.Error(err), logger.Context(ctx))
 		// Send webhook if email failed to sent
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
 		if optionsWebhook.WebhookURL != "" {
