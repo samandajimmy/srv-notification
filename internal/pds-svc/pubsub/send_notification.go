@@ -3,16 +3,27 @@ package pubsub
 import (
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/nbs-go/nlogger"
 	"golang.org/x/net/context"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nclient"
+	"time"
 )
 
 type SendNotificationHandler struct {
 	*Worker
 	svc *contract.Service
+}
+
+type WebhookOptions struct {
+	WebhookURL         string
+	NotificationType   constant.NotificationType
+	NotificationStatus constant.NotificationStatus
+	Notification       *dto.DetailNotificationResponse
+	Payload            interface{}
 }
 
 func NewSendNotificationHandler(sub message.Subscriber, notificationSvc *contract.Service) *SendNotificationHandler {
@@ -56,11 +67,28 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 		Attachment: p.Options.SMTP.Attachment,
 		MimeType:   p.Options.SMTP.MimeType,
 	}
+
+	optionsWebhook := WebhookOptions{
+		WebhookURL:       p.Auth.WebhookURL,
+		NotificationType: constant.NotificationEmail,
+		Notification:     p.Notification,
+		Payload:          payloadSendEmail,
+	}
+
 	// Send to Email
 	err = svc.SendEmail(payloadSendEmail)
 	if err != nil {
 		log.Error("failed while sending email. Topic = %s. Err %v.", logger.Format(h.Topic), logger.Error(err), err)
+
+		// Send webhook if email failed to sent
+		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
+		h.SendWebhook(optionsWebhook)
+
 		return true, err
+	} else {
+		// Send webhook if email success to sent
+		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
+		h.SendWebhook(optionsWebhook)
 	}
 
 	// Prepare payload push notification
@@ -81,7 +109,32 @@ func (h *SendNotificationHandler) sendNotification(ctx context.Context, payload 
 		return true, err
 	}
 
-	//svc.CreateNotification()
-
 	return true, nil
+}
+
+func (h *SendNotificationHandler) SendWebhook(options WebhookOptions) {
+	// Set header
+	reqHeader := map[string]string{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	}
+
+	// Set payload
+	reqBody := map[string]interface{}{
+		"notificationId":     options.Notification.Id,
+		"notificationStatus": options.NotificationStatus,
+		"notificationTime":   time.Now(),
+		"applicationId":      options.Notification.ApplicationId,
+		"userId":             options.Notification.UserRefId,
+		"payload":            options.Payload,
+	}
+
+	// Initiate client
+	c := nclient.NewNucleoClient(options.WebhookURL)
+
+	// Send webhook to client
+	_, err := c.PostData(reqHeader, reqBody)
+	if err != nil {
+		log.Error("error when send webhook to client", nlogger.Error(err))
+	}
 }

@@ -135,6 +135,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	}
 
 	// Publish to pubsub
+	payload.Notification = data
 	pubsubPayload, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error: unable to marshal payload")

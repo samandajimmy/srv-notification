@@ -33,11 +33,17 @@ func (s *ServiceContext) AuthApplication(username string, password string) (*dto
 		return nil, nhttp.UnauthorizedError
 	}
 
+	webhookURL := ""
+	if application.WebhookURL.Valid {
+		webhookURL = application.WebhookURL.String
+	}
+
 	result := &dto.AuthApplicationResponse{
-		ID:     application.ID,
-		XID:    application.XID,
-		Name:   application.Name,
-		ApiKey: application.ApiKey,
+		ID:         application.ID,
+		XID:        application.XID,
+		Name:       application.Name,
+		ApiKey:     application.ApiKey,
+		WebhookURL: webhookURL,
 	}
 
 	return result, err

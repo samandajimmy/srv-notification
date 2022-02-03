@@ -78,10 +78,11 @@ type NotificationOptionVO struct {
 }
 
 type SendNotificationOptionsRequest struct {
-	RequestId string                   `json:"-"`
-	Auth      *AuthApplicationResponse `json:"auth"`
-	Options   NotificationOptionVO     `json:"options"`
-	UserId    int64                    `json:"userId"`
+	RequestId    string                      `json:"-"`
+	Auth         *AuthApplicationResponse    `json:"auth"`
+	Options      NotificationOptionVO        `json:"options"`
+	UserId       int64                       `json:"userId"`
+	Notification *DetailNotificationResponse `json:"notification"`
 }
 
 func (d SendNotificationOptionsRequest) Validate() error {

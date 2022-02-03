@@ -27,10 +27,11 @@ type GetApplication struct {
 }
 
 type AuthApplicationResponse struct {
-	ID     int64  `json:"id"`
-	XID    string `json:"XID"`
-	Name   string `json:"name"`
-	ApiKey string `json:"apiKey"`
+	ID         int64  `json:"id"`
+	XID        string `json:"XID"`
+	Name       string `json:"name"`
+	ApiKey     string `json:"apiKey"`
+	WebhookURL string `json:"webhookUrl"`
 }
 
 type ApplicationResponse struct {
