@@ -14,10 +14,10 @@ type Application struct {
 
 func NewApplication(db *nsql.Database) *Application {
 	tableName := `Application`
-	columns := `"metadata","createdAt","updatedAt","modifiedBy","version","xid","name","apiKey"`
+	columns := `"metadata","createdAt","updatedAt","modifiedBy","version","xid","name","apiKey","webhookUrl"`
 	allColumns := `"id",` + columns
-	namedColumns := `:metadata,:createdAt,:updatedAt,:modifiedBy,:version,:xid,:name,:apiKey`
-	updateNamedColumns := `"metadata" = :metadata, "createdAt" = :createdAt, "updatedAt" = :updatedAt, "modifiedBy" = :modifiedBy, "version" = :version, "xid" = :xid, "name" = :name, "apiKey" = :apiKey`
+	namedColumns := `:metadata,:createdAt,:updatedAt,:modifiedBy,:version,:xid,:name,:apiKey,:webhookUrl`
+	updateNamedColumns := `"metadata" = :metadata, "createdAt" = :createdAt, "updatedAt" = :updatedAt, "modifiedBy" = :modifiedBy, "version" = :version, "xid" = :xid, "name" = :name, "apiKey" = :apiKey,"webhookUrl" = :webhookUrl`
 
 	return &Application{
 		Insert:     db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),

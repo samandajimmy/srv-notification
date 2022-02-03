@@ -61,7 +61,7 @@ func (rc *RepositoryContext) FindApplication(params *dto.ApplicationFindOptions)
 	}
 
 	// Prepare query
-	columns := `"id","metadata","createdAt","updatedAt","modifiedBy","version","xid","name"`
+	columns := `"id","metadata","createdAt","updatedAt","modifiedBy","version","xid","name","webhookUrl"`
 	from := `Application`
 	queryList := fmt.Sprintf(`SELECT %s FROM "%s" %s ORDER BY %s LIMIT %d OFFSET %d`,
 		columns,

@@ -8,10 +8,11 @@ import (
 )
 
 type Application struct {
-	RequestId string   `json:"requestId"`
-	Name      string   `json:"name"`
-	ApiKey    string   `json:"apiKey"`
-	Subject   *Subject `json:"-"`
+	RequestId  string   `json:"requestId"`
+	Name       string   `json:"name"`
+	ApiKey     string   `json:"apiKey"`
+	WebhookURL string   `json:"webhookUrl"`
+	Subject    *Subject `json:"-"`
 }
 
 func (d Application) Validate() error {
@@ -33,9 +34,10 @@ type AuthApplicationResponse struct {
 }
 
 type ApplicationResponse struct {
-	XID    string `json:"xid"`
-	Name   string `json:"name"`
-	ApiKey string `json:"apiKey"`
+	XID        string `json:"xid"`
+	Name       string `json:"name"`
+	ApiKey     string `json:"apiKey"`
+	WebhookURL string `json:"webhookUrl"`
 	ItemMetadataResponse
 }
 
@@ -86,6 +88,7 @@ func (d ApplicationUpdateOptions) Validate() error {
 func Data(p *Application) error {
 	err := validation.ValidateStruct(p,
 		validation.Field(&p.Name, validation.Required, is.ASCII),
+		validation.Field(&p.WebhookURL, is.URL),
 	)
 
 	if err != nil {

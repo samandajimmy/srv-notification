@@ -57,9 +57,13 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 	}
 
 	apl := model.Application{
-		XID:          xid,
-		ApiKey:       apiKey,
-		Name:         payload.Name,
+		XID:    xid,
+		ApiKey: apiKey,
+		Name:   payload.Name,
+		WebhookURL: sql.NullString{
+			String: "",
+			Valid:  true,
+		},
 		Metadata:     []byte("{}"),
 		ItemMetadata: model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
 	}
@@ -213,7 +217,19 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 			// Set updated value
 			app.ApiKey = d.ApiKey
 			changesCount += 1
+		case "webhookUrl":
+			// If title is empty, or value is still the same, then skip
+			if d.WebhookURL == "" || d.WebhookURL == app.WebhookURL.String {
+				changelog[k] = false
+				continue
+			}
+
+			// Set updated value
+			app.WebhookURL.Valid = true
+			app.WebhookURL.String = d.WebhookURL
+			changesCount += 1
 		}
+
 	}
 
 	// If changes count more than 0, then persist update
@@ -248,10 +264,16 @@ func composeListApplicationResponse(row *model.Application) (*dto.ApplicationIte
 }
 
 func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationResponse, error) {
+	webhookUrl := ""
+	if row.WebhookURL.Valid {
+		webhookUrl = row.WebhookURL.String
+	}
+
 	return &dto.ApplicationResponse{
 		Name:                 row.Name,
 		XID:                  row.XID,
 		ApiKey:               row.ApiKey,
+		WebhookURL:           webhookUrl,
 		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
 	}, nil
 }
