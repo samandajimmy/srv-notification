@@ -60,7 +60,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 		payloadSendPushNotification.Data = p.Options.FCM.Data
 	}
 
-	optionsWebhook := WebhookOptions{
+	optionsWebhook := dto.WebhookOptions{
 		WebhookURL:       p.Auth.WebhookURL,
 		NotificationType: constant.NotificationEmail,
 		Notification:     p.Notification,

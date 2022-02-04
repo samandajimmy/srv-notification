@@ -5,6 +5,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 )
 
 type SendPushNotificationRequest struct {
@@ -138,4 +139,12 @@ type NotificationFindOptions struct {
 type ListNotificationResponse struct {
 	Items    []*DetailNotificationResponse `json:"items"`
 	Metadata ListMetadata                  `json:"metadata"`
+}
+
+type WebhookOptions struct {
+	WebhookURL         string
+	NotificationType   constant.NotificationType
+	NotificationStatus constant.NotificationStatus
+	Notification       *DetailNotificationResponse
+	Payload            interface{}
 }

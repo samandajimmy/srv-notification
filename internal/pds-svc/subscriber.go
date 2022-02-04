@@ -10,10 +10,8 @@ func SetUpSubscriber(sub message.Subscriber, service *contract.Service) {
 	// Init subscriber handlers
 	sendEmailHandler := pubsub.NewSendEmailHandler(sub, service)
 	sendFcmHandler := pubsub.NewSendFcmPushHandler(sub, service)
-	sendNotification := pubsub.NewSendNotificationHandler(sub, service)
 
 	// Start listening
 	go sendEmailHandler.Listen()
 	go sendFcmHandler.Listen()
-	go sendNotification.Listen()
 }

@@ -66,7 +66,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 		MimeType:   p.Options.SMTP.MimeType,
 	}
 
-	optionsWebhook := WebhookOptions{
+	optionsWebhook := dto.WebhookOptions{
 		WebhookURL:       p.Auth.WebhookURL,
 		NotificationType: constant.NotificationEmail,
 		Notification:     p.Notification,
@@ -93,7 +93,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	return true, nil
 }
 
-func SendWebhook(options WebhookOptions) {
+func SendWebhook(options dto.WebhookOptions) {
 	// Set header
 	reqHeader := map[string]string{
 		"Accept":       "application/json",
