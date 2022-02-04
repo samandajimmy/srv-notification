@@ -29,7 +29,7 @@ type ServiceContext interface {
 	GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error)
 	DeleteNotification(payload dto.GetNotification) error
 	ListNotification(options dto.NotificationFindOptions) (*dto.ListNotificationResponse, error)
-	UpdateIsRead(payload dto.GetCountNotification) (*dto.DetailNotificationResponse, error)
+	UpdateIsRead(payload dto.UpdateIsReadNotification) (*dto.DetailNotificationResponse, error)
 }
 
 func NewService(core *ncore.Core, config *Config, fn ServiceContextConstructor) (*Service, error) {

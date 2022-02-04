@@ -161,7 +161,7 @@ func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (
 	}, nil
 }
 
-func (s *ServiceContext) UpdateIsRead(payload dto.GetCountNotification) (*dto.DetailNotificationResponse, error) {
+func (s *ServiceContext) UpdateIsRead(payload dto.UpdateIsReadNotification) (*dto.DetailNotificationResponse, error) {
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {

@@ -94,13 +94,15 @@ func (d SendNotificationOptionsRequest) Validate() error {
 }
 
 type GetNotification struct {
-	RequestId string `json:"requestId"`
-	ID        string `json:"id"`
+	RequestId   string                   `json:"requestId"`
+	ID          string                   `json:"id"`
+	Application *AuthApplicationResponse `json:"application"`
 }
 
 func (d GetNotification) Validate() error {
 	return validation.ValidateStruct(&d,
 		validation.Field(&d.ID, validation.Required, is.UUID),
+		validation.Field(&d.Application, validation.Required),
 	)
 }
 
@@ -108,12 +110,25 @@ type GetCountNotification struct {
 	RequestId   string                   `json:"requestId"`
 	Application *AuthApplicationResponse `json:"applicationId"`
 	UserRefId   int64                    `json:"UserRefId"`
-	ID          string                   `json:"id"`
 }
 
 func (d GetCountNotification) Validate() error {
 	return validation.ValidateStruct(&d,
+		validation.Field(&d.Application, validation.Required),
+		validation.Field(&d.UserRefId, validation.Required),
+	)
+}
+
+type UpdateIsReadNotification struct {
+	RequestId   string                   `json:"requestId"`
+	Application *AuthApplicationResponse `json:"applicationId"`
+	ID          string                   `json:"id"`
+}
+
+func (d UpdateIsReadNotification) Validate() error {
+	return validation.ValidateStruct(&d,
 		validation.Field(&d.ID, validation.Required, is.UUID),
+		validation.Field(&d.Application, validation.Required),
 	)
 }
 

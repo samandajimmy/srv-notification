@@ -23,7 +23,7 @@ func (h *Middlewares) AuthApp(rx *nhttp.Request) (*nhttp.Response, error) {
 	// validate basic auth
 	username, password, ok := rx.BasicAuth()
 	if !ok {
-		return nil, nhttp.BadRequestError
+		return nil, nhttp.ForbiddenError
 	}
 
 	// TODO: Refactor to Auth Middleware

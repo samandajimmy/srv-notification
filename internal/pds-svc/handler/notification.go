@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -106,6 +105,16 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 }
 
 func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get context
+	ctx := rx.Context()
+
+	// Get application
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		return nil, ncore.TraceError(err)
+	}
+
 	// Get id
 	id := mux.Vars(rx.Request)["id"]
 
@@ -113,10 +122,11 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 	var payload dto.GetNotification
 	payload.RequestId = GetRequestId(rx)
 	payload.ID = id
+	payload.Application = app
 
-	err := payload.Validate()
+	err = payload.Validate()
 	if err != nil {
-		log.Errorf("id is not found on params. err: %v", err)
+		log.Error("error when validate payload", logger.Error(err), logger.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -124,7 +134,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 	svc := h.Service.WithContext(rx.Context())
 	resp, err := svc.GetDetailNotification(payload)
 	if err != nil {
-		log.Errorf("error when call service err: %v", err)
+		log.Error("error when call service", logger.Error(err), logger.Context(ctx))
 		return nil, err
 	}
 
@@ -132,6 +142,16 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 }
 
 func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get context
+	ctx := rx.Context()
+
+	// Get application
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		return nil, ncore.TraceError(err)
+	}
+
 	// Get ID
 	id := mux.Vars(rx.Request)["id"]
 
@@ -139,8 +159,9 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 	var payload dto.GetNotification
 	payload.RequestId = GetRequestId(rx)
 	payload.ID = id
+	payload.Application = app
 
-	err := payload.Validate()
+	err = payload.Validate()
 	if err != nil {
 		log.Errorf("id is not found on params. err: %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -158,35 +179,41 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 }
 
 func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get user id
-	userId := rx.URL.Query().Get("userId")
-	if nval.ParseInt64Fallback(userId, 0) <= 0 {
-		return nil, nhttp.BadRequestError.Wrap(errors.New("User id is required."))
+	// Get context
+	ctx := rx.Context()
+
+	// Get application
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		return nil, ncore.TraceError(err)
 	}
 
-	// validate basic auth
-	username, password, ok := rx.BasicAuth()
-	if !ok {
-		return nil, nhttp.BadRequestError
-	}
+	// Get user id
+	userId := nval.ParseInt64Fallback(rx.URL.Query().Get("userId"), 0)
 
 	// Set payload
 	var payload dto.GetCountNotification
 	payload.RequestId = GetRequestId(rx)
-	payload.UserRefId = nval.ParseInt64Fallback(userId, 0)
+	payload.UserRefId = userId
+	payload.Application = app
+
+	err = payload.Validate()
+	if err != nil {
+		log.Error("request validate error", logger.Error(err), logger.Context(ctx))
+		return nil, nhttp.BadRequestError.Wrap(err)
+	}
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	application, err := svc.AuthApplication(username, password)
 	if err != nil {
 		log.Error("failed to auth application", nlogger.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
-	payload.Application = application
 
 	resp, err := svc.GetCountNotification(payload)
 	if err != nil {
-		log.Errorf("error when call service err: %v", err)
+		log.Error("error when call service err: %v", logger.Error(err), logger.Context(ctx))
 		return nil, err
 	}
 
@@ -194,6 +221,16 @@ func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response,
 }
 
 func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get context
+	ctx := rx.Context()
+
+	// Get application
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		return nil, ncore.TraceError(err)
+	}
+
 	// Get list parameters
 	q := rx.URL.Query()
 	//Get parameter
@@ -207,22 +244,15 @@ func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, 
 		},
 	}
 
-	// validate basic auth
-	username, password, ok := rx.BasicAuth()
-	if !ok {
-		return nil, nhttp.BadRequestError
-	}
-
 	//Call service
 	svc := h.Service.WithContext(rx.Context())
-	application, err := svc.AuthApplication(username, password)
 	if err != nil {
 		log.Error("failed to auth application", nlogger.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	if application != nil {
-		listParam.Filters["applicationId"] = application.ID
+	if app != nil {
+		listParam.Filters["applicationId"] = app.ID
 	}
 
 	if v := nval.ParseInt64Fallback(q.Get("filters[userId]"), 0); v > 0 {
@@ -242,21 +272,26 @@ func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, 
 }
 
 func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get context
+	ctx := rx.Context()
+
+	// Get application
+	app, err := getApplication(rx)
+	if err != nil {
+		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		return nil, ncore.TraceError(err)
+	}
+
 	// Get user id
 	id := mux.Vars(rx.Request)["id"]
 
-	// validate basic auth
-	username, password, ok := rx.BasicAuth()
-	if !ok {
-		return nil, nhttp.BadRequestError
-	}
-
 	// Set payload
-	var payload dto.GetCountNotification
+	var payload dto.UpdateIsReadNotification
 	payload.RequestId = GetRequestId(rx)
 	payload.ID = id
+	payload.Application = app
 
-	err := payload.Validate()
+	err = payload.Validate()
 	if err != nil {
 		log.Errorf("id is not found on params. err: %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -264,12 +299,10 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	application, err := svc.AuthApplication(username, password)
 	if err != nil {
-		log.Error("failed to auth application", nlogger.Error(err))
+		log.Error("failed to auth application", nlogger.Error(err), logger.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
-	payload.Application = application
 
 	resp, err := svc.UpdateIsRead(payload)
 	if err != nil {

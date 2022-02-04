@@ -47,11 +47,21 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.PostCreateNotification))
 
-	router.Handle(http.MethodGet, "/notifications/count", router.HandleFunc(handlers.Notification.GetCountNotification))
-	router.Handle(http.MethodGet, "/notifications/{id}", router.HandleFunc(handlers.Notification.GetDetailNotification))
-	router.Handle(http.MethodDelete, "/notifications/{id}", router.HandleFunc(handlers.Notification.DeleteNotification))
-	router.Handle(http.MethodGet, "/notifications", router.HandleFunc(handlers.Notification.GetListNotification))
-	router.Handle(http.MethodPut, "/notifications/{id}/is-read", router.HandleFunc(handlers.Notification.UpdateIsReadNotification))
+	router.Handle(http.MethodGet, "/notifications/count",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.GetCountNotification))
+	router.Handle(http.MethodGet, "/notifications/{id}",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.GetDetailNotification))
+	router.Handle(http.MethodDelete, "/notifications/{id}",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.DeleteNotification))
+	router.Handle(http.MethodGet, "/notifications",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.GetListNotification))
+	router.Handle(http.MethodPut, "/notifications/{id}/is-read",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.UpdateIsReadNotification))
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {
