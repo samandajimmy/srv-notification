@@ -32,7 +32,7 @@ func NewSendFcmPushHandler(sub message.Subscriber, notificationSvc *contract.Ser
 
 func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payload) (ack bool, err error) {
 	// Parse payload
-	var p dto.SendPushNotificationRequest
+	var p dto.SendNotificationOptionsRequest
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
 		log.Errorf("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
@@ -45,22 +45,42 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	// Get service context
 	svc := h.svc.WithContext(ctx)
 
-	// Prepare send push notification
-	pushNotificationPayload := dto.SendPushNotification{
-		RequestId:     p.RequestId,
-		Title:         p.Title,
-		Body:          p.Body,
-		ImageURL:      p.ImageUrl,
-		Token:         p.Token,
-		ApplicationId: p.Auth.ID,
-		Data:          p.Data,
+	// Set application
+	application := p.Auth
+
+	// Prepare payload push notification
+	payloadSendPushNotification := dto.SendPushNotification{
+		ApplicationId: application.ID,
+		Title:         p.Options.FCM.Title,
+		Body:          p.Options.FCM.Body,
+		ImageURL:      p.Options.FCM.ImageUrl,
+		Token:         p.Options.FCM.Token,
+	}
+	if p.Options.FCM.Data != nil {
+		payloadSendPushNotification.Data = p.Options.FCM.Data
+	}
+
+	optionsWebhook := WebhookOptions{
+		WebhookURL:       p.Auth.WebhookURL,
+		NotificationType: constant.NotificationEmail,
+		Notification:     p.Notification,
+		Payload:          payloadSendPushNotification,
 	}
 
 	// Send Push Notification
-	err = svc.SendPushNotificationByTarget(pushNotificationPayload)
+	err = svc.SendPushNotificationByTarget(payloadSendPushNotification)
 	if err != nil {
 		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
+		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
+		if optionsWebhook.WebhookURL != "" {
+			SendWebhook(optionsWebhook)
+		}
 		return true, ncore.TraceError(err)
+	} else {
+		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
+		if optionsWebhook.WebhookURL != "" {
+			SendWebhook(optionsWebhook)
+		}
 	}
 
 	return true, nil

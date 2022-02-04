@@ -150,6 +150,13 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		return nil, err
 	}
 
+	// Publish to Fcm
+	err = h.publisher.Publish(constant.SendFcmTopic, msg)
+	if err != nil {
+		log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
+		return nil, err
+	}
+
 	return nhttp.Success().SetData(data), nil
 }
 

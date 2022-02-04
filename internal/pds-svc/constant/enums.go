@@ -20,13 +20,13 @@ const (
 type NotificationStatus = string
 
 const (
-	NotificationStatusFailed  = "Failed"
-	NotificationStatusSuccess = "Success"
+	NotificationStatusFailed  = NotificationStatus("Failed")
+	NotificationStatusSuccess = NotificationStatus("Success")
 )
 
 type NotificationType = string
 
 const (
-	NotificationEmail = "Email"
-	NotificationFCM   = "FCM"
+	NotificationEmail = NotificationType("Email")
+	NotificationFCM   = NotificationType("FCM")
 )
