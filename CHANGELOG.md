@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.0
+
+- [CHANGED] Implement Set Webhook URL on API Update Application
+- [ADDED] Migrations alter application add column webhookUrl
+
 ## 0.13.0
 
 - [ADDED] API Update Is Read Notification
