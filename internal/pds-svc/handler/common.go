@@ -2,6 +2,8 @@ package handler
 
 import (
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -77,4 +79,18 @@ func GetSubject(rx *nhttp.Request) (*dto.Subject, error) {
 		return nil, ncore.NewError("no subject found in request context")
 	}
 	return subject, nil
+}
+
+func GetRequestId(rx *nhttp.Request) string {
+	reqId, ok := rx.GetContextValue(nhttp.RequestIdKey).(string)
+	if !ok {
+		// Generate new request id
+		id, err := uuid.NewUUID()
+		if err != nil {
+			panic(fmt.Errorf("unable to generate new request id. %w", err))
+		}
+		return id.String()
+	}
+
+	return reqId
 }

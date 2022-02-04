@@ -12,7 +12,6 @@ import (
 type HandlerMap struct {
 	Middlewares  *handler.Middlewares
 	Common       *handler.Common
-	Email        *handler.Email
 	Notification *handler.Notification
 	Application  *handler.Application
 	ClientConfig *handler.ClientConfig
@@ -22,7 +21,6 @@ func InitHandler(manifest *ncore.Manifest, svc *contract.Service, pubSub message
 	return &HandlerMap{
 		Middlewares:  handler.NewMiddlewares(svc),
 		Common:       handler.NewCommon(time.Now(), manifest.AppVersion, manifest.GetStringMetadata(constant.BuildHashKey)),
-		Email:        handler.NewEmail(pubSub),
 		Notification: handler.NewNotification(pubSub, svc),
 		Application:  handler.NewApplication(svc),
 		ClientConfig: handler.NewClientConfig(svc),

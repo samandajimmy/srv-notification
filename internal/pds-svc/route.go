@@ -18,15 +18,6 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 	// Common
 	router.Handle(http.MethodGet, "/", router.HandleFunc(handlers.Common.GetAPIStatus))
 
-	// Send Email
-	router.Handle(http.MethodPost, "/send-email", router.HandleFunc(handlers.Email.PostEmail))
-
-	// Send Notification
-	router.Handle(http.MethodPost, "/push-notification", router.HandleFunc(handlers.Notification.PostNotification))
-	router.Handle(http.MethodPost, "/notifications",
-		router.HandleFunc(handlers.Middlewares.AuthApp),
-		router.HandleFunc(handlers.Notification.PostCreateNotification))
-
 	// Application
 	router.Handle(http.MethodPost, "/applications",
 		router.HandleFunc(handlers.Common.ValidateClient),
@@ -52,6 +43,10 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.ClientConfig.DeleteClientConfig))
 
 	// Notification
+	router.Handle(http.MethodPost, "/notifications",
+		router.HandleFunc(handlers.Middlewares.AuthApp),
+		router.HandleFunc(handlers.Notification.PostCreateNotification))
+
 	router.Handle(http.MethodGet, "/notifications/count", router.HandleFunc(handlers.Notification.GetCountNotification))
 	router.Handle(http.MethodGet, "/notifications/{id}", router.HandleFunc(handlers.Notification.GetDetailNotification))
 	router.Handle(http.MethodDelete, "/notifications/{id}", router.HandleFunc(handlers.Notification.DeleteNotification))
