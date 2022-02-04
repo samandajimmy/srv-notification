@@ -78,7 +78,7 @@ type NotificationOptionVO struct {
 }
 
 type SendNotificationOptionsRequest struct {
-	RequestId    string                      `json:"-"`
+	RequestId    string                      `json:"requestId"`
 	Auth         *AuthApplicationResponse    `json:"auth"`
 	Options      NotificationOptionVO        `json:"options"`
 	UserId       int64                       `json:"userId"`

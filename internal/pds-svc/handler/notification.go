@@ -140,10 +140,13 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
 	}
+	// Init massage payload for pubsub
 	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
-	err = h.publisher.Publish(constant.SendNotificationTopic, msg)
+
+	// Publish to Email
+	err = h.publisher.Publish(constant.SendEmailTopic, msg)
 	if err != nil {
-		log.Errorf("failed to publish message to topic = %s", constant.SendNotificationTopic)
+		log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
 		return nil, err
 	}
 
