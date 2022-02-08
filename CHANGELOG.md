@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0
+
+- [CHANGED] Implement middleware auth application on endpoint notifications
+- [CHANGED] Removed deprecated send email handler
+- [ADDED] Implement Push Notification Result Webhook
+- [ADDED] Implement Email Send Result Webhook
+
 ## 0.14.0
 
 - [CHANGED] Implement Set Webhook URL on API Update Application
