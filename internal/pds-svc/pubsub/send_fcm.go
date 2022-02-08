@@ -62,10 +62,12 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 
 	optionsWebhook := dto.WebhookOptions{
 		WebhookURL:       p.Auth.WebhookURL,
-		NotificationType: constant.NotificationEmail,
+		NotificationType: constant.NotificationFCM,
 		Notification:     p.Notification,
 		Payload:          payloadSendPushNotification,
 	}
+
+	log.Debugf("Send to Webhook url: '%s' . Topic :%s", optionsWebhook.WebhookURL, constant.SendFcmTopic)
 
 	// Send Push Notification
 	err = svc.SendPushNotificationByTarget(payloadSendPushNotification)

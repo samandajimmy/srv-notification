@@ -70,8 +70,10 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 		WebhookURL:       p.Auth.WebhookURL,
 		NotificationType: constant.NotificationEmail,
 		Notification:     p.Notification,
-		Payload:          p,
+		Payload:          payloadSendEmail,
 	}
+
+	log.Debugf("Send to Webhook url: '%s' . Topic :%s", optionsWebhook.WebhookURL, constant.SendEmailTopic)
 
 	// Send email
 	err = svc.SendEmail(payloadSendEmail)
