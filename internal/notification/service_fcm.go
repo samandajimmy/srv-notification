@@ -11,7 +11,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 
-func (s *ServiceContext) SendPushNotificationByTarget(payload dto.SendPushNotification) error {
+func (s *ServiceContext) SendPushNotificationByTarget(payload *dto.SendPushNotification) error {
 	// Get client config firebase from db
 	// TODO: Refactor parse client config to a reusable function
 	clientConfig, err := s.repo.FindByKey(constant.Firebase, payload.ApplicationId)
@@ -57,7 +57,7 @@ func (s *ServiceContext) newFcmClient(credential string) (*messaging.Client, err
 	return fcm.Messaging(s.ctx)
 }
 
-func composeFcmMessage(payload dto.SendPushNotification) messaging.Message {
+func composeFcmMessage(payload *dto.SendPushNotification) messaging.Message {
 	return messaging.Message{
 		Notification: &messaging.Notification{
 			Title:    payload.Title,

@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func (s *ServiceContext) CreateClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
+func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
 	// Initialize data to insert
 	xid, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 8)
 	if err != nil {
@@ -113,7 +113,7 @@ func (s *ServiceContext) ListClientConfig(options *dto.ListPayload) (*dto.Client
 	}, nil
 }
 
-func (s *ServiceContext) GetDetailClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
+func (s *ServiceContext) GetDetailClientConfig(payload *dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
 	// Get client config by xid
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
@@ -127,7 +127,7 @@ func (s *ServiceContext) GetDetailClientConfig(payload dto.ClientConfigRequest) 
 	return composeDetailClientConfigResponse(res)
 }
 
-func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error) {
+func (s *ServiceContext) UpdateClientConfig(payload *dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error) {
 	// Get client config by xid
 	row, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
@@ -200,7 +200,7 @@ func (s *ServiceContext) UpdateClientConfig(payload dto.ClientConfigUpdateOption
 	return composeDetailClientConfigResponse(row)
 }
 
-func (s *ServiceContext) DeleteClientConfig(payload dto.GetClientConfig) error {
+func (s *ServiceContext) DeleteClientConfig(payload *dto.GetClientConfig) error {
 	// Get application by xid
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {

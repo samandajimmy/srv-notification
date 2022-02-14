@@ -51,7 +51,7 @@ func (s *ServiceContext) AuthApplication(username string, password string) (*dto
 	return result, err
 }
 
-func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error) {
+func (s *ServiceContext) CreateApplication(payload *dto.Application) (*dto.ApplicationResponse, error) {
 	// Initialize data to insert
 	xid, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 8)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 
 }
 
-func (s *ServiceContext) GetDetailApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error) {
+func (s *ServiceContext) GetDetailApplication(payload *dto.GetApplication) (*dto.ApplicationResponse, error) {
 	if payload.XID == constant.DefaultConfig {
 		log.Warn("did not allowed retrieve default config as app")
 		return nil, nhttp.ForbiddenError
@@ -109,7 +109,7 @@ func (s *ServiceContext) GetDetailApplication(payload dto.GetApplication) (*dto.
 	return composeDetailApplicationResponse(res)
 }
 
-func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
+func (s *ServiceContext) DeleteApplication(payload *dto.GetApplication) error {
 	if payload.XID == constant.DefaultConfig {
 		log.Warn("cannot delete default config app")
 		return nhttp.ForbiddenError

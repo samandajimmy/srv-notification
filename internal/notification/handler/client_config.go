@@ -52,7 +52,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.CreateClientConfig(payload)
+	resp, err := svc.CreateClientConfig(&payload)
 	if err != nil {
 		log.Error("failed to create client.", logger.Error(err))
 		return nil, err
@@ -107,7 +107,7 @@ func (h *ClientConfig) GetDetailClientConfig(rx *nhttp.Request) (*nhttp.Response
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetDetailClientConfig(payload)
+	resp, err := svc.GetDetailClientConfig(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -146,7 +146,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.UpdateClientConfig(payload)
+	resp, err := svc.UpdateClientConfig(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -171,7 +171,7 @@ func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	err := svc.DeleteClientConfig(payload)
+	err := svc.DeleteClientConfig(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

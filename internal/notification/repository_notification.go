@@ -33,7 +33,7 @@ func (rc *RepositoryContext) DeleteNotificationByID(id string) error {
 	return err
 }
 
-func (rc *RepositoryContext) CountNotification(options dto.GetCountNotification) (int64, error) {
+func (rc *RepositoryContext) CountNotification(options *dto.GetCountNotification) (int64, error) {
 	// Prepare where
 	var args []interface{}
 	var whereQuery []string

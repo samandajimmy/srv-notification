@@ -70,7 +70,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 	log.Debugf("Send to Webhook url: '%s' . Topic :%s", optionsWebhook.WebhookURL, constant.SendFcmTopic)
 
 	// Send Push Notification
-	err = svc.SendPushNotificationByTarget(payloadSendPushNotification)
+	err = svc.SendPushNotificationByTarget(&payloadSendPushNotification)
 	if err != nil {
 		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed

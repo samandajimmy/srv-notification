@@ -73,7 +73,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 
 	// Create notification
 	svc := h.Service.WithContext(rx.Context())
-	data, err := svc.CreateNotification(payload)
+	data, err := svc.CreateNotification(&payload)
 	if err != nil {
 		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
 		return nil, err
@@ -133,7 +133,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetDetailNotification(payload)
+	resp, err := svc.GetDetailNotification(&payload)
 	if err != nil {
 		log.Error("error when call service", logger.Error(err), logger.Context(ctx))
 		return nil, err
@@ -170,7 +170,7 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	err = svc.DeleteNotification(payload)
+	err = svc.DeleteNotification(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -212,7 +212,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	resp, err := svc.CountNotification(payload)
+	resp, err := svc.CountNotification(&payload)
 	if err != nil {
 		log.Error("error when call service err: %v", logger.Error(err), logger.Context(ctx))
 		return nil, err
@@ -291,7 +291,7 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	resp, err := svc.UpdateIsRead(payload)
+	resp, err := svc.UpdateIsRead(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

@@ -48,7 +48,7 @@ func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, err
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.CreateApplication(payload)
+	resp, err := svc.CreateApplication(&payload)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetDetailApplication(payload)
+	resp, err := svc.GetDetailApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -154,7 +154,7 @@ func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, err
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	err := svc.DeleteApplication(payload)
+	err := svc.DeleteApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

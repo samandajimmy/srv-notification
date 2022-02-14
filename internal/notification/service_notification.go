@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error) {
+func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error) {
 	// Generate temporary id
 	id, err := uuid.NewUUID()
 	if err != nil {
@@ -61,7 +61,7 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 	return composeDetailNotification(&notification), nil
 }
 
-func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error) {
+func (s *ServiceContext) GetDetailNotification(payload *dto.GetNotification) (*dto.DetailNotificationResponse, error) {
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
@@ -75,7 +75,7 @@ func (s *ServiceContext) GetDetailNotification(payload dto.GetNotification) (*dt
 	return composeDetailNotification(notification), nil
 }
 
-func (s *ServiceContext) DeleteNotification(payload dto.GetNotification) error {
+func (s *ServiceContext) DeleteNotification(payload *dto.GetNotification) error {
 	// Get notification by xid
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *ServiceContext) DeleteNotification(payload dto.GetNotification) error {
 	return nil
 }
 
-func (s *ServiceContext) CountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error) {
+func (s *ServiceContext) CountNotification(payload *dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error) {
 	// Get count notification
 	count, err := s.repo.CountNotification(payload)
 	if err != nil {
@@ -149,7 +149,7 @@ func (s *ServiceContext) ListNotification(options *dto.ListPayload) (*dto.ListNo
 	}, nil
 }
 
-func (s *ServiceContext) UpdateIsRead(payload dto.UpdateIsReadNotification) (*dto.DetailNotificationResponse, error) {
+func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*dto.DetailNotificationResponse, error) {
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {

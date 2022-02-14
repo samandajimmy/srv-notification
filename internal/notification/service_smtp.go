@@ -17,7 +17,7 @@ import (
 
 const tmpAttachmentDir = ".tmp/email-attachments"
 
-func (s *ServiceContext) SendEmail(payload dto.SendEmail) error {
+func (s *ServiceContext) SendEmail(payload *dto.SendEmail) error {
 	// Get client config from database
 	// TODO: Refactor parse client config to a reusable function
 	clientConfig, err := s.repo.FindByKey(constant.SMTP, payload.ApplicationId)
@@ -63,7 +63,7 @@ func (s *ServiceContext) newMailClient(config contract.SMTPConfig) *gomail.Diale
 	return gomail.NewDialer(config.Host, nval.ParseIntFallback(config.Port, 465), config.Username, config.Password)
 }
 
-func (s *ServiceContext) composeEmail(payload dto.SendEmail) (*gomail.Message, string, error) {
+func (s *ServiceContext) composeEmail(payload *dto.SendEmail) (*gomail.Message, string, error) {
 	// Set message
 	msg := gomail.NewMessage()
 

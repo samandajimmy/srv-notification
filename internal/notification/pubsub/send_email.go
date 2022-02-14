@@ -76,7 +76,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	log.Debugf("Send to Webhook url: '%s' . Topic :%s", optionsWebhook.WebhookURL, constant.SendEmailTopic)
 
 	// Send email
-	err = svc.SendEmail(payloadSendEmail)
+	err = svc.SendEmail(&payloadSendEmail)
 	if err != nil {
 		log.Error("Error when sending email in service", logger.Error(err))
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
