@@ -8,19 +8,12 @@ import (
 )
 
 func getListPayload(rx *nhttp.Request) (*dto.ListPayload, error) {
-	// Get authenticated entity
-	subject, err := GetSubject(rx)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
-
 	// Parse query
 	var payload dto.ListPayload
-	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
+	err := urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
 	if err != nil {
 		return nil, ncore.TraceError(err)
 	}
-	payload.Subject = subject
 
 	// Normalize Limit
 	if payload.Limit <= 0 {

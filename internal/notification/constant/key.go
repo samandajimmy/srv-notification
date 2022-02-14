@@ -14,13 +14,15 @@ const (
 	CreatedFromKey    = "createdFrom"
 	CreatedUntilKey   = "createdUntil"
 	NameKey           = "name"
-	UserIdKey         = "userId"
+	UserRefIdKey      = "userRefId"
+	ApplicationIdKey  = "applicationId"
 )
 
 // Sort by options
 
 const (
 	SortByCreated     = "createdAt"
+	SortByLastCreated = "createdAt DESC"
 	SortByName        = "name"
 	SortByNameDesc    = "name DESC"
 	SortByLastUpdated = "updatedAt DESC"

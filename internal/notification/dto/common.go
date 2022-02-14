@@ -18,12 +18,10 @@ type BaseField struct {
 }
 
 type ListPayload struct {
-	Limit         int64             `json:"limit" query:"limit"`
-	Skip          int64             `json:"skip" query:"skip"`
-	SortBy        string            `json:"sortBy" query:"sortBy"`
-	Filters       map[string]string `json:"-" query:"filters"`
-	Subject       *Subject          `json:"-" query:"-"`
-	SortDirection string            `json:"-" query:"-"` // TODO: To be deprecated
+	Limit   int64             `json:"limit" query:"limit"`
+	Skip    int64             `json:"skip" query:"skip"`
+	SortBy  string            `json:"sortBy" query:"sortBy"`
+	Filters map[string]string `json:"-" query:"filters"`
 }
 
 type ListMetadata struct {

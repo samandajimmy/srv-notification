@@ -112,23 +112,6 @@ func (s *ServiceContext) CountNotification(payload *dto.GetCountNotification) (*
 }
 
 func (s *ServiceContext) ListNotification(options *dto.ListPayload) (*dto.ListNotificationResponse, error) {
-	// Handle sort request
-	rulesSortBy := []string{
-		"createdAt",
-		"updatedAt",
-	}
-
-	// Get orderBy
-	sortBy, sortDirection := s.GetOrderBy(
-		nval.ParseStringFallback(options.SortBy, `createdAt`),
-		nval.ParseStringFallback(options.SortDirection, `desc`),
-		rulesSortBy,
-	)
-
-	// Set sort by and direction
-	options.SortBy = sortBy
-	options.SortDirection = sortDirection
-
 	// Get list notification
 	result, err := s.repo.FindNotification(options)
 	if err != nil {

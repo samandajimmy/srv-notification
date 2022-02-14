@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
-	"github.com/hetiansu5/urlquery"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
@@ -63,23 +62,14 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 }
 
 func (h *ClientConfig) ListClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get authenticated entity
-	subject, err := GetSubject(rx)
+	payload, err := getListPayload(rx)
 	if err != nil {
 		return nil, ncore.TraceError(err)
 	}
-
-	// Parse query
-	var payload dto.ListPayload
-	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
-	payload.Subject = subject
 
 	// Call service
 	srv := h.Service.WithContext(rx.Context())
-	respData, err := srv.ListClientConfig(&payload)
+	respData, err := srv.ListClientConfig(payload)
 	if err != nil {
 		log.Error("failed to call service.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)

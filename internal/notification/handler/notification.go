@@ -6,7 +6,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gorilla/mux"
-	"github.com/hetiansu5/urlquery"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
@@ -222,19 +221,10 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 }
 
 func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get authenticated entity
-	subject, err := GetSubject(rx)
+	payload, err := getListPayload(rx)
 	if err != nil {
 		return nil, ncore.TraceError(err)
 	}
-
-	// Parse query
-	var payload dto.ListPayload
-	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
-	payload.Subject = subject
 
 	// Validate payload
 	ctx := rx.Context()
@@ -243,13 +233,20 @@ func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, err
 		return nil, nhttp.BadRequestError
 	}
 
-	if v, ok := payload.Filters[constant.UserIdKey]; !ok || v == "" {
+	if v, ok := payload.Filters[constant.UserRefIdKey]; !ok || v == "" {
 		log.Error("filters[userId] is required", logger.Context(ctx))
 		return nil, nhttp.BadRequestError
 	}
 
+	// Set application Id key
+	app, err := getApplication(rx)
+	if err != nil {
+		return nil, ncore.TraceError(err)
+	}
+	payload.Filters[constant.ApplicationIdKey] = fmt.Sprintf("%d", app.ID)
+
 	svc := h.Service.WithContext(ctx)
-	resp, err := svc.ListNotification(&payload)
+	resp, err := svc.ListNotification(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

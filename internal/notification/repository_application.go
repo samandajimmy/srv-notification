@@ -66,7 +66,7 @@ func (rc *RepositoryContext) FindApplication(params *dto.ListPayload) (*model.Ap
 	// Create count query
 	b.ResetOrderBy().ResetSkip().ResetLimit()
 	countQuery := b.Select(
-		query.Count("*", option.Schema(statement.ClientConfigSchema), option.As("count"))).
+		query.Count("*", option.Schema(statement.ApplicationSchema), option.As("count"))).
 		Build()
 	countQuery = rc.conn.Rebind(countQuery)
 
