@@ -20,36 +20,43 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Application
 	router.Handle(http.MethodPost, "/applications",
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.PostCreateApplication))
-	router.Handle(http.MethodGet, "/applications", router.HandleFunc(handlers.Application.GetFindApplication))
-	router.Handle(http.MethodGet, "/applications/{xid}", router.HandleFunc(handlers.Application.GetDetailApplication))
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.Application.CreateApplication))
+	router.Handle(http.MethodGet, "/applications",
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.Application.ListApplication))
+	router.Handle(http.MethodGet, "/applications/{xid}",
+		router.HandleFunc(handlers.Application.GetDetailApplication))
 	router.Handle(http.MethodPut, "/applications/{xid}",
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.Application.PutUpdateApplication))
-	router.Handle(http.MethodDelete, "/applications/{xid}", router.HandleFunc(handlers.Application.DeleteApplication))
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.Application.UpdateApplication))
+	router.Handle(http.MethodDelete, "/applications/{xid}",
+		router.HandleFunc(handlers.Application.DeleteApplication))
 
 	// Client Config
 	router.Handle(http.MethodGet, "/client-configs",
-		router.HandleFunc(handlers.Common.ValidateClient),
-		router.HandleFunc(handlers.ClientConfig.SearchClientConfig))
-	router.Handle(http.MethodGet, "/client-configs/{xid}", router.HandleFunc(handlers.ClientConfig.DetailClientConfig))
-	router.Handle(http.MethodPost, "/client-configs", router.HandleFunc(handlers.Common.ValidateClient), router.HandleFunc(handlers.ClientConfig.CreateClientConfig))
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.ClientConfig.ListClientConfig))
+	router.Handle(http.MethodGet, "/client-configs/{xid}",
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.ClientConfig.GetDetailClientConfig))
+	router.Handle(http.MethodPost, "/client-configs",
+		router.HandleFunc(handlers.Common.ParseSubject),
+		router.HandleFunc(handlers.ClientConfig.CreateClientConfig))
 	router.Handle(http.MethodPut, "/client-configs/{xid}",
-		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Common.ParseSubject),
 		router.HandleFunc(handlers.ClientConfig.UpdateClientConfig))
 	router.Handle(http.MethodDelete, "/client-configs/{xid}",
-		router.HandleFunc(handlers.Common.ValidateClient),
+		router.HandleFunc(handlers.Common.ParseSubject),
 		router.HandleFunc(handlers.ClientConfig.DeleteClientConfig))
 
 	// Notification
 	router.Handle(http.MethodPost, "/notifications",
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.PostCreateNotification))
-
 	router.Handle(http.MethodGet, "/notifications/count",
 		router.HandleFunc(handlers.Middlewares.AuthApp),
-		router.HandleFunc(handlers.Notification.GetCountNotification))
+		router.HandleFunc(handlers.Notification.CountNotification))
 	router.Handle(http.MethodGet, "/notifications/{id}",
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.GetDetailNotification))
@@ -58,7 +65,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.Notification.DeleteNotification))
 	router.Handle(http.MethodGet, "/notifications",
 		router.HandleFunc(handlers.Middlewares.AuthApp),
-		router.HandleFunc(handlers.Notification.GetListNotification))
+		router.HandleFunc(handlers.Notification.ListNotification))
 	router.Handle(http.MethodPut, "/notifications/{id}/is-read",
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.UpdateIsReadNotification))

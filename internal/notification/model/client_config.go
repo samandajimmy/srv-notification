@@ -10,21 +10,15 @@ type ClientConfig struct {
 	Key           string          `db:"key"`
 	Value         json.RawMessage `db:"value"`
 	ApplicationId int64           `db:"applicationId"`
-	Metadata      json.RawMessage `db:"metadata"`
-	ItemMetadata
+	*BaseField
 }
 
-type ClientConfigVO struct {
-	ID             int64           `db:"id"`
-	XID            string          `db:"xid"`
-	Key            string          `db:"key"`
-	Value          json.RawMessage `db:"value"`
-	ApplicationXid string          `db:"applicationXid"`
-	Metadata       json.RawMessage `db:"metadata"`
-	ItemMetadata
+type ClientConfigDetailed struct {
+	ClientConfig *ClientConfig `db:"cc"`
+	Application  *Application  `db:"a"`
 }
 
-type ClientConfigSearchResult struct {
-	Rows  []ClientConfigVO
+type ClientConfigListResult struct {
+	Rows  []ClientConfigDetailed
 	Count int64
 }

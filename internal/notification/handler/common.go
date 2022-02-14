@@ -37,8 +37,7 @@ func (c *Common) GetAPIStatus(_ *nhttp.Request) (*nhttp.Response, error) {
 	return res, nil
 }
 
-func (c *Common) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
-
+func (c *Common) ParseSubject(r *nhttp.Request) (*nhttp.Response, error) {
 	// Get subject from headers
 	subjectID := r.Header.Get(constant.SubjectIDHeader)
 	subjectRefID, ok := nval.ParseInt64(subjectID)
@@ -47,7 +46,7 @@ func (c *Common) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
 		return nil, errors.New("x-subject-id is required")
 	}
 
-	//Get subject role
+	// Get subject role
 	subjectRole := r.Header.Get(constant.SubjectRoleHeader)
 	role := constant.AdminModifierRole
 	if subjectRole != constant.AdminModifierRole {
@@ -59,7 +58,7 @@ func (c *Common) ValidateClient(r *nhttp.Request) (*nhttp.Response, error) {
 		SubjectRefID: subjectRefID,
 		SubjectType:  constant.UserSubjectType,
 		SubjectRole:  role,
-		ModifiedBy: dto.Modifier{
+		ModifiedBy: &dto.Modifier{
 			ID:       subjectID,
 			Role:     role,
 			FullName: r.Header.Get(constant.SubjectNameHeader),

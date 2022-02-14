@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/convert"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
@@ -26,8 +25,6 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 
 	payloadFCM := payload.Options.FCM
 
-	now := time.Now()
-
 	// init options
 	options := map[string]interface{}{}
 	// Initialize data to insert
@@ -37,13 +34,7 @@ func (s *ServiceContext) CreateNotification(payload dto.SendNotificationOptionsR
 		UserRefId:     payload.UserId,
 		IsRead:        false,
 		ReadAt:        sql.NullTime{},
-		Metadata:      []byte("{}"),
-		ItemMetadata: model.ItemMetadata{
-			CreatedAt:  now,
-			UpdatedAt:  now,
-			ModifiedBy: &model.Modifier{ID: "", Role: "", FullName: ""}, // TODO Get Subject
-			Version:    1,
-		},
+		BaseField:     model.NewBaseField(&model.Modifier{ID: "", Role: "", FullName: ""}),
 	}
 
 	if payloadFCM != nil {
@@ -104,7 +95,7 @@ func (s *ServiceContext) DeleteNotification(payload dto.GetNotification) error {
 	return nil
 }
 
-func (s *ServiceContext) GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error) {
+func (s *ServiceContext) CountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error) {
 	// Get count notification
 	count, err := s.repo.CountNotification(payload)
 	if err != nil {
@@ -120,7 +111,7 @@ func (s *ServiceContext) GetCountNotification(payload dto.GetCountNotification) 
 	}, err
 }
 
-func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (*dto.ListNotificationResponse, error) {
+func (s *ServiceContext) ListNotification(options *dto.ListPayload) (*dto.ListNotificationResponse, error) {
 	// Handle sort request
 	rulesSortBy := []string{
 		"createdAt",
@@ -139,7 +130,7 @@ func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (
 	options.SortDirection = sortDirection
 
 	// Get list notification
-	result, err := s.repo.FindNotification(&options)
+	result, err := s.repo.FindNotification(options)
 	if err != nil {
 		s.log.Error("failed to find data notification", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
@@ -153,11 +144,8 @@ func (s *ServiceContext) ListNotification(options dto.NotificationFindOptions) (
 	}
 
 	return &dto.ListNotificationResponse{
-		Items: items,
-		Metadata: dto.ListMetadata{
-			Count:       result.Count,
-			FindOptions: options.FindOptions,
-		},
+		Items:    items,
+		Metadata: dto.ToListMetadata(options, result.Count),
 	}, nil
 }
 
@@ -195,12 +183,12 @@ func composeDetailNotification(m *model.Notification) *dto.DetailNotificationRes
 	}
 
 	return &dto.DetailNotificationResponse{
-		Id:                   m.ID,
-		ApplicationId:        m.ApplicationId,
-		UserRefId:            m.UserRefId,
-		IsRead:               m.IsRead,
-		ReadAt:               readAt,
-		Options:              m.Options,
-		ItemMetadataResponse: convert.ItemMetadataModelToResponse(m.ItemMetadata),
+		Id:            m.ID,
+		ApplicationId: m.ApplicationId,
+		UserRefId:     m.UserRefId,
+		IsRead:        m.IsRead,
+		ReadAt:        readAt,
+		Options:       m.Options,
+		BaseField:     model.ToBaseFieldDTO(m.BaseField),
 	}
 }

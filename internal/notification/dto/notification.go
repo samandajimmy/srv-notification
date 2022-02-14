@@ -84,6 +84,7 @@ type SendNotificationOptionsRequest struct {
 	Options      NotificationOptionVO        `json:"options"`
 	UserId       int64                       `json:"userId"`
 	Notification *DetailNotificationResponse `json:"notification"`
+	*Subject
 }
 
 func (d SendNotificationOptionsRequest) Validate() error {
@@ -139,21 +140,16 @@ type DetailNotificationResponse struct {
 	IsRead        bool            `json:"isRead"`
 	ReadAt        int64           `json:"readAt"`
 	Options       json.RawMessage `json:"options"`
-	ItemMetadataResponse
+	*BaseField
 }
 
 type DetailCountNotificationResponse struct {
 	Count int64 `json:"count"`
 }
 
-type NotificationFindOptions struct {
-	FindOptions
-	Subject *Subject
-}
-
 type ListNotificationResponse struct {
 	Items    []*DetailNotificationResponse `json:"items"`
-	Metadata ListMetadata                  `json:"metadata"`
+	Metadata *ListMetadata                 `json:"metadata"`
 }
 
 type WebhookOptions struct {

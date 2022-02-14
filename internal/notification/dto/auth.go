@@ -9,7 +9,7 @@ type Subject struct {
 	SubjectRefID int64
 	SubjectRole  string
 	SubjectType  constant.SubjectType
-	ModifiedBy   Modifier
+	ModifiedBy   *Modifier
 	Metadata     map[string]string
 	SessionID    int64
 }

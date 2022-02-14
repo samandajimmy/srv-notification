@@ -65,7 +65,7 @@ func (rc *RepositoryContext) CountNotification(options dto.GetCountNotification)
 	return count, nil
 }
 
-func (rc *RepositoryContext) FindNotification(params *dto.NotificationFindOptions) (*model.FindNotificationResult, error) {
+func (rc *RepositoryContext) FindNotification(params *dto.ListPayload) (*model.FindNotificationResult, error) {
 	// Prepare where
 	var args []interface{}
 	var whereQuery []string

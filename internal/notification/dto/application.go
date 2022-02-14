@@ -28,7 +28,7 @@ type GetApplication struct {
 
 type AuthApplicationResponse struct {
 	ID         int64  `json:"id"`
-	XID        string `json:"XID"`
+	XID        string `json:"xid"`
 	Name       string `json:"name"`
 	ApiKey     string `json:"apiKey"`
 	WebhookURL string `json:"webhookUrl"`
@@ -39,22 +39,18 @@ type ApplicationResponse struct {
 	Name       string `json:"name"`
 	ApiKey     string `json:"apiKey"`
 	WebhookURL string `json:"webhookUrl"`
-	ItemMetadataResponse
+	*BaseField
 }
 
 type ApplicationItem struct {
 	XID  string `json:"xid"`
 	Name string `json:"name"`
-	ItemMetadataResponse
-}
-
-type ApplicationFindOptions struct {
-	FindOptions
+	*BaseField
 }
 
 type ListApplicationResponse struct {
 	Items    []*ApplicationItem `json:"items"`
-	Metadata ListMetadata       `json:"metadata"`
+	Metadata *ListMetadata      `json:"metadata"`
 }
 
 type ApplicationUpdateOptions struct {

@@ -1,14 +1,24 @@
 package notification
 
 import (
-	"fmt"
-	"github.com/nbs-go/nlogger"
+	"github.com/nbs-go/nsql"
+	"github.com/nbs-go/nsql/op"
+	"github.com/nbs-go/nsql/option"
+	"github.com/nbs-go/nsql/pq/query"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/statement"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
+	nsqlDep "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"strings"
 )
+
+// Define filters
+var clientConfigFilters = map[string]nsql.FilterParser{
+	constant.ApplicationXIDKey: newEqualFilter(statement.ApplicationSchema, "xid"),
+	constant.KeyKey:            newEqualFilter(statement.ClientConfigSchema, "key"),
+}
 
 func (rc *RepositoryContext) HasInitialized() bool {
 	return true
@@ -20,9 +30,9 @@ func (rc *RepositoryContext) FindByKey(key string, appId int64) (*model.ClientCo
 	return &row, err
 }
 
-func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfigVO, error) {
-	var row model.ClientConfigVO
-	err := rc.RepositoryStatement.ClientConfig.FindJoinApplicationByXID.Get(&row, xid)
+func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfigDetailed, error) {
+	var row model.ClientConfigDetailed
+	err := rc.RepositoryStatement.ClientConfig.FindJoinApplicationByXID.GetContext(rc.ctx, &row, xid)
 	return &row, err
 }
 
@@ -31,66 +41,69 @@ func (rc *RepositoryContext) InsertClientConfig(row model.ClientConfig) error {
 	return err
 }
 
-func (rc *RepositoryContext) FindClientConfig(params *dto.FindOptions) (*model.ClientConfigSearchResult, error) {
-	// Prepare where
-	var args []interface{}
-	var whereQuery []string
+func (rc *RepositoryContext) FindClientConfig(params *dto.ListPayload) (*model.ClientConfigListResult, error) {
+	// Init query builder
+	b := query.From(statement.ClientConfigSchema, option.As("cc")).
+		Join(statement.ApplicationSchema, query.Equal(query.Column("applicationId"), query.On("id")),
+			option.As("a"), option.JoinMethod(op.InnerJoin))
 
-	if applicationXid, ok := params.Filters["applicationXid"]; ok {
-		whereQuery = append(whereQuery, `"Application"."xid" = ?`)
-		args = append(args, applicationXid)
+	// Set where
+	filters := query.NewFilter(params.Filters, clientConfigFilters)
+	b.Where(filters.Conditions())
+
+	// Set order by
+	switch strings.ToLower(params.SortBy) {
+	case constant.SortByCreated:
+		b.OrderBy("createdAt")
+	default:
+		b.OrderBy("updatedAt", option.SortDirection(op.Descending))
 	}
 
-	where := ""
-	if len(whereQuery) > 0 {
-		where = "WHERE " + strings.Join(whereQuery, " AND ")
-	}
+	// Create select query
+	selectQuery := b.Select(
+		query.Column("*", option.Schema(statement.ClientConfigSchema)),
+		query.Column("*", option.Schema(statement.ApplicationSchema))).
+		Limit(params.Limit).Skip(params.Skip).Build()
+	selectQuery = rc.conn.Rebind(selectQuery)
 
-	// Prepare query
-	columns := `"ClientConfig"."createdAt", "ClientConfig"."updatedAt", "ClientConfig"."metadata", "ClientConfig"."modifiedBy", "ClientConfig"."version", "ClientConfig"."key", "ClientConfig"."value", "ClientConfig"."xid", "Application"."xid" AS "applicationXid"`
-	from := `ClientConfig`
-	// Join Table
-	joinApplication := `LEFT JOIN "Application" ON "Application"."id" = "ClientConfig"."applicationId"`
-	// Order By
-	orderBy := rc.GetOrderByQuery(params.SortBy, params.SortDirection)
-	// query string
-	q := fmt.Sprintf(
-		`SELECT %s FROM "%s" %s %s ORDER BY %s LIMIT %d OFFSET %d`,
-		columns, from, joinApplication, where, orderBy, params.Limit, params.Skip)
-	//log2.Fatalf("q: %s", q)
-	// count query string
-	countQuery := fmt.Sprintf(`SELECT COUNT("ClientConfig"."id") FROM "%s" %s %s`, from, joinApplication, where)
+	// Create count query
+	b.ResetOrderBy().ResetSkip().ResetLimit()
+	countQuery := b.Select(
+		query.Count("*", option.Schema(statement.ClientConfigSchema), option.As("count"))).
+		Build()
+	countQuery = rc.conn.Rebind(countQuery)
+
+	// Get args
+	args := filters.Args()
+
 	// Execute query
-	q = rc.conn.Rebind(q)
-	var rows []model.ClientConfigVO
-	err := rc.conn.SelectContext(rc.ctx, &rows, q, args...)
+	var rows []model.ClientConfigDetailed
+	err := rc.conn.SelectContext(rc.ctx, &rows, selectQuery, args...)
 	if err != nil {
-		log.Error("Error when execute query.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
 	}
-	// Count all
-	countQuery = rc.conn.Rebind(countQuery)
+
 	var count int64
 	err = rc.conn.GetContext(rc.ctx, &count, countQuery, args...)
 	if err != nil {
-		log.Error("Error when execute query count.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 
 	// Prepare result
-	result := model.ClientConfigSearchResult{
+	result := model.ClientConfigListResult{
 		Rows:  rows,
 		Count: count,
 	}
 	return &result, err
 }
 
-func (rc *RepositoryContext) UpdateClientConfig(row *model.ClientConfig) error {
-	result, err := rc.RepositoryStatement.ClientConfig.UpdateByID.Exec(row)
+func (rc *RepositoryContext) UpdateClientConfig(row *model.ClientConfig, currentVersion int64) error {
+	result, err := rc.RepositoryStatement.ClientConfig.UpdateByID.ExecContext(rc.ctx,
+		row.UpdatedAt, row.ModifiedBy, row.Version, row.Value, row.ID, currentVersion)
 	if err != nil {
 		return err
 	}
-	return nsql.IsUpdated(result)
+	return nsqlDep.IsUpdated(result)
 }
 
 func (rc *RepositoryContext) DeleteClientConfigById(id int64) error {

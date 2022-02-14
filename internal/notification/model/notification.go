@@ -15,8 +15,7 @@ type Notification struct {
 	IsRead        bool            `db:"isRead"`
 	ReadAt        sql.NullTime    `db:"readAt"`
 	Options       json.RawMessage `db:"options"`
-	Metadata      json.RawMessage `db:"metadata"`
-	ItemMetadata
+	*BaseField
 }
 
 type FindNotificationResult struct {

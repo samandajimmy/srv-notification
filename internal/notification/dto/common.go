@@ -10,22 +10,34 @@ type Modifier struct {
 	FullName string                `json:"fullName"`
 }
 
-type ItemMetadataResponse struct {
-	CreatedAt  int64    `json:"createdAt"`
-	UpdatedAt  int64    `json:"updatedAt"`
-	ModifiedBy Modifier `json:"modifiedBy"`
-	Version    int64    `json:"version"`
+type BaseField struct {
+	CreatedAt  int64     `json:"createdAt"`
+	UpdatedAt  int64     `json:"updatedAt"`
+	ModifiedBy *Modifier `json:"modifiedBy"`
+	Version    int64     `json:"version"`
 }
 
-type FindOptions struct {
-	Limit         int                    `json:"limit"`
-	Skip          int                    `json:"skip"`
-	SortBy        string                 `json:"sortBy"`
-	SortDirection string                 `json:"sortDirection"`
-	Filters       map[string]interface{} `json:"-"`
+type ListPayload struct {
+	Limit         int64             `json:"limit" query:"limit"`
+	Skip          int64             `json:"skip" query:"skip"`
+	SortBy        string            `json:"sortBy" query:"sortBy"`
+	Filters       map[string]string `json:"-" query:"filters"`
+	Subject       *Subject          `json:"-" query:"-"`
+	SortDirection string            `json:"-" query:"-"` // TODO: To be deprecated
 }
 
 type ListMetadata struct {
-	Count int64 `json:"count"`
-	FindOptions
+	Count  int64  `json:"count"`
+	Limit  int64  `json:"limit"`
+	Skip   int64  `json:"skip"`
+	SortBy string `json:"sortBy"`
+}
+
+func ToListMetadata(p *ListPayload, count int64) *ListMetadata {
+	return &ListMetadata{
+		Count:  count,
+		Limit:  p.Limit,
+		Skip:   p.Skip,
+		SortBy: p.SortBy,
+	}
 }

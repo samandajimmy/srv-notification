@@ -12,23 +12,23 @@ type ServiceContext interface {
 	SendEmail(payload dto.SendEmail) error
 	SendPushNotificationByTarget(payload dto.SendPushNotification) error
 	CreateApplication(payload dto.Application) (*dto.ApplicationResponse, error)
-	GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error)
+	GetDetailApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error)
 	DeleteApplication(payload dto.GetApplication) error
-	ListApplication(options *dto.ApplicationFindOptions) (*dto.ListApplicationResponse, error)
+	ListApplication(options *dto.ListPayload) (*dto.ListApplicationResponse, error)
 	UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error)
 
 	CreateClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error)
-	GetClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error)
-	ListClientConfig(params dto.ClientConfigFindOptions) (*dto.ClientConfigListResponse, error)
+	GetDetailClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error)
+	ListClientConfig(params *dto.ListPayload) (*dto.ClientConfigListResponse, error)
 	DeleteClientConfig(payload dto.GetClientConfig) error
 	UpdateClientConfig(payload dto.ClientConfigUpdateOptions) (*dto.ClientConfigItemResponse, error)
 
 	CreateNotification(payload dto.SendNotificationOptionsRequest) (*dto.DetailNotificationResponse, error)
 	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
 	GetDetailNotification(payload dto.GetNotification) (*dto.DetailNotificationResponse, error)
-	GetCountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error)
+	CountNotification(payload dto.GetCountNotification) (*dto.DetailCountNotificationResponse, error)
 	DeleteNotification(payload dto.GetNotification) error
-	ListNotification(options dto.NotificationFindOptions) (*dto.ListNotificationResponse, error)
+	ListNotification(options *dto.ListPayload) (*dto.ListNotificationResponse, error)
 	UpdateIsRead(payload dto.UpdateIsReadNotification) (*dto.DetailNotificationResponse, error)
 }
 

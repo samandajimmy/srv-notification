@@ -3,11 +3,11 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	"github.com/hetiansu5/urlquery"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 type Application struct {
@@ -20,7 +20,7 @@ func NewApplication(svc *contract.Service) *Application {
 	}
 }
 
-func (h *Application) PostCreateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
 	subject, err := GetSubject(rx)
 	if err != nil {
@@ -58,31 +58,26 @@ func (h *Application) PostCreateApplication(rx *nhttp.Request) (*nhttp.Response,
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *Application) GetFindApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get list parameters
-	q := rx.URL.Query()
-	//Get parameter
-	listParam := dto.ApplicationFindOptions{
-		FindOptions: dto.FindOptions{
-			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
-			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
-			SortBy:        nval.ParseStringFallback(q.Get("sortBy"), "createdAt"),
-			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
-			Filters:       map[string]interface{}{},
-		},
+func (h *Application) ListApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get authenticated entity
+	subject, err := GetSubject(rx)
+	if err != nil {
+		return nil, ncore.TraceError(err)
 	}
 
-	if v := q.Get("xid"); v != "" {
-		listParam.Filters["xid"] = v
+	// Parse query
+	payload := dto.ListPayload{
+		Filters: make(map[string]string),
 	}
-
-	if v := q.Get("name"); v != "" {
-		listParam.Filters["name"] = v
+	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
+	if err != nil {
+		return nil, ncore.TraceError(err)
 	}
+	payload.Subject = subject
 
 	//Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.ListApplication(&listParam)
+	resp, err := svc.ListApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -107,7 +102,7 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetApplication(payload)
+	resp, err := svc.GetDetailApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -116,7 +111,7 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get Auth Subject
 	actor, err := GetSubject(rx)
 	if err != nil {

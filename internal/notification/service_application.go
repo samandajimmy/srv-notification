@@ -7,7 +7,6 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/convert"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -75,8 +74,7 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 			String: "",
 			Valid:  true,
 		},
-		Metadata:     []byte("{}"),
-		ItemMetadata: model.NewItemMetadata(convert.ModifierDTOToModel(payload.Subject.ModifiedBy)),
+		BaseField: model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy)),
 	}
 
 	// Persist application
@@ -98,7 +96,7 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 
 }
 
-func (s *ServiceContext) GetApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error) {
+func (s *ServiceContext) GetDetailApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error) {
 	if payload.XID == constant.DefaultConfig {
 		log.Warn("did not allowed retrieve default config as app")
 		return nil, nhttp.ForbiddenError
@@ -144,7 +142,7 @@ func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
 	return nil
 }
 
-func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*dto.ListApplicationResponse, error) {
+func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApplicationResponse, error) {
 	// Handle sort request
 	rulesSortBy := []string{
 		"createdAt",
@@ -176,11 +174,8 @@ func (s *ServiceContext) ListApplication(options *dto.ApplicationFindOptions) (*
 	}
 
 	return &dto.ListApplicationResponse{
-		Items: rows,
-		Metadata: dto.ListMetadata{
-			Count:       result.Count,
-			FindOptions: options.FindOptions,
-		},
+		Items:    rows,
+		Metadata: dto.ToListMetadata(options, result.Count),
 	}, err
 }
 
@@ -260,9 +255,9 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 	// If changes count more than 0, then persist update
 	if changesCount > 0 {
 		// Update metadata
-		modifiedBy := convert.ModifierDTOToModel(payload.Subject.ModifiedBy)
+		modifiedBy := model.ToModifier(payload.Subject.ModifiedBy)
 		app.UpdatedAt = time.Now()
-		app.ModifiedBy = &modifiedBy
+		app.ModifiedBy = modifiedBy
 		app.Version += 1
 
 		// Persist
@@ -282,9 +277,9 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 
 func composeListApplicationResponse(row *model.Application) (*dto.ApplicationItem, error) {
 	return &dto.ApplicationItem{
-		Name:                 row.Name,
-		XID:                  row.XID,
-		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
+		Name:      row.Name,
+		XID:       row.XID,
+		BaseField: model.ToBaseFieldDTO(row.BaseField),
 	}, nil
 }
 
@@ -295,10 +290,10 @@ func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationR
 	}
 
 	return &dto.ApplicationResponse{
-		Name:                 row.Name,
-		XID:                  row.XID,
-		ApiKey:               row.ApiKey,
-		WebhookURL:           webhookUrl,
-		ItemMetadataResponse: convert.ItemMetadataModelToResponse(row.ItemMetadata),
+		Name:       row.Name,
+		XID:        row.XID,
+		ApiKey:     row.ApiKey,
+		WebhookURL: webhookUrl,
+		BaseField:  model.ToBaseFieldDTO(row.BaseField),
 	}, nil
 }

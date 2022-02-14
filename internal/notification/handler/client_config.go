@@ -3,12 +3,13 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	"github.com/hetiansu5/urlquery"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 type ClientConfig struct {
@@ -53,7 +54,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	resp, err := svc.CreateClientConfig(payload)
 	if err != nil {
-		log.Error("failed to create client .", nlogger.Error(err))
+		log.Error("failed to create client.", logger.Error(err))
 		return nil, err
 	}
 
@@ -61,34 +62,24 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *ClientConfig) ListClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
 	subject, err := GetSubject(rx)
 	if err != nil {
 		return nil, ncore.TraceError(err)
 	}
 
-	// Get list parameters
-	q := rx.URL.Query()
-	// Get parameter
-	listParam := dto.ClientConfigFindOptions{
-		FindOptions: dto.FindOptions{
-			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
-			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
-			SortBy:        nval.ParseStringFallback(q.Get("sortBy"), "createdAt"),
-			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
-			Filters:       map[string]interface{}{},
-		},
-		Subject: subject,
+	// Parse query
+	var payload dto.ListPayload
+	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
+	if err != nil {
+		return nil, ncore.TraceError(err)
 	}
-
-	if v := q.Get("applicationXid"); v != "" {
-		listParam.Filters["applicationXid"] = v
-	}
+	payload.Subject = subject
 
 	// Call service
 	srv := h.Service.WithContext(rx.Context())
-	respData, err := srv.ListClientConfig(listParam)
+	respData, err := srv.ListClientConfig(&payload)
 	if err != nil {
 		log.Error("failed to call service.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
@@ -100,7 +91,7 @@ func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	return resp, nil
 }
 
-func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *ClientConfig) GetDetailClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get xid
 	xid := mux.Vars(rx.Request)["xid"]
 	if xid == "" {
@@ -116,7 +107,7 @@ func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetClientConfig(payload)
+	resp, err := svc.GetDetailClientConfig(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

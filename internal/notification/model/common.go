@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
 )
@@ -21,14 +22,31 @@ func (m *Modifier) Value() (driver.Value, error) {
 	return json.Marshal(m)
 }
 
-type ItemMetadata struct {
-	CreatedAt  time.Time `db:"createdAt"`
-	UpdatedAt  time.Time `db:"updatedAt"`
-	ModifiedBy *Modifier `db:"modifiedBy"`
-	Version    int64     `db:"version"`
+func ToModifierDTO(model *Modifier) *dto.Modifier {
+	return &dto.Modifier{
+		ID:       model.ID,
+		Role:     model.Role,
+		FullName: model.FullName,
+	}
 }
 
-func (m ItemMetadata) Upgrade(modifiedBy Modifier, opts ...time.Time) ItemMetadata {
+func ToModifier(dto *dto.Modifier) *Modifier {
+	return &Modifier{
+		ID:       dto.ID,
+		Role:     dto.Role,
+		FullName: dto.FullName,
+	}
+}
+
+type BaseField struct {
+	CreatedAt  time.Time       `db:"createdAt"`
+	UpdatedAt  time.Time       `db:"updatedAt"`
+	ModifiedBy *Modifier       `db:"modifiedBy"`
+	Version    int64           `db:"version"`
+	Metadata   json.RawMessage `db:"metadata"`
+}
+
+func (m *BaseField) Upgrade(modifiedBy Modifier, opts ...time.Time) *BaseField {
 	var t time.Time
 	if len(opts) > 0 {
 		t = opts[0]
@@ -36,7 +54,7 @@ func (m ItemMetadata) Upgrade(modifiedBy Modifier, opts ...time.Time) ItemMetada
 		t = time.Now()
 	}
 
-	return ItemMetadata{
+	return &BaseField{
 		CreatedAt:  m.CreatedAt,
 		UpdatedAt:  t,
 		ModifiedBy: &modifiedBy,
@@ -44,14 +62,24 @@ func (m ItemMetadata) Upgrade(modifiedBy Modifier, opts ...time.Time) ItemMetada
 	}
 }
 
-func NewItemMetadata(modifiedBy Modifier) ItemMetadata {
+func NewBaseField(modifiedBy *Modifier) *BaseField {
 	// Init timestamp
 	t := time.Now()
 
-	return ItemMetadata{
+	return &BaseField{
 		CreatedAt:  t,
 		UpdatedAt:  t,
-		ModifiedBy: &modifiedBy,
+		ModifiedBy: modifiedBy,
 		Version:    1,
+		Metadata:   []byte("{}"),
+	}
+}
+
+func ToBaseFieldDTO(m *BaseField) *dto.BaseField {
+	return &dto.BaseField{
+		UpdatedAt:  m.UpdatedAt.Unix(),
+		CreatedAt:  m.CreatedAt.Unix(),
+		ModifiedBy: ToModifierDTO(m.ModifiedBy),
+		Version:    m.Version,
 	}
 }

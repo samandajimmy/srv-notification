@@ -6,6 +6,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gorilla/mux"
+	"github.com/hetiansu5/urlquery"
 	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
@@ -178,7 +179,7 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 	return nhttp.OK(), nil
 }
 
-func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get context
 	ctx := rx.Context()
 
@@ -211,7 +212,7 @@ func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response,
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
-	resp, err := svc.GetCountNotification(payload)
+	resp, err := svc.CountNotification(payload)
 	if err != nil {
 		log.Error("error when call service err: %v", logger.Error(err), logger.Context(ctx))
 		return nil, err
@@ -220,49 +221,35 @@ func (h *Notification) GetCountNotification(rx *nhttp.Request) (*nhttp.Response,
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *Notification) GetListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get context
-	ctx := rx.Context()
-
-	// Get application
-	app, err := getApplication(rx)
+func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
+	// Get authenticated entity
+	subject, err := GetSubject(rx)
 	if err != nil {
-		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
 		return nil, ncore.TraceError(err)
 	}
 
-	// Get list parameters
-	q := rx.URL.Query()
-	//Get parameter
-	listParam := dto.NotificationFindOptions{
-		FindOptions: dto.FindOptions{
-			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
-			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
-			SortBy:        nval.ParseStringFallback(q.Get("sortBy"), "createdAt"),
-			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
-			Filters:       map[string]interface{}{},
-		},
-	}
-
-	//Call service
-	svc := h.Service.WithContext(rx.Context())
+	// Parse query
+	var payload dto.ListPayload
+	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
 	if err != nil {
-		log.Error("failed to auth application", nlogger.Error(err))
-		return nil, nhttp.BadRequestError.Wrap(err)
+		return nil, ncore.TraceError(err)
 	}
+	payload.Subject = subject
 
-	if app != nil {
-		listParam.Filters["applicationId"] = app.ID
-	}
-
-	if v := nval.ParseInt64Fallback(q.Get("filters[userId]"), 0); v > 0 {
-		listParam.Filters["userId"] = v
-	} else {
-		log.Error("userId is required to get list data", nlogger.Error(err))
+	// Validate payload
+	ctx := rx.Context()
+	if payload.Filters == nil {
+		log.Error("invalid empty filters query in ListNotification", logger.Context(ctx))
 		return nil, nhttp.BadRequestError
 	}
 
-	resp, err := svc.ListNotification(listParam)
+	if v, ok := payload.Filters[constant.UserIdKey]; !ok || v == "" {
+		log.Error("filters[userId] is required", logger.Context(ctx))
+		return nil, nhttp.BadRequestError
+	}
+
+	svc := h.Service.WithContext(ctx)
+	resp, err := svc.ListNotification(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
