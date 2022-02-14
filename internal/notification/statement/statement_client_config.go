@@ -2,38 +2,66 @@ package statement
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/nbs-go/nsql/op"
+	"github.com/nbs-go/nsql/option"
+	"github.com/nbs-go/nsql/pq/query"
+	"github.com/nbs-go/nsql/schema"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 )
+
+// Define schema
+
+var ClientConfigSchema = schema.New(schema.FromModelRef(model.ClientConfig{}))
 
 type ClientConfig struct {
 	FindByKey                *sqlx.Stmt
 	FindByXID                *sqlx.Stmt
 	Insert                   *sqlx.NamedStmt
-	UpdateByID               *sqlx.NamedStmt
+	UpdateByID               *sqlx.Stmt
 	DeleteByID               *sqlx.Stmt
 	FindJoinApplicationByXID *sqlx.Stmt
 }
 
 func NewClientConfig(db *nsql.Database) *ClientConfig {
-	tableName := `ClientConfig`
-	columns := `"createdAt","updatedAt","metadata","modifiedBy","version","key","value","applicationId","xid"`
-	namedColumns := `:createdAt,:updatedAt,:metadata,:modifiedBy,:version,:key,:value,:applicationId,:xid`
-	allColumns := `"id",` + columns
-	updatedNamedColumns := `"updatedAt" = :updatedAt, "metadata" = :metadata, "modifiedBy" = :modifiedBy, "version" = :version, "key" = :key, "value" = :value, "applicationId" = :applicationId, "xid" = :xid`
+	findJoinApplicationByXID := query.Select(
+		query.Column("*", option.Schema(ClientConfigSchema)),
+		query.Column("*", option.Schema(ApplicationSchema))).
+		From(ClientConfigSchema, option.As("cc")).
+		Join(ApplicationSchema, query.Equal(query.Column("applicationId"), query.On("id")),
+			option.As("a"), option.JoinMethod(op.InnerJoin)).
+		Where(query.Equal(query.Column("xid"))).
+		Limit(1).
+		Build()
 
-	applicationColumn := `"Application"."xid" AS "applicationXid"`
-	columnsWithExplicitTable := `"ClientConfig"."createdAt", "ClientConfig"."updatedAt", "ClientConfig"."metadata", "ClientConfig"."modifiedBy", "ClientConfig"."version", "ClientConfig"."key", "ClientConfig"."value", "ClientConfig"."xid"`
-	columnsWithExplicitTable += ", " + applicationColumn
-	joinApplication := `LEFT JOIN "Application" ON "Application"."id" = "ClientConfig"."applicationId"`
+	findByKey := query.Select(query.Column("*")).
+		Where(query.Equal(query.Column("key"))).
+		From(ClientConfigSchema).
+		Limit(1).
+		Build()
+
+	findByXID := query.Select(query.Column("*")).
+		From(ClientConfigSchema).
+		Where(query.Equal(query.Column("xid"))).
+		Limit(1).
+		Build()
+
+	update := query.Update(ClientConfigSchema, "updatedAt", "modifiedBy", "version", "value").
+		Where(query.And(
+			query.Equal(query.Column("id")),
+			query.Equal(query.Column("version")),
+		)).
+		Build(option.VariableFormat(op.BindVar))
+
+	// Init query Schema Builder
+	bs := query.Schema(ClientConfigSchema)
 
 	return &ClientConfig{
-		FindByKey:  db.PrepareFmt(`SELECT %s FROM "%s" WHERE "key" = $1 AND "applicationId" = $2`, columns, tableName),
-		Insert:     db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
-		FindByXID:  db.PrepareFmt(`SELECT %s FROM "%s" WHERE "xid" = $1`, allColumns, tableName),
-		UpdateByID: db.PrepareNamedFmt(`UPDATE "%s" SET %s WHERE "id" = :id`, tableName, updatedNamedColumns),
-		DeleteByID: db.PrepareFmt(`DELETE FROM "%s" WHERE "id" = $1`, tableName),
-		FindJoinApplicationByXID: db.PrepareFmt(`SELECT %s FROM "%s" %s WHERE "%s"."xid" = $1`,
-			columnsWithExplicitTable, tableName, joinApplication, tableName,
-		),
+		FindByKey:                db.PrepareRebind(findByKey),
+		FindByXID:                db.PrepareRebind(findByXID),
+		Insert:                   db.PrepareNamed(bs.Insert()),
+		UpdateByID:               db.PrepareRebind(update),
+		DeleteByID:               db.PrepareRebind(bs.Delete()),
+		FindJoinApplicationByXID: db.PrepareRebind(findJoinApplicationByXID),
 	}
 }

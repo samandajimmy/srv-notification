@@ -2,26 +2,37 @@ package statement
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/nbs-go/nsql/op"
+	"github.com/nbs-go/nsql/option"
+	"github.com/nbs-go/nsql/pq/query"
+	"github.com/nbs-go/nsql/schema"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 )
+
+var NotificationSchema = schema.New(schema.FromModelRef(model.Notification{}), schema.AutoIncrement(false))
 
 type Notification struct {
 	Insert     *sqlx.NamedStmt
 	FindByID   *sqlx.Stmt
-	Update     *sqlx.NamedStmt
+	Update     *sqlx.Stmt
 	DeleteByID *sqlx.Stmt
 }
 
 func NewNotification(db *nsql.Database) *Notification {
-	tableName := `Notification`
-	columns := `"id","createdAt","updatedAt","modifiedBy","metadata","version","applicationId","userRefId","isRead","readAt","options"`
-	namedColumns := `:id,:createdAt,:updatedAt,:modifiedBy,:metadata,:version,:applicationId,:userRefId,:isRead,:readAt,:options`
-	updateNamedColumns := `"id" = :id,"createdAt" = :createdAt,"updatedAt" = :updatedAt,"modifiedBy" = :modifiedBy,"metadata" = :metadata,"version" = :version,"applicationId" = :applicationId,"userRefId" = :userRefId,"isRead" = :isRead,"readAt" = :readAt,"options" = :options`
+	sb := query.Schema(NotificationSchema)
+
+	update := query.Update(NotificationSchema, "updatedAt", "modifiedBy", "version", "isRead", "readAt").
+		Where(query.And(
+			query.Equal(query.Column("id")),
+			query.Equal(query.Column("version")),
+		)).
+		Build(option.VariableFormat(op.BindVar))
 
 	return &Notification{
-		Insert:     db.PrepareNamedFmt(`INSERT INTO "%s"(%s) VALUES (%s)`, tableName, columns, namedColumns),
-		FindByID:   db.PrepareFmt(`SELECT %s FROM "%s" WHERE id = $1`, columns, tableName),
-		Update:     db.PrepareNamedFmt(`UPDATE "%s" SET %s WHERE "id" = :id`, tableName, updateNamedColumns),
-		DeleteByID: db.PrepareFmt(`DELETE FROM "%s" WHERE id = $1`, tableName),
+		Insert:     db.PrepareNamed(sb.Insert()),
+		FindByID:   db.PrepareRebind(sb.FindByPK()),
+		Update:     db.PrepareRebind(update),
+		DeleteByID: db.PrepareRebind(sb.Delete()),
 	}
 }

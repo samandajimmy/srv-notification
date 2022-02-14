@@ -17,7 +17,7 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/nbs-go/nlogger v1.2.0
-	github.com/nbs-go/nsql v0.5.1 // indirect
+	github.com/nbs-go/nsql v0.5.1
 	github.com/stretchr/testify v1.7.0 // indirect
 	google.golang.org/api v0.60.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
