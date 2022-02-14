@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
-	"github.com/hetiansu5/urlquery"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -59,25 +58,14 @@ func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, err
 }
 
 func (h *Application) ListApplication(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get authenticated entity
-	subject, err := GetSubject(rx)
+	payload, err := getListPayload(rx)
 	if err != nil {
 		return nil, ncore.TraceError(err)
 	}
-
-	// Parse query
-	payload := dto.ListPayload{
-		Filters: make(map[string]string),
-	}
-	err = urlquery.Unmarshal([]byte(rx.URL.RawQuery), &payload)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
-	payload.Subject = subject
 
 	//Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.ListApplication(&payload)
+	resp, err := svc.ListApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

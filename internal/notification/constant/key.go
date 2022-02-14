@@ -13,7 +13,6 @@ const (
 	ApplicationXIDKey = "applicationXID"
 	CreatedFromKey    = "createdFrom"
 	CreatedUntilKey   = "createdUntil"
-	XIDKey            = "xid"
 	NameKey           = "name"
 	UserIdKey         = "userId"
 )
@@ -21,5 +20,8 @@ const (
 // Sort by options
 
 const (
-	SortByCreated = "createdat"
+	SortByCreated     = "createdAt"
+	SortByName        = "name"
+	SortByNameDesc    = "name DESC"
+	SortByLastUpdated = "updatedAt DESC"
 )

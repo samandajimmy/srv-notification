@@ -12,7 +12,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
 	"time"
 )
@@ -143,24 +142,6 @@ func (s *ServiceContext) DeleteApplication(payload dto.GetApplication) error {
 }
 
 func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApplicationResponse, error) {
-	// Handle sort request
-	rulesSortBy := []string{
-		"createdAt",
-		"updatedAt",
-		"name",
-	}
-
-	// Get orderBy
-	sortBy, sortDirection := s.GetOrderBy(
-		nval.ParseStringFallback(options.SortBy, `createdAt`),
-		nval.ParseStringFallback(options.SortDirection, `desc`),
-		rulesSortBy,
-	)
-
-	// Set sort by and direction
-	options.SortBy = sortBy
-	options.SortDirection = sortDirection
-
 	// Get list application
 	result, err := s.repo.FindApplication(options)
 	if err != nil {

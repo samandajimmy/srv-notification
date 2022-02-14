@@ -11,12 +11,10 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/statement"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	nsqlDep "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
-	"strings"
 )
 
 // Define filters
 var applicationFilters = map[string]nsql.FilterParser{
-	constant.XIDKey:          newEqualFilter(statement.ApplicationSchema, "xid"),
 	constant.NameKey:         query.LikeFilter("name", op.LikeSubString, option.Schema(statement.ApplicationSchema)),
 	constant.CreatedFromKey:  newGreaterThanEqualFilter(statement.ApplicationSchema, "createdAt"),
 	constant.CreatedUntilKey: newLessThanEqualFilter(statement.ApplicationSchema, "createdAt"),
@@ -47,10 +45,15 @@ func (rc *RepositoryContext) FindApplication(params *dto.ListPayload) (*model.Ap
 	b.Where(filters.Conditions())
 
 	// Set order by
-	switch strings.ToLower(params.SortBy) {
+	switch params.SortBy {
+	case constant.SortByName:
+		b.OrderBy("name")
+	case constant.SortByNameDesc:
+		b.OrderBy("name", option.SortDirection(op.Descending))
 	case constant.SortByCreated:
 		b.OrderBy("createdAt")
 	default:
+		params.SortBy = constant.SortByLastUpdated
 		b.OrderBy("updatedAt", option.SortDirection(op.Descending))
 	}
 
