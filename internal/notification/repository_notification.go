@@ -21,7 +21,8 @@ func (rc *RepositoryContext) FindNotificationByID(id string) (*model.Notificatio
 }
 
 func (rc *RepositoryContext) UpdateNotificationByID(row *model.Notification) error {
-	result, err := rc.RepositoryStatement.Notification.Update.ExecContext(rc.ctx, row)
+	result, err := rc.RepositoryStatement.Notification.Update.ExecContext(rc.ctx, row.UpdatedAt, row.ModifiedBy,
+		row.Version, row.IsRead, row.ReadAt, row.ID)
 	if err != nil {
 		return err
 	}

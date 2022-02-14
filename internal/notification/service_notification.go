@@ -166,6 +166,8 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 		Valid: true,
 	}
 	notification.IsRead = true
+	notification.UpdatedAt = time.Now()
+	notification.Version += 1
 
 	err = s.repo.UpdateNotificationByID(notification)
 	if err != nil {

@@ -23,10 +23,7 @@ func NewNotification(db *nsql.Database) *Notification {
 	sb := query.Schema(NotificationSchema)
 
 	update := query.Update(NotificationSchema, "updatedAt", "modifiedBy", "version", "isRead", "readAt").
-		Where(query.And(
-			query.Equal(query.Column("id")),
-			query.Equal(query.Column("version")),
-		)).
+		Where(query.Equal(query.Column("id"))).
 		Build(option.VariableFormat(op.BindVar))
 
 	return &Notification{
