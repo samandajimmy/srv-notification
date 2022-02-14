@@ -70,8 +70,8 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 		ApiKey: apiKey,
 		Name:   payload.Name,
 		WebhookURL: sql.NullString{
-			String: "",
-			Valid:  true,
+			String: payload.WebhookURL,
+			Valid:  payload.WebhookURL != "",
 		},
 		BaseField: model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy)),
 	}
