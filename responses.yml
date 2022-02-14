@@ -39,6 +39,12 @@ E_RES_4:
   metadata:
     http_status: 403
 
+E_RES_5:
+  success: false
+  message: duplicated resource
+  metadata:
+    http_status: 409
+
 # Auth Error Response
 
 E_AUTH_1:

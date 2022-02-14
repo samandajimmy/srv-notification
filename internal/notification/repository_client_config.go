@@ -110,3 +110,9 @@ func (rc *RepositoryContext) DeleteClientConfigById(id int64) error {
 	_, err := rc.RepositoryStatement.ClientConfig.DeleteByID.ExecContext(rc.ctx, id)
 	return err
 }
+
+func (rc *RepositoryContext) IsClientConfigExists(appId int64, key string) (bool, error) {
+	var result bool
+	err := rc.RepositoryStatement.ClientConfig.IsExistsByKey.GetContext(rc.ctx, &result, appId, key)
+	return result, err
+}

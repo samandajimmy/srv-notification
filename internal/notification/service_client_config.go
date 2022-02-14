@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
@@ -18,6 +19,29 @@ import (
 )
 
 func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error) {
+	// Get application
+	application, err := s.repo.FindApplicationByXID(payload.ApplicationXid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("error when get data application.", nlogger.Error(err))
+			return nil, s.responses.GetError("E_RES_1")
+		}
+		log.Error("error when get data application.", nlogger.Error(err))
+		return nil, err
+	}
+
+	// Check if config for certain key has been added
+	isExists, err := s.repo.IsClientConfigExists(application.ID, payload.Key)
+	if err != nil {
+		log.Error("error while query IsClientConfigExists", logger.Error(err))
+		return nil, err
+	}
+
+	if isExists {
+		log.Errorf("client config for Key %s is already exists", payload.Key)
+		return nil, s.responses.GetError("E_RES_5")
+	}
+
 	// Initialize data to insert
 	xid, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 8)
 	if err != nil {
@@ -27,17 +51,6 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 	// Initialize data to insert
 	value, err := json.Marshal(payload.Value)
 	if err != nil {
-		return nil, err
-	}
-
-	// check application exist
-	application, err := s.repo.FindApplicationByXID(payload.ApplicationXid)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data application.", nlogger.Error(err))
-			return nil, s.responses.GetError("E_RES_1")
-		}
-		log.Error("error when get data application.", nlogger.Error(err))
 		return nil, err
 	}
 

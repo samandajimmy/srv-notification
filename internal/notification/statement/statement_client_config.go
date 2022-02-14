@@ -21,9 +21,14 @@ type ClientConfig struct {
 	UpdateByID               *sqlx.Stmt
 	DeleteByID               *sqlx.Stmt
 	FindJoinApplicationByXID *sqlx.Stmt
+	IsExistsByKey            *sqlx.Stmt
 }
 
 func NewClientConfig(db *nsql.Database) *ClientConfig {
+	// Init query Schema Builder
+	bs := query.Schema(ClientConfigSchema)
+
+	// Init query
 	findJoinApplicationByXID := query.Select(
 		query.Column("*", option.Schema(ClientConfigSchema)),
 		query.Column("*", option.Schema(ApplicationSchema))).
@@ -53,8 +58,10 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		)).
 		Build(option.VariableFormat(op.BindVar))
 
-	// Init query Schema Builder
-	bs := query.Schema(ClientConfigSchema)
+	isExistsByKey := bs.IsExists(query.And(
+		query.Equal(query.Column("applicationId")),
+		query.Equal(query.Column("key")),
+	))
 
 	return &ClientConfig{
 		FindByKey:                db.PrepareRebind(findByKey),
@@ -63,5 +70,6 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		UpdateByID:               db.PrepareRebind(update),
 		DeleteByID:               db.PrepareRebind(bs.Delete()),
 		FindJoinApplicationByXID: db.PrepareRebind(findJoinApplicationByXID),
+		IsExistsByKey:            db.PrepareRebind(isExistsByKey),
 	}
 }
