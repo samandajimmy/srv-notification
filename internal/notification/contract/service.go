@@ -15,7 +15,7 @@ type ServiceContext interface {
 	GetDetailApplication(payload dto.GetApplication) (*dto.ApplicationResponse, error)
 	DeleteApplication(payload dto.GetApplication) error
 	ListApplication(options *dto.ListPayload) (*dto.ListApplicationResponse, error)
-	UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error)
+	UpdateApplication(payload *dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error)
 
 	CreateClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error)
 	GetDetailClientConfig(payload dto.ClientConfigRequest) (*dto.ClientConfigItemResponse, error)

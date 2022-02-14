@@ -129,7 +129,7 @@ func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, err
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.UpdateApplication(payload)
+	resp, err := svc.UpdateApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

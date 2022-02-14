@@ -32,7 +32,7 @@ func NewApplication(db *nsql.Database) *Application {
 		Build()
 
 	// Update
-	update := query.Update(ApplicationSchema, "updatedAt", "modifiedBy", "version", "name", "webhookUrl").
+	update := query.Update(ApplicationSchema, "updatedAt", "modifiedBy", "version", "name", "apiKey", "webhookUrl").
 		Where(query.And(
 			query.Equal(query.Column("id")),
 			query.Equal(query.Column("version")),

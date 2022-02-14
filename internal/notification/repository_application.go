@@ -94,8 +94,10 @@ func (rc *RepositoryContext) FindApplication(params *dto.ListPayload) (*model.Ap
 	return &result, err
 }
 
-func (rc *RepositoryContext) UpdateApplication(row *model.Application) error {
-	result, err := rc.Application.Update.ExecContext(rc.ctx, row)
+func (rc *RepositoryContext) UpdateApplication(row *model.Application, currentVersion int64) error {
+	// "updatedAt", "modifiedBy", "version", "name", "apiKey", "webhookUrl"
+	result, err := rc.Application.Update.ExecContext(rc.ctx, row.UpdatedAt, row.ModifiedBy, row.Version,
+		row.Name, row.ApiKey, row.WebhookURL, row.ID, currentVersion)
 	if err != nil {
 		return err
 	}

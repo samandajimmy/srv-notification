@@ -12,7 +12,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
-	"strings"
 	"time"
 )
 
@@ -60,14 +59,9 @@ func (s *ServiceContext) CreateApplication(payload dto.Application) (*dto.Applic
 	}
 
 	// Initialize data to insert
-	apiKey, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 32)
-	if err != nil {
-		panic(fmt.Errorf("failed to generate apiKey. Error = %w", err))
-	}
-
 	apl := model.Application{
 		XID:    xid,
-		ApiKey: apiKey,
+		ApiKey: newApplicationApiKey(),
 		Name:   payload.Name,
 		WebhookURL: sql.NullString{
 			String: payload.WebhookURL,
@@ -160,7 +154,7 @@ func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApp
 	}, err
 }
 
-func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error) {
+func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error) {
 	if payload.XID == constant.DefaultConfig {
 		log.Warn("cannot update default config app")
 		return nil, nhttp.ForbiddenError
@@ -190,7 +184,6 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 	d := payload.Data
 	changelog := payload.Changelog
 	changesCount := 0
-	d.Name = strings.ToUpper(d.Name)
 
 	for k, changed := range changelog {
 		// If not changed, then continue
@@ -209,14 +202,8 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 			app.Name = d.Name
 			changesCount += 1
 		case "apiKey":
-			// If title is empty, or value is still the same, then skip
-			if d.ApiKey == "" || d.ApiKey == app.ApiKey {
-				changelog[k] = false
-				continue
-			}
-
-			// Set updated value
-			app.ApiKey = d.ApiKey
+			// Generate new api key
+			app.ApiKey = newApplicationApiKey()
 			changesCount += 1
 		case "webhookUrl":
 			// If title is empty, or value is still the same, then skip
@@ -242,7 +229,7 @@ func (s *ServiceContext) UpdateApplication(payload dto.ApplicationUpdateOptions)
 		app.Version += 1
 
 		// Persist
-		err := s.repo.UpdateApplication(app)
+		err = s.repo.UpdateApplication(app, payload.Version)
 		if err != nil {
 			if errors.Is(err, nsql.RowNotUpdatedError) {
 				err = s.responses.GetError("E_RES_3").Wrap(err)
@@ -277,4 +264,12 @@ func composeDetailApplicationResponse(row *model.Application) (*dto.ApplicationR
 		WebhookURL: webhookUrl,
 		BaseField:  model.ToBaseFieldDTO(row.BaseField),
 	}, nil
+}
+
+func newApplicationApiKey() string {
+	apiKey, err := gonanoid.Generate(constant.AlphaNumUpperCharSet, 32)
+	if err != nil {
+		panic(fmt.Errorf("failed to generate apiKey. Error = %w", err))
+	}
+	return apiKey
 }
