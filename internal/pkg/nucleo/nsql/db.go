@@ -41,6 +41,16 @@ func (s *Database) Prepare(query string) *sqlx.Stmt {
 	return stmt
 }
 
+// PrepareRebind prepare sql statements and rebind query to driver or exit app if fails or error
+func (s *Database) PrepareRebind(query string) *sqlx.Stmt {
+	query = s.conn.Rebind(query)
+	stmt, err := s.conn.Preparex(query)
+	if err != nil {
+		panic(fmt.Errorf("nsql: error while preparing statment [%s] (%s)", query, err))
+	}
+	return stmt
+}
+
 // PrepareFmt prepare sql statements from string format or exit app if fails or error
 func (s *Database) PrepareFmt(queryFmt string, args ...interface{}) *sqlx.Stmt {
 	query := fmt.Sprintf(queryFmt, args...)
