@@ -26,33 +26,33 @@ func (r *Request) ParseJSONBody(dest interface{}) error {
 	return nil
 }
 
-/// SetContextValue set value to context.Context in http.Request
-/// Value is accessible chain of http.Handler
+// SetContextValue set value to context.Context in http.Request
+// Value is accessible chain of http.Handler
 func (r *Request) SetContextValue(k string, v interface{}) {
 	ctx := context.WithValue(r.Context(), k, v)
 	*r.Request = *r.WithContext(ctx)
 }
 
-/// GetContextValue get value to context.Context
-/// Value is accessible chain of http.Handler
+// GetContextValue get value to context.Context
+// Value is accessible chain of http.Handler
 func (r *Request) GetContextValue(k string) interface{} {
 	return r.Context().Value(k)
 }
 
-/// SetMetadata set value to Request metadata
-/// Value is only accessible in one nhttp.Handler and before and after nhttp.HookFunc
+// SetMetadata set value to Request metadata
+// Value is only accessible in one nhttp.Handler and before and after nhttp.HookFunc
 func (r *Request) SetMetadata(k string, v interface{}) {
 	r.hookMetadata[k] = v
 }
 
-/// GetMetadata get value to Request metadata
-/// Value is only accessible in one nhttp.Handler and before and after nhttp.HookFunc
+// GetMetadata get value to Request metadata
+// Value is only accessible in one nhttp.Handler and before and after nhttp.HookFunc
 func (r *Request) GetMetadata(k string) interface{} {
 	return r.hookMetadata[k]
 }
 
-/// End set value to Request context.Context to flag that this connection is ending and the next Handler will not
-/// continue
+// End set value to Request context.Context to flag that this connection is ending and the next Handler will not
+// continue
 func (r *Request) End(httpStatus int) {
 	r.SetContextValue(HttpStatusRespKey, httpStatus)
 }

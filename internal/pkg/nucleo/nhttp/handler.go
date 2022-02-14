@@ -15,7 +15,7 @@ func NewHandler(fn HandlerFunc) *Handler {
 	return &h
 }
 
-/// Handler handles HTTP request and send response as JSON
+// Handler handles HTTP request and send response as JSON
 type Handler struct {
 	// Private
 	contentWriter ContentWriter

@@ -1,8 +1,8 @@
 package contract
 
 import (
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 )
 
 type ClientConfigure interface {

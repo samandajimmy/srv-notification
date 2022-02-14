@@ -45,7 +45,7 @@ func (s *Int64) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// newInt returns pointer of a variable that contains integer
+// NewInt returns pointer of a variable that contains integer
 func NewInt(i int) *int {
 	return &i
 }

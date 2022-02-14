@@ -2,7 +2,7 @@ package contract
 
 import (
 	"context"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 )
 

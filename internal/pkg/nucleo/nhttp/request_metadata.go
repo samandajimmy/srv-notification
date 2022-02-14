@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"html"
 	"net/http"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"time"
 )
 

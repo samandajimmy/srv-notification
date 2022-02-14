@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 
 	_ "github.com/lib/pq"
 )
-
-var log = nlogger.Get()
 
 func NewRepository(config *contract.DataSourcesConfig) (*Repository, error) {
 	configPostgres := config.Postgres

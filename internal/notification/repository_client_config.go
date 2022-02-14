@@ -3,8 +3,8 @@ package notification
 import (
 	"fmt"
 	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"strings"

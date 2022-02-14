@@ -5,10 +5,9 @@ import (
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/nbs-go/nlogger"
 	"net/http"
-	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
+	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )
@@ -43,15 +42,15 @@ func main() {
 	pubSub := gochannel.NewGoChannel(gochannel.Config{}, nil)
 
 	// Init subscriber
-	pds_svc.SetUpSubscriber(pubSub, svc)
+	notification.SetUpSubscriber(pubSub, svc)
 
 	// Init handlers
-	handlers := pds_svc.InitHandler(&core.Manifest, svc, pubSub)
+	handlers := notification.InitHandler(&core.Manifest, svc, pubSub)
 
 	log.Debugf("Boot Time: %s", time.Since(startedAt))
 
 	// Init router
-	router := pds_svc.InitRouter(core.WorkDir, config, handlers)
+	router := notification.InitRouter(core.WorkDir, config, handlers)
 
 	// Set server config from env
 	err = config.Server.LoadFromEnv()

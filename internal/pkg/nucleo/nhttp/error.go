@@ -4,6 +4,7 @@ import "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 
 const (
 	// Standard error response codes
+
 	BadRequestErrorCode       = "400"
 	UnauthorizedErrorCode     = "401"
 	ForbiddenErrorCode        = "403"

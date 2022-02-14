@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 )
 
 type HandlerFn = func(ctx context.Context, payload message.Payload) (ack bool, err error)

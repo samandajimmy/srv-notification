@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 )
 
 type Modifier struct {

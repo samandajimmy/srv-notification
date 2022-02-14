@@ -3,44 +3,42 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
-	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
+	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
-type ClientConfig struct {
+type Application struct {
 	Service *contract.Service
 }
 
-func NewClientConfig(svc *contract.Service) *ClientConfig {
-	return &ClientConfig{
+func NewApplication(svc *contract.Service) *Application {
+	return &Application{
 		Service: svc,
 	}
 }
 
-func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) PostCreateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
 	subject, err := GetSubject(rx)
 	if err != nil {
-		log.Errorf("Error when get subject authenticated entity.", nlogger.Error(err))
 		return nil, ncore.TraceError(err)
 	}
+
 	// Get Payload
-	var payload dto.ClientConfigRequest
+	var payload dto.Application
 	err = rx.ParseJSONBody(&payload)
 	if err != nil {
-		log.Errorf("Error when parse json body from request.", nlogger.Error(err))
+		log.Errorf("Error when parse json body from request %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
 	// Validate payload
-	log.Debugf("Received Create ClientConfig request.")
 	err = payload.Validate()
 	if err != nil {
-		log.Error("Error appear when validate payload.", nlogger.Error(err))
+		log.Errorf("Error appear when validate payload: %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -51,9 +49,8 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.CreateClientConfig(payload)
+	resp, err := svc.CreateApplication(payload)
 	if err != nil {
-		log.Error("failed to create client .", nlogger.Error(err))
 		return nil, err
 	}
 
@@ -61,17 +58,11 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
-	// Get authenticated entity
-	subject, err := GetSubject(rx)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
-
+func (h *Application) GetFindApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get list parameters
 	q := rx.URL.Query()
-	// Get parameter
-	listParam := dto.ClientConfigFindOptions{
+	//Get parameter
+	listParam := dto.ApplicationFindOptions{
 		FindOptions: dto.FindOptions{
 			Limit:         nval.ParseIntFallback(q.Get("limit"), 10),
 			Skip:          nval.ParseIntFallback(q.Get("skip"), 0),
@@ -79,28 +70,28 @@ func (h *ClientConfig) SearchClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 			SortDirection: nval.ParseStringFallback(q.Get("sortDirection"), "desc"),
 			Filters:       map[string]interface{}{},
 		},
-		Subject: subject,
 	}
 
-	if v := q.Get("applicationXid"); v != "" {
-		listParam.Filters["applicationXid"] = v
+	if v := q.Get("xid"); v != "" {
+		listParam.Filters["xid"] = v
 	}
 
-	// Call service
-	srv := h.Service.WithContext(rx.Context())
-	respData, err := srv.ListClientConfig(listParam)
+	if v := q.Get("name"); v != "" {
+		listParam.Filters["name"] = v
+	}
+
+	//Call service
+	svc := h.Service.WithContext(rx.Context())
+	resp, err := svc.ListApplication(&listParam)
 	if err != nil {
-		log.Error("failed to call service.", nlogger.Error(err))
-		return nil, ncore.TraceError(err)
+		log.Errorf("error when call service err: %v", err)
+		return nil, err
 	}
 
-	// Set response
-	resp := nhttp.OK().SetData(respData)
-
-	return resp, nil
+	return nhttp.OK().SetData(resp), nil
 }
 
-func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get xid
 	xid := mux.Vars(rx.Request)["xid"]
 	if xid == "" {
@@ -110,13 +101,13 @@ func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Set payload
-	var payload dto.ClientConfigRequest
+	var payload dto.GetApplication
 	payload.RequestId = GetRequestId(rx)
 	payload.XID = xid
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	resp, err := svc.GetClientConfig(payload)
+	resp, err := svc.GetApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -125,7 +116,7 @@ func (h *ClientConfig) DetailClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) PutUpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get Auth Subject
 	actor, err := GetSubject(rx)
 	if err != nil {
@@ -133,7 +124,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Get Payload
-	var payload dto.ClientConfigUpdateOptions
+	var payload dto.ApplicationUpdateOptions
 	err = rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request %v", err)
@@ -155,7 +146,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
 
-	resp, err := svc.UpdateClientConfig(payload)
+	resp, err := svc.UpdateApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err
@@ -164,7 +155,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	return nhttp.Success().SetData(resp), nil
 }
 
-func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
+func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get xid
 	xid := mux.Vars(rx.Request)["xid"]
 	if xid == "" {
@@ -174,13 +165,13 @@ func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Set payload
-	var payload dto.GetClientConfig
+	var payload dto.GetApplication
 	payload.RequestId = GetRequestId(rx)
 	payload.XID = xid
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	err := svc.DeleteClientConfig(payload)
+	err := svc.DeleteApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
 		return nil, err

@@ -1,10 +1,10 @@
-package pds_svc
+package notification
 
 import (
 	"github.com/ThreeDotsLabs/watermill/message"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/constant"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/handler"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
+	handler "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/handler"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )

@@ -3,8 +3,8 @@ package notification
 import (
 	"context"
 	"github.com/nbs-go/nlogger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/logger"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pds-svc/contract"
+	contract "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"strings"
