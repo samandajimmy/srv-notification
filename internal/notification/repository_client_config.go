@@ -30,6 +30,12 @@ func (rc *RepositoryContext) FindByKey(key string, appId int64) (*model.ClientCo
 	return &row, err
 }
 
+func (rc *RepositoryContext) FindDefaultClientConfigByKey(key string) (*model.ClientConfig, error) {
+	var row model.ClientConfigDetailed
+	err := rc.RepositoryStatement.ClientConfig.FindDefaultByKey.Get(&row, constant.DefaultConfig, key)
+	return row.ClientConfig, err
+}
+
 func (rc *RepositoryContext) FindClientConfigByXID(xid string) (*model.ClientConfigDetailed, error) {
 	var row model.ClientConfigDetailed
 	err := rc.RepositoryStatement.ClientConfig.FindJoinApplicationByXID.GetContext(rc.ctx, &row, xid)

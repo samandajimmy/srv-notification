@@ -2,7 +2,6 @@ package notification
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"gopkg.in/gomail.v2"
@@ -18,18 +17,9 @@ import (
 const tmpAttachmentDir = ".tmp/email-attachments"
 
 func (s *ServiceContext) SendEmail(payload *dto.SendEmail) error {
-	// Get client config from database
-	// TODO: Refactor parse client config to a reusable function
-	clientConfig, err := s.repo.FindByKey(constant.SMTP, payload.ApplicationId)
-	if err != nil {
-		s.log.Error("failed to get configuration from db", logger.Error(err))
-		return ncore.TraceError(err)
-	}
-
 	var config contract.SMTPConfig
-	err = json.Unmarshal(clientConfig.Value, &config)
+	err := s.loadClientConfig(payload.ApplicationId, constant.SMTP, &config)
 	if err != nil {
-		s.log.Error("Error when unmarshaling config", logger.Error(err))
 		return ncore.TraceError(err)
 	}
 

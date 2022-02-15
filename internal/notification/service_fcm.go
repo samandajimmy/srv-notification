@@ -12,22 +12,13 @@ import (
 )
 
 func (s *ServiceContext) SendPushNotificationByTarget(payload *dto.SendPushNotification) error {
-	// Get client config firebase from db
-	// TODO: Refactor parse client config to a reusable function
-	clientConfig, err := s.repo.FindByKey(constant.Firebase, payload.ApplicationId)
+	var config json.RawMessage
+	err := s.loadClientConfig(payload.ApplicationId, constant.Firebase, &config)
 	if err != nil {
-		s.log.Error("failed to get configuration from db", logger.Error(err))
 		return ncore.TraceError(err)
 	}
 
-	// Marshalling config from db
-	configure, err := json.Marshal(clientConfig.Value)
-	if err != nil {
-		s.log.Error("failed to marshalling configuration from db", logger.Error(err))
-		return ncore.TraceError(err)
-	}
-
-	client, err := s.newFcmClient(string(configure))
+	client, err := s.newFcmClient(string(config))
 	if err != nil {
 		s.log.Error("failed to initialize new client", logger.Error(err))
 		return ncore.TraceError(err)

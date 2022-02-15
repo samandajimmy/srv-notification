@@ -216,6 +216,38 @@ func (s *ServiceContext) DeleteClientConfig(payload *dto.GetClientConfig) error 
 	return nil
 }
 
+func (s *ServiceContext) loadClientConfig(appId int64, key string, dest interface{}) error {
+	// Get client config from database
+	clientConfig, err := s.repo.FindByKey(key, appId)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			s.log.Error("failed to get ClientConfig from db", logger.Error(err),
+				logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+			return ncore.TraceError(err)
+		}
+
+		// Get default config
+		clientConfig, err = s.repo.FindDefaultClientConfigByKey(key)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return ncore.TraceError(fmt.Errorf("default configuration not set for key %s", key))
+			}
+			s.log.Error("failed to get default ClientConfig from db", logger.Error(err),
+				logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+			return ncore.TraceError(err)
+		}
+	}
+
+	err = json.Unmarshal(clientConfig.Value, dest)
+	if err != nil {
+		s.log.Error("Error when unmarshaling ClientConfig value", logger.Error(err),
+			logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+		return ncore.TraceError(err)
+	}
+
+	return nil
+}
+
 func composeDetailClientConfigResponse(row *model.ClientConfigDetailed) (*dto.ClientConfigItemResponse, error) {
 	return &dto.ClientConfigItemResponse{
 		ApplicationXid: row.Application.XID,

@@ -16,6 +16,7 @@ var ClientConfigSchema = schema.New(schema.FromModelRef(model.ClientConfig{}))
 
 type ClientConfig struct {
 	FindByKey                *sqlx.Stmt
+	FindDefaultByKey         *sqlx.Stmt
 	FindByXID                *sqlx.Stmt
 	Insert                   *sqlx.NamedStmt
 	UpdateByID               *sqlx.Stmt
@@ -40,7 +41,12 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		Build()
 
 	findByKey := query.Select(query.Column("*")).
-		Where(query.Equal(query.Column("key"))).
+		Where(
+			query.And(
+				query.Equal(query.Column("key")),
+				query.Equal(query.Column("applicationId")),
+			),
+		).
 		From(ClientConfigSchema).
 		Limit(1).
 		Build()
@@ -63,8 +69,20 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		query.Equal(query.Column("key")),
 	))
 
+	findDefaultByKey := query.Select(
+		query.Column("*", option.Schema(ClientConfigSchema))).
+		From(ClientConfigSchema, option.As("cc")).
+		Join(ApplicationSchema, query.And(
+			query.Equal(query.Column("applicationId"), query.On("id")),
+			query.Equal(query.Column("xid", option.Schema(ApplicationSchema), query.BindVar())),
+		), option.As("a"), option.JoinMethod(op.InnerJoin)).
+		Where(query.Equal(query.Column("key"))).
+		Limit(1).
+		Build()
+
 	return &ClientConfig{
 		FindByKey:                db.PrepareRebind(findByKey),
+		FindDefaultByKey:         db.PrepareRebind(findDefaultByKey),
 		FindByXID:                db.PrepareRebind(findByXID),
 		Insert:                   db.PrepareNamed(bs.Insert()),
 		UpdateByID:               db.PrepareRebind(update),
