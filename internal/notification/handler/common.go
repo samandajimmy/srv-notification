@@ -1,15 +1,19 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	constant "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
+)
+
+const (
+	AnonymousUserId       = "ANON"
+	AnonymousUserRefId    = 0
+	AnonymousUserFullName = "Anonymous User"
 )
 
 func NewCommon(startTime time.Time, appVersion, appBuildHash string) *Common {
@@ -39,31 +43,45 @@ func (c *Common) GetAPIStatus(_ *nhttp.Request) (*nhttp.Response, error) {
 
 func (c *Common) ParseSubject(r *nhttp.Request) (*nhttp.Response, error) {
 	// Get subject from headers
-	subjectID := r.Header.Get(constant.SubjectIDHeader)
-	subjectRefID, ok := nval.ParseInt64(subjectID)
-	if !ok {
-		log.Errorf("x-subject-id is required")
-		return nil, errors.New("x-subject-id is required")
+	id := r.Header.Get(constant.SubjectIDHeader)
+	if id == "" {
+		id = AnonymousUserId
 	}
 
-	// Get subject role
-	subjectRole := r.Header.Get(constant.SubjectRoleHeader)
-	role := constant.AdminModifierRole
-	if subjectRole != constant.AdminModifierRole {
+	// Get subject reference id
+	refId, ok := nval.ParseInt64(id)
+	if !ok {
+		refId = AnonymousUserRefId
+	}
+
+	// Get subject role and determine subject type
+	role := r.Header.Get(constant.SubjectRoleHeader)
+	var subjectType constant.SubjectType
+	switch role {
+	case constant.AdminModifierRole, constant.UserModifierRole:
+		subjectType = constant.UserSubjectType
+	case constant.SystemModifierRole:
+		subjectType = constant.SystemSubjectType
+	default:
+		// Fallback to anonymous user
+		subjectType = constant.UserSubjectType
 		role = constant.UserModifierRole
 	}
 
+	// Get name
+	fullName := r.Header.Get(constant.SubjectNameHeader)
+	if fullName == "" {
+		fullName = AnonymousUserFullName
+	}
+
 	subject := dto.Subject{
-		SubjectID:    subjectID,
-		SubjectRefID: subjectRefID,
-		SubjectType:  constant.UserSubjectType,
-		SubjectRole:  role,
-		ModifiedBy: &dto.Modifier{
-			ID:       subjectID,
-			Role:     role,
-			FullName: r.Header.Get(constant.SubjectNameHeader),
-		},
-		Metadata: nil,
+		Id:          id,
+		RefId:       refId,
+		Role:        role,
+		FullName:    fullName,
+		SubjectType: subjectType,
+		Metadata:    map[string]string{},
+		SessionID:   0,
 	}
 
 	r.SetContextValue(constant.SubjectKey, &subject)
@@ -71,13 +89,22 @@ func (c *Common) ParseSubject(r *nhttp.Request) (*nhttp.Response, error) {
 	return nhttp.Continue(), nil
 }
 
-func GetSubject(rx *nhttp.Request) (*dto.Subject, error) {
+func GetSubject(rx *nhttp.Request) *dto.Subject {
 	v := rx.GetContextValue(constant.SubjectKey)
 	subject, ok := v.(*dto.Subject)
 	if !ok {
-		return nil, ncore.NewError("no subject found in request context")
+		// Return anonymous subject
+		return &dto.Subject{
+			Id:          AnonymousUserId,
+			RefId:       AnonymousUserRefId,
+			Role:        constant.UserModifierRole,
+			FullName:    AnonymousUserFullName,
+			SubjectType: constant.UserSubjectType,
+			SessionID:   0,
+			Metadata:    map[string]string{},
+		}
 	}
-	return subject, nil
+	return subject
 }
 
 func GetRequestId(rx *nhttp.Request) string {

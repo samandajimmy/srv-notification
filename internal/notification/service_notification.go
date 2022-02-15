@@ -34,7 +34,7 @@ func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptions
 		UserRefId:     payload.UserId,
 		IsRead:        false,
 		ReadAt:        sql.NullTime{},
-		BaseField:     model.NewBaseField(&model.Modifier{ID: "", Role: "", FullName: ""}),
+		BaseField:     model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy())),
 	}
 
 	if payloadFCM != nil {
@@ -148,6 +148,7 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 		Time:  time.Now(),
 		Valid: true,
 	}
+	notification.ModifiedBy = model.ToModifier(payload.Subject.ModifiedBy())
 	notification.IsRead = true
 	notification.UpdatedAt = time.Now()
 	notification.Version += 1

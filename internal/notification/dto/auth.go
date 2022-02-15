@@ -5,13 +5,21 @@ import (
 )
 
 type Subject struct {
-	SubjectID    string
-	SubjectRefID int64
-	SubjectRole  string
-	SubjectType  constant.SubjectType
-	ModifiedBy   *Modifier
-	Metadata     map[string]string
-	SessionID    int64
+	Id          string
+	RefId       int64
+	Role        string
+	FullName    string
+	SubjectType constant.SubjectType
+	SessionID   int64
+	Metadata    map[string]string
+}
+
+func (s *Subject) ModifiedBy() *Modifier {
+	return &Modifier{
+		ID:       s.Id,
+		Role:     s.Role,
+		FullName: s.FullName,
+	}
 }
 
 type ClientCredential struct {

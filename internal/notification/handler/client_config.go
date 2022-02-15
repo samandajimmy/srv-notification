@@ -23,14 +23,11 @@ func NewClientConfig(svc *contract.Service) *ClientConfig {
 
 func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
-	subject, err := GetSubject(rx)
-	if err != nil {
-		log.Errorf("Error when get subject authenticated entity.", nlogger.Error(err))
-		return nil, ncore.TraceError(err)
-	}
+	subject := GetSubject(rx)
+
 	// Get Payload
 	var payload dto.ClientConfigRequest
-	err = rx.ParseJSONBody(&payload)
+	err := rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request.", nlogger.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -108,14 +105,11 @@ func (h *ClientConfig) GetDetailClientConfig(rx *nhttp.Request) (*nhttp.Response
 
 func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get Auth Subject
-	actor, err := GetSubject(rx)
-	if err != nil {
-		return nil, err
-	}
+	subject := GetSubject(rx)
 
 	// Get Payload
 	var payload dto.ClientConfigUpdateOptions
-	err = rx.ParseJSONBody(&payload)
+	err := rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -124,7 +118,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	// Set modifier and id
 	payload.RequestId = GetRequestId(rx)
 	payload.XID = mux.Vars(rx.Request)["xid"]
-	payload.Subject = actor
+	payload.Subject = subject
 
 	// Validate payload
 	err = payload.Validate()

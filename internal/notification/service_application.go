@@ -67,7 +67,7 @@ func (s *ServiceContext) CreateApplication(payload *dto.Application) (*dto.Appli
 			String: payload.WebhookURL,
 			Valid:  payload.WebhookURL != "",
 		},
-		BaseField: model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy)),
+		BaseField: model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy())),
 	}
 
 	// Persist application
@@ -223,7 +223,7 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 	// If changes count more than 0, then persist update
 	if changesCount > 0 {
 		// Update metadata
-		modifiedBy := model.ToModifier(payload.Subject.ModifiedBy)
+		modifiedBy := model.ToModifier(payload.Subject.ModifiedBy())
 		app.UpdatedAt = time.Now()
 		app.ModifiedBy = modifiedBy
 		app.Version += 1

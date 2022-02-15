@@ -52,6 +52,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 
 	// Notification
 	router.Handle(http.MethodPost, "/notifications",
+		router.HandleFunc(handlers.Common.ParseSubject),
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.PostCreateNotification))
 	router.Handle(http.MethodGet, "/notifications/count",
@@ -67,6 +68,7 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.ListNotification))
 	router.Handle(http.MethodPut, "/notifications/{id}/is-read",
+		router.HandleFunc(handlers.Common.ParseSubject),
 		router.HandleFunc(handlers.Middlewares.AuthApp),
 		router.HandleFunc(handlers.Notification.UpdateIsReadNotification))
 }

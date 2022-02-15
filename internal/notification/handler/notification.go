@@ -70,6 +70,9 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	// -- Set request id
 	payload.RequestId = GetRequestId(rx)
 
+	// -- Set subject
+	payload.Subject = GetSubject(rx)
+
 	// Create notification
 	svc := h.Service.WithContext(rx.Context())
 	data, err := svc.CreateNotification(&payload)
@@ -270,10 +273,12 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 	id := mux.Vars(rx.Request)["id"]
 
 	// Set payload
-	var payload dto.UpdateIsReadNotification
-	payload.RequestId = GetRequestId(rx)
-	payload.ID = id
-	payload.Application = app
+	payload := dto.UpdateIsReadNotification{
+		RequestId:   GetRequestId(rx),
+		Application: app,
+		ID:          id,
+		Subject:     GetSubject(rx),
+	}
 
 	err = payload.Validate()
 	if err != nil {

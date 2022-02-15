@@ -124,6 +124,7 @@ type UpdateIsReadNotification struct {
 	RequestId   string                   `json:"requestId"`
 	Application *AuthApplicationResponse `json:"applicationId"`
 	ID          string                   `json:"id"`
+	Subject     *Subject                 `json:"-"`
 }
 
 func (d UpdateIsReadNotification) Validate() error {

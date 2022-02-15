@@ -21,14 +21,11 @@ func NewApplication(svc *contract.Service) *Application {
 
 func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get authenticated entity
-	subject, err := GetSubject(rx)
-	if err != nil {
-		return nil, ncore.TraceError(err)
-	}
+	subject := GetSubject(rx)
 
 	// Get Payload
 	var payload dto.Application
-	err = rx.ParseJSONBody(&payload)
+	err := rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -101,14 +98,11 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 
 func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	// Get Auth Subject
-	actor, err := GetSubject(rx)
-	if err != nil {
-		return nil, err
-	}
+	subject := GetSubject(rx)
 
 	// Get Payload
 	var payload dto.ApplicationUpdateOptions
-	err = rx.ParseJSONBody(&payload)
+	err := rx.ParseJSONBody(&payload)
 	if err != nil {
 		log.Errorf("Error when parse json body from request %v", err)
 		return nil, nhttp.BadRequestError.Wrap(err)
@@ -117,7 +111,7 @@ func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, err
 	// Set modifier and id
 	payload.RequestId = GetRequestId(rx)
 	payload.XID = mux.Vars(rx.Request)["xid"]
-	payload.Subject = actor
+	payload.Subject = subject
 
 	// Validate payload
 	err = payload.Validate()

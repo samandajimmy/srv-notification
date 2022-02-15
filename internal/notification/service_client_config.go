@@ -58,7 +58,7 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 		Key:           payload.Key,
 		Value:         value,
 		ApplicationId: application.ID,
-		BaseField:     model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy)),
+		BaseField:     model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy())),
 	}
 
 	// Persist client config
@@ -180,7 +180,7 @@ func (s *ServiceContext) UpdateClientConfig(payload *dto.ClientConfigUpdateOptio
 	// If changes count more than 0, then persist update
 	if changesCount > 0 {
 		// Update metadata
-		modifiedBy := model.ToModifier(payload.Subject.ModifiedBy)
+		modifiedBy := model.ToModifier(payload.Subject.ModifiedBy())
 		m.UpdatedAt = time.Now()
 		m.ModifiedBy = modifiedBy
 		m.Version += 1
