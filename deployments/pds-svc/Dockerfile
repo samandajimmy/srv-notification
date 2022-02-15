@@ -25,7 +25,7 @@ COPY internal ./internal
 COPY responses.yml ./
 
 # Compiling...
-RUN ls -la && make release
+RUN make release
 
 # ------------
 # Deploy Stage
