@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.0
+
+- [ADDED] Implement fallback to default config if config is not set
+- [FIXED] Fix subject
+- [FIXED] Fix List Notification query
+- [FIXED] Fix notification is read update query
+- [ADDED] Prevent from create multiple client config per key
+- [FIXED] Fix Update Application passing argument on persist update
+- [FIXED] Set Webhook URL on Create Application
+- [ADDED] Add Default Config as App and prevent from being retrieved or modified
+
 ## 0.15.0
 
 - [CHANGED] Implement middleware auth application on endpoint notifications
