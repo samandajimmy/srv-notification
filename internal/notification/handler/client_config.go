@@ -47,6 +47,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
 
 	resp, err := svc.CreateClientConfig(&payload)
 	if err != nil {
@@ -94,6 +95,8 @@ func (h *ClientConfig) GetDetailClientConfig(rx *nhttp.Request) (*nhttp.Response
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	resp, err := svc.GetDetailClientConfig(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
@@ -129,6 +132,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
 
 	resp, err := svc.UpdateClientConfig(&payload)
 	if err != nil {
@@ -155,6 +159,8 @@ func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	err := svc.DeleteClientConfig(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)

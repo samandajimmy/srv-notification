@@ -6,10 +6,9 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gorilla/mux"
-	"github.com/nbs-go/nlogger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
@@ -75,6 +74,8 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 
 	// Create notification
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	data, err := svc.CreateNotification(&payload)
 	if err != nil {
 		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
@@ -83,25 +84,31 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 
 	// Publish to pubsub
 	payload.Notification = data
-	pubsubPayload, err := json.Marshal(payload)
+	pubSubPayload, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
 	}
-	// Init massage payload for pubsub
-	msg := message.NewMessage(watermill.NewUUID(), pubsubPayload)
 
-	// Publish to Email
-	err = h.publisher.Publish(constant.SendEmailTopic, msg)
-	if err != nil {
-		log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
-		return nil, err
+	// Init massage payload for pubsub
+	msg := message.NewMessage(watermill.NewUUID(), pubSubPayload)
+
+	// Publish to Email if SMTP options exist
+	if payload.Options.SMTP != nil {
+		// Publish to Email
+		err = h.publisher.Publish(constant.SendEmailTopic, msg)
+		if err != nil {
+			log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
+			return nil, err
+		}
 	}
 
-	// Publish to Fcm
-	err = h.publisher.Publish(constant.SendFcmTopic, msg)
-	if err != nil {
-		log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
-		return nil, err
+	// Publish to FCM if FCM options exist
+	if payload.Options.FCM != nil {
+		err = h.publisher.Publish(constant.SendFcmTopic, msg)
+		if err != nil {
+			log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
+			return nil, err
+		}
 	}
 
 	return nhttp.Success().SetData(data), nil
@@ -135,6 +142,8 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	resp, err := svc.GetDetailNotification(&payload)
 	if err != nil {
 		log.Error("error when call service", logger.Error(err), logger.Context(ctx))
@@ -172,6 +181,8 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	err = svc.DeleteNotification(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
@@ -209,10 +220,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	if err != nil {
-		log.Error("failed to auth application", nlogger.Error(err))
-		return nil, nhttp.BadRequestError.Wrap(err)
-	}
+	defer svc.Close()
 
 	resp, err := svc.CountNotification(&payload)
 	if err != nil {
@@ -249,6 +257,8 @@ func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, err
 	payload.Filters[constant.ApplicationIdKey] = fmt.Sprintf("%d", app.ID)
 
 	svc := h.Service.WithContext(ctx)
+	defer svc.Close()
+
 	resp, err := svc.ListNotification(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
@@ -288,10 +298,7 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
-	if err != nil {
-		log.Error("failed to auth application", nlogger.Error(err), logger.Context(ctx))
-		return nil, nhttp.BadRequestError.Wrap(err)
-	}
+	defer svc.Close()
 
 	resp, err := svc.UpdateIsRead(&payload)
 	if err != nil {

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/nbs-go/nlogger"
-	constant "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nclient"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
@@ -47,6 +47,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 
 	// Get service context
 	svc := h.Service.WithContext(ctx)
+	defer svc.Close()
 
 	// Set application
 	application := p.Auth

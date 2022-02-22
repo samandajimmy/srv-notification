@@ -29,6 +29,8 @@ func (h *Middlewares) AuthApp(rx *nhttp.Request) (*nhttp.Response, error) {
 	// TODO: Refactor to Auth Middleware
 	// Call service
 	svc := h.svc.WithContext(rx.Context())
+	defer svc.Close()
+
 	app, err := svc.AuthApplication(username, password)
 	if err != nil {
 		log.Error("failed to call service.", nlogger.Error(err))

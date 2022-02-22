@@ -9,6 +9,8 @@ import (
 type ServiceContextConstructor = func(ctx context.Context, config *Config, core *ncore.Core) ServiceContext
 
 type ServiceContext interface {
+	Close()
+
 	AuthApplication(username string, password string) (*dto.AuthApplicationResponse, error)
 
 	SendEmail(payload *dto.SendEmail) error

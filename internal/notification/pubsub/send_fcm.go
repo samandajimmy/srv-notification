@@ -44,6 +44,7 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 
 	// Get service context
 	svc := h.svc.WithContext(ctx)
+	defer svc.Close()
 
 	// Set application
 	application := p.Auth
@@ -78,11 +79,11 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 			SendWebhook(optionsWebhook)
 		}
 		return true, ncore.TraceError(err)
-	} else {
-		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
-		if optionsWebhook.WebhookURL != "" {
-			SendWebhook(optionsWebhook)
-		}
+	}
+
+	optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
+	if optionsWebhook.WebhookURL != "" {
+		SendWebhook(optionsWebhook)
 	}
 
 	return true, nil

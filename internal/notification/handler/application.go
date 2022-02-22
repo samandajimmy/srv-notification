@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
@@ -44,6 +44,7 @@ func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, err
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
 
 	resp, err := svc.CreateApplication(&payload)
 	if err != nil {
@@ -60,8 +61,10 @@ func (h *Application) ListApplication(rx *nhttp.Request) (*nhttp.Response, error
 		return nil, ncore.TraceError(err)
 	}
 
-	//Call service
+	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	resp, err := svc.ListApplication(payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
@@ -87,6 +90,8 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	resp, err := svc.GetDetailApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
@@ -122,6 +127,7 @@ func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, err
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
 
 	resp, err := svc.UpdateApplication(&payload)
 	if err != nil {
@@ -148,6 +154,8 @@ func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, err
 
 	// Call service
 	svc := h.Service.WithContext(rx.Context())
+	defer svc.Close()
+
 	err := svc.DeleteApplication(&payload)
 	if err != nil {
 		log.Errorf("error when call service err: %v", err)
