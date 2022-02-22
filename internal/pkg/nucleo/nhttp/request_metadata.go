@@ -23,14 +23,14 @@ func NewCaptureRequestMetadataHandler(trustProxy bool) mux.MiddlewareFunc {
 			startedAt := time.Now()
 
 			// Set to context value
-			ctx := context.WithValue(r.Context(), RequestMetadataKey, RequestMetadata{
+			ctx := context.WithValue(r.Context(), RequestMetadataContextKey, RequestMetadata{
 				ClientIP:  clientIP,
 				StartedAt: startedAt,
 			})
 
 			// Set request id value
 			reqId, _ := uuid.NewUUID()
-			ctx = context.WithValue(ctx, RequestIdKey, reqId.String())
+			ctx = context.WithValue(ctx, RequestIdContextKey, reqId.String())
 
 			// Continue
 			next.ServeHTTP(w, r.WithContext(ctx))

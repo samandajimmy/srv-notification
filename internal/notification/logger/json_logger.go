@@ -19,7 +19,6 @@ type Json struct {
 	writer    *stdLog.Logger
 	ioWriter  io.Writer
 	namespace string
-	flags     int
 	ctx       context.Context
 }
 
@@ -175,7 +174,7 @@ func (l *Json) print(outLevel nlogger.LogLevel, msg string, options *Options) {
 	l.writer.Printf("%s\n", jsonStr)
 }
 
-func (l *Json) getContextValue(ctx context.Context, key string) (string, bool) {
+func (l *Json) getContextValue(ctx context.Context, key interface{}) (string, bool) {
 	if ctx == nil {
 		if l.ctx == nil {
 			return "", false

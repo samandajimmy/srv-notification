@@ -43,7 +43,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	}
 
 	// Set request id to context
-	ctx = context.WithValue(ctx, nhttp.RequestIdKey, p.RequestId)
+	ctx = context.WithValue(ctx, nhttp.RequestIdContextKey, p.RequestId)
 
 	// Get service context
 	svc := h.Service.WithContext(ctx)

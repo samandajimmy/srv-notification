@@ -1,5 +1,8 @@
 package logger
 
+type ContextKey = uint8
+
 const (
-	RequestIdKey = "requestId"
+	_ ContextKey = iota + 1
+	RequestIdKey
 )

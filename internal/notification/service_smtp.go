@@ -58,7 +58,7 @@ func (s *ServiceContext) composeEmail(payload *dto.SendEmail) (*gomail.Message, 
 	msg := gomail.NewMessage()
 
 	// Set sender format
-	from := fmt.Sprintf("%s", payload.From.Email)
+	from := payload.From.Email
 	if payload.From.Name != "" {
 		from = fmt.Sprintf("%s <%s>", payload.From.Name, payload.From.Email)
 	}
