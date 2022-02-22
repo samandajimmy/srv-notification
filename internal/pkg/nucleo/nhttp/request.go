@@ -28,14 +28,14 @@ func (r *Request) ParseJSONBody(dest interface{}) error {
 
 // SetContextValue set value to context.Context in http.Request
 // Value is accessible chain of http.Handler
-func (r *Request) SetContextValue(k string, v interface{}) {
+func (r *Request) SetContextValue(k interface{}, v interface{}) {
 	ctx := context.WithValue(r.Context(), k, v)
 	*r.Request = *r.WithContext(ctx)
 }
 
 // GetContextValue get value to context.Context
 // Value is accessible chain of http.Handler
-func (r *Request) GetContextValue(k string) interface{} {
+func (r *Request) GetContextValue(k interface{}) interface{} {
 	return r.Context().Value(k)
 }
 

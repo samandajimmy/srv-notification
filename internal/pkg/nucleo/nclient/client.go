@@ -28,10 +28,9 @@ func NewNucleoClient(url string) *Nclient {
 
 func (c *Nclient) PostData(header map[string]string, body map[string]interface{}) (*http.Response, error) {
 	var result *http.Response
-	var payload *bytes.Buffer
 
 	// Get body request
-	payload = getBodyRequest(header, body)
+	payload := getBodyRequest(header, body)
 
 	// Make request http
 	endPoint := c.WebhookURL
@@ -70,7 +69,7 @@ func GetResponseString(response *http.Response) string {
 		return ""
 	}
 	log.Debugf(string(body))
-	return fmt.Sprintf(string(body))
+	return string(body)
 }
 
 func getBodyRequest(header map[string]string, body map[string]interface{}) *bytes.Buffer {
@@ -78,13 +77,10 @@ func getBodyRequest(header map[string]string, body map[string]interface{}) *byte
 	switch header["Content-Type"] {
 	case "application/json":
 		payload = setBodyApplicationJSON(body)
-		break
 	case "application/x-www-form-urlencoded":
 		payload = setBodyUrlEncoded(body)
-		break
 	default:
 		payload = setBodyApplicationJSON(body)
-		break
 	}
 	return payload
 }
