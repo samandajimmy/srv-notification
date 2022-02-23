@@ -76,42 +76,81 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	svc := h.Service.WithContext(rx.Context())
 	defer svc.Close()
 
-	data, err := svc.CreateNotification(&payload)
-	if err != nil {
-		log.Error("Error when create notification", logger.Error(err), logger.Context(rx.Context()))
-		return nil, err
-	}
+	switch {
+	case payload.Options.SMTP != nil && payload.Options.FCM == nil:
+		// SMTP Section
+		pubSubPayload, errM := json.Marshal(payload)
+		if errM != nil {
+			return nil, fmt.Errorf("unexpected error: unable to marshal payload")
+		}
 
-	// Publish to pubsub
-	payload.Notification = data
-	pubSubPayload, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("unexpected error: unable to marshal payload")
-	}
-
-	// Init massage payload for pubsub
-	msg := message.NewMessage(watermill.NewUUID(), pubSubPayload)
-
-	// Publish to Email if SMTP options exist
-	if payload.Options.SMTP != nil {
-		// Publish to Email
+		// Set message
+		msg := message.NewMessage(watermill.NewUUID(), pubSubPayload)
 		err = h.publisher.Publish(constant.SendEmailTopic, msg)
 		if err != nil {
 			log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
 			return nil, err
 		}
-	}
 
-	// Publish to FCM if FCM options exist
-	if payload.Options.FCM != nil {
+		return nhttp.OK(), nil
+	case payload.Options.FCM != nil && payload.Options.SMTP == nil:
+		// FCM Section
+		data, errCreate := svc.CreateNotification(&payload)
+		if errCreate != nil {
+			log.Error("error found when create notification", logger.Error(errCreate), logger.Context(ctx))
+			return nil, errCreate
+		}
+		payload.Notification = data
+		pubSubPayload, errM := json.Marshal(payload)
+		if errM != nil {
+			return nil, fmt.Errorf("unexpected error: unable to marshal payload")
+		}
+
+		// Set message
+		msg := message.NewMessage(watermill.NewUUID(), pubSubPayload)
+		// Publish to FCM
 		err = h.publisher.Publish(constant.SendFcmTopic, msg)
 		if err != nil {
 			log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
 			return nil, err
 		}
+
+		return nhttp.Success().SetData(data), nil
+	case payload.Options.FCM != nil && payload.Options.SMTP != nil:
+		// FCM & SMTP Section
+		data, errCreate := svc.CreateNotification(&payload)
+		if errCreate != nil {
+			log.Error("Error when create notification", logger.Error(errCreate), logger.Context(ctx))
+			return nil, errCreate
+		}
+
+		payload.Notification = data
+		pubSubPayload, errM := json.Marshal(payload)
+		if errM != nil {
+			return nil, fmt.Errorf("unexpected error: unable to marshal payload")
+		}
+
+		// Set message
+		msg := message.NewMessage(watermill.NewUUID(), pubSubPayload)
+
+		// Publish to fcm
+		err = h.publisher.Publish(constant.SendFcmTopic, msg)
+		if err != nil {
+			log.Errorf("failed to publish message to topic = %s", constant.SendFcmTopic)
+			return nil, err
+		}
+
+		// Publish to email
+		err = h.publisher.Publish(constant.SendEmailTopic, msg)
+		if err != nil {
+			log.Errorf("failed to publish message to topic = %s", constant.SendEmailTopic)
+			return nil, err
+		}
+
+		return nhttp.Success().SetData(data), nil
 	}
 
-	return nhttp.Success().SetData(data), nil
+	return nhttp.BadRequest(nil), nil
 }
 
 func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response, error) {

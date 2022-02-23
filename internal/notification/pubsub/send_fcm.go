@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
-	constant "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
+	"github.com/nbs-go/nlogger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nclient"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"time"
 )
 
 type SendFcmPushHandler struct {
@@ -76,15 +79,43 @@ func (h *SendFcmPushHandler) sendFcm(ctx context.Context, payload message.Payloa
 		log.Error("Error when sending email in service %v", logger.Error(err), logger.Context(ctx))
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
 		if optionsWebhook.WebhookURL != "" {
-			SendWebhook(optionsWebhook)
+			SendWebhookFcm(optionsWebhook)
 		}
 		return true, ncore.TraceError(err)
 	}
 
+	// Send webhook when fcm sent
 	optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
 	if optionsWebhook.WebhookURL != "" {
-		SendWebhook(optionsWebhook)
+		SendWebhookFcm(optionsWebhook)
 	}
 
 	return true, nil
+}
+
+func SendWebhookFcm(options dto.WebhookOptions) {
+	// Set header
+	reqHeader := map[string]string{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	}
+
+	// Set payload
+	reqBody := map[string]interface{}{
+		"notificationId":     "N/A", // N/A
+		"userId":             "N/A", // N/A
+		"notificationStatus": options.NotificationStatus,
+		"notificationTime":   time.Now(),
+		"applicationId":      options.Notification.ApplicationId,
+		"payload":            options.Payload,
+	}
+
+	// Initiate client
+	c := nclient.NewNucleoClient(options.WebhookURL)
+
+	// Send webhook to client
+	_, err := c.PostData(reqHeader, reqBody)
+	if err != nil {
+		log.Error("error when send webhook to client", nlogger.Error(err))
+	}
 }

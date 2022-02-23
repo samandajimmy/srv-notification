@@ -23,22 +23,24 @@ func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptions
 		return nil, err
 	}
 
-	payloadFCM := payload.Options.FCM
-
 	// init options
 	options := map[string]interface{}{}
 	// Initialize data to insert
 	notification := model.Notification{
 		ID:            id,
 		ApplicationId: payload.Auth.ID,
-		UserRefId:     payload.UserId,
+		UserRefId:     nval.ParseInt64Fallback(payload.UserId, 0),
 		IsRead:        false,
 		ReadAt:        sql.NullTime{},
 		BaseField:     model.NewBaseField(model.ToModifier(payload.Subject.ModifiedBy())),
 	}
 
-	if payloadFCM != nil {
+	if payloadFCM := payload.Options.FCM; payloadFCM != nil {
 		options["fcm"] = payloadFCM
+	}
+
+	if payloadSMTP := payload.Options.SMTP; payloadSMTP != nil {
+		options["smtp"] = payloadSMTP
 	}
 
 	opt, err := json.Marshal(options)

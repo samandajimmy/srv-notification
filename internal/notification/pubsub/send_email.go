@@ -52,8 +52,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	// Set application
 	application := p.Auth
 
-	// decode html
-	// Send email
+	// Set payload send email
 	payloadSendEmail := dto.SendEmail{
 		ApplicationId: application.ID,
 		Subject:       p.Options.SMTP.Subject,
@@ -67,10 +66,10 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 		MimeType:   p.Options.SMTP.MimeType,
 	}
 
-	optionsWebhook := dto.WebhookOptions{
+	optionsWebhook := dto.WebhookEmailOptions{
 		WebhookURL:       p.Auth.WebhookURL,
 		NotificationType: constant.NotificationEmail,
-		Notification:     p.Notification,
+		ApplicationID:    p.Auth.ID,
 		Payload:          payloadSendEmail,
 	}
 
@@ -82,21 +81,22 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 		log.Error("Error when sending email in service", logger.Error(err))
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
 		if optionsWebhook.WebhookURL != "" {
-			SendWebhook(optionsWebhook)
+			SendWebhookEmail(optionsWebhook)
 		}
 
 		return true, ncore.TraceError(err)
-	} else {
-		optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
-		if optionsWebhook.WebhookURL != "" {
-			SendWebhook(optionsWebhook)
-		}
+	}
+
+	// Send Webhook if email sent
+	optionsWebhook.NotificationStatus = constant.NotificationStatusSuccess
+	if optionsWebhook.WebhookURL != "" {
+		SendWebhookEmail(optionsWebhook)
 	}
 
 	return true, nil
 }
 
-func SendWebhook(options dto.WebhookOptions) {
+func SendWebhookEmail(options dto.WebhookEmailOptions) {
 	// Set header
 	reqHeader := map[string]string{
 		"Accept":       "application/json",
@@ -105,11 +105,11 @@ func SendWebhook(options dto.WebhookOptions) {
 
 	// Set payload
 	reqBody := map[string]interface{}{
-		"notificationId":     options.Notification.Id,
+		"notificationId":     "N/A", // N/A
+		"userId":             "N/A", // N/A
 		"notificationStatus": options.NotificationStatus,
-		"notificationTime":   time.Now(),
-		"applicationId":      options.Notification.ApplicationId,
-		"userId":             options.Notification.UserRefId,
+		"notificationTime":   time.Now().Unix(),
+		"applicationId":      options.ApplicationID,
 		"payload":            options.Payload,
 	}
 

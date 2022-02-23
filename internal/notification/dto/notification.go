@@ -54,7 +54,7 @@ type AdditionalButton struct {
 }
 
 type FCMOption struct {
-	UserId   int64             `json:"userId"`
+	UserId   string            `json:"userId"`
 	Title    string            `json:"title"`
 	Body     string            `json:"body"`
 	ImageUrl string            `json:"imageUrl"`
@@ -64,7 +64,7 @@ type FCMOption struct {
 }
 
 type SMTPOption struct {
-	UserId     int64      `json:"userId"`
+	UserId     string     `json:"userId"`
 	Subject    string     `json:"subject"`
 	Message    string     `json:"message"`
 	From       FromFormat `json:"from"`
@@ -82,7 +82,7 @@ type SendNotificationOptionsRequest struct {
 	RequestId    string                      `json:"requestId"`
 	Auth         *AuthApplicationResponse    `json:"auth"`
 	Options      NotificationOptionVO        `json:"options"`
-	UserId       int64                       `json:"userId"`
+	UserId       string                      `json:"userId"`
 	Notification *DetailNotificationResponse `json:"notification"`
 	*Subject
 }
@@ -158,5 +158,13 @@ type WebhookOptions struct {
 	NotificationType   constant.NotificationType
 	NotificationStatus constant.NotificationStatus
 	Notification       *DetailNotificationResponse
+	Payload            interface{}
+}
+
+type WebhookEmailOptions struct {
+	WebhookURL         string
+	ApplicationID      int64
+	NotificationType   constant.NotificationType
+	NotificationStatus constant.NotificationStatus
 	Payload            interface{}
 }
