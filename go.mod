@@ -11,7 +11,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hetiansu5/urlquery v1.2.7
 	github.com/jmoiron/sqlx v1.3.4
-	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/nbs-go/nlogger v1.2.0
