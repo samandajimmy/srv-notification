@@ -20,6 +20,7 @@ OUTPUT_DIR:=${PROJECT_ROOT}/bin
 DOCTOR_CMD:=${PROJECT_ROOT}/scripts/doctor.sh
 PROJECT_FIREBASE_CRED = firebase-secret.json
 BINARY_NAME:=notification
+SCRIPTS_DIR := ${PROJECT_ROOT}/scripts
 
 # ---------------
 # Command Aliases
@@ -68,16 +69,8 @@ IMAGE_APP_TAG ?= $(CI_COMMIT_REF_SLUG)
 MIGRATION_TOOL_CMD:=flyway
 MIGRATION_TOOL_CONF=flyway.conf
 
-MIGRATION_DIR=${PROJECT_ROOT}/migrations
-MIGRATION_SRC_UP?=${MIGRATION_DIR}/sql-up
-MIGRATION_SRC_DOWN?=${MIGRATION_DIR}/sql-down
-MIGRATION_CONFIG=${MIGRATION_DIR}/${MIGRATION_TOOL_CONF}
-
-MIGRATION_SCRIPTS_DIR?=${PROJECT_ROOT}/scripts/migrations
-MIGRATION_DOWN_CMD:=${MIGRATION_SCRIPTS_DIR}/flyway-undo.sh
-MIGRATION_INIT_SERVER_CMD:=${MIGRATION_SCRIPTS_DIR}/init-server.sh
-MIGRATION_INIT_CONFIG_CMD:=${MIGRATION_SCRIPTS_DIR}/init-config.sh
-MIGRATION_CREATE_DB:=${MIGRATION_SCRIPTS_DIR}/pg-create-db.sh
+MIGRATION_DIR := ${PROJECT_ROOT}/migrations
+MIGRATION_SRC_DIR := ${MIGRATION_DIR}/sql
 
 # -----------
 # API Version
@@ -92,6 +85,10 @@ CI_COMMIT_SHA?=$$(git rev-parse HEAD)
 # Initialize CLI environment
 -include ${PROJECT_CONFIG}
 export
+
+# Initialize DB configuration
+MIGRATION_URL := "${MIGRATION_DB_DRIVER}://${MIGRATION_DB_USER}:${MIGRATION_DB_PASS}@${MIGRATION_DB_HOST}:${MIGRATION_DB_PORT}/${MIGRATION_DB_NAME}?sslmode=disable"
+MIGRATION_BIN := migrate -source "file://${MIGRATION_SRC_DIR}" -database ${MIGRATION_URL}
 
 # ------------
 # Common Rules
@@ -137,12 +134,23 @@ setup:
 	@-echo "  > Make new directory temp..."
 	@-mkdir tmp
 
-## configure: Download dependencies
+## configure: Configure project
 .PHONY: configure
-configure: go.mod
-	@-echo "  > Downloading dependencies..."
-	@${GO_MOD} download
-	@-echo "  > Done"
+configure: --permit-exec --copy-env db-configure vendor
+	@-echo "  > Configure: Done"
+
+# Private rules
+
+.PHONY: --copy-env
+--copy-env:
+	@-echo "  > Copy .env (did not overwrite existing file)..."
+	@-cp -n $(PROJECT_ROOT)/configs/.example.env $(PROJECT_CONFIG)
+
+.PHONY: --permit-exec
+--permit-exec: $(shell find $(SCRIPTS_DIR) -type f -name "*.sh")
+	@-echo "  > Set executable permission to scripts..."
+	@-chmod +x $(SCRIPTS_DIR)/**/*.sh
+	@-chmod +x $(SCRIPTS_DIR)/*.sh
 
 ## serve: Run server in development mode
 .PHONY: serve
@@ -154,6 +162,7 @@ serve: --dev-build ${DEBUG_ENV_FILES}
 vendor: go.mod
 	@-echo "  > Vendoring..."
 	@${GO_MOD} vendor
+	@-echo "  > Vendoring: Done"
 
 ## release: Compile binary for deployment.
 .PHONY: release
@@ -187,46 +196,33 @@ image-push: image
 # Migration Rules
 # ---------------
 
-## db: Create Database
-.PHONY: db
-db: db-configure
-	@${MIGRATION_CREATE_DB}
-
 ## db-configure: Generate a configuration for database migration tool
 .PHONY: db-configure
-db-configure: ${MIGRATION_CONFIG}
-${MIGRATION_CONFIG}: $(PROJECT_CONFIG) $(MIGRATION_INIT_CONFIG_SCRIPT)
-	@-echo "  > Removing ${MIGRATION_TOOL_CONF}..."
-	@-rm ${MIGRATION_CONFIG}
-	@-echo "  > Creating ${MIGRATION_TOOL_CONF}..."
-	@-${MIGRATION_INIT_CONFIG_CMD} ${MIGRATION_CONFIG}
+db-configure:
+	@-echo "  > Installing golang-migrate..."
+	@-go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.1
 
 ## db-status: Prints the details and status information about all the migrations.
 .PHONY: db-status
-db-status: db-configure
-	@${MIGRATION_TOOL_CMD} info -configFiles=${MIGRATION_CONFIG} -locations=filesystem:${MIGRATION_SRC_UP}
-
-## db-repair: Repair checksum
-.PHONY: db-repair
-db-repair: db-configure
-	@${MIGRATION_TOOL_CMD} repair -configFiles=${MIGRATION_CONFIG} -locations=filesystem:${MIGRATION_SRC_UP}
+db-status:
+	@-${MIGRATION_BIN} version
 
 ## db-up: Upgrade database
 .PHONY: db-up
-db-up: db-configure
+db-up:
 	@-echo "  > Running up scripts..."
-	@${MIGRATION_TOOL_CMD} migrate -configFiles=${MIGRATION_CONFIG} -locations=filesystem:${MIGRATION_SRC_UP}
+	@${MIGRATION_BIN} up
 
 ## db-down: (Experimental) undo to previous migration version
 .PHONY: db-down
-db-down: db-configure
-	${MIGRATION_DOWN_CMD} ${MIGRATION_SRC_DOWN}
+db-down:
+	@${MIGRATION_BIN} down 1
 
 ## db-clean: Clean database
 .PHONY: db-clean
-db-clean: db-configure --clean-prompt
+db-clean: --clean-prompt
 	@-echo "  > Cleaning database..."
-	@${MIGRATION_TOOL_CMD} clean -configFiles=${MIGRATION_CONFIG} -locations=filesystem:${MIGRATION_SRC_UP}
+	@${MIGRATION_BIN} drop
 
 # -------------
 # Private Rules
