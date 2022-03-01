@@ -23,7 +23,6 @@ COPY .git ./.git
 COPY cmd ./cmd
 COPY internal ./internal
 COPY responses.yml ./
-COPY migrations ./
 
 # Compiling...
 RUN make release
@@ -41,6 +40,7 @@ RUN apk add --no-cache tzdata ca-certificates \
     && mkdir -p .tmp/email-attachments
 
 COPY --from=builder /usr/src/app/bin/release /app
+COPY migrations /app/migrations
 
 # Running...
 WORKDIR /app
