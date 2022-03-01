@@ -6,6 +6,7 @@ import (
 	"path"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
+	"strings"
 )
 
 var log nlogger.Logger
@@ -74,18 +75,16 @@ func setUpRoute(router *nhttp.Router, handlers *HandlerMap) {
 }
 
 func InitRouter(workDir string, config *contract.Config, handlers *HandlerMap) http.Handler {
+	// Check debug
+	debug := strings.ToLower(config.Debug) == "true"
+	trustProxy := strings.ToLower(config.ServerTrustProxy) == "true"
+
 	// Init router
 	router := nhttp.NewRouter(nhttp.RouterOptions{
 		LogRequest: true,
-		Debug:      config.Server.Debug,
-		TrustProxy: config.Server.TrustProxy,
+		Debug:      debug,
+		TrustProxy: trustProxy,
 	})
-
-	// Enable cors
-	if config.CORS.Enabled {
-		log.Debug("CORS Enabled")
-		router.Use(config.CORS.NewMiddleware())
-	}
 
 	// Set-up Routes
 	setUpRoute(router, handlers)

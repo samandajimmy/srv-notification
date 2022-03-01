@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/nbs-go/nlogger"
 	"net/http"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification"
@@ -22,13 +23,15 @@ func main() {
 	// Capture started at
 	startedAt := time.Now()
 
-	// TODO: handle boot options
-	bootOptions := handleCmdFlags()
-
-	// Load config
-	config := contract.LoadConfig()
+	// Init config from env
+	config := new(contract.Config)
+	err := envconfig.Process("", config)
+	if err != nil {
+		panic(err)
+	}
 
 	// Boot core
+	bootOptions := handleCmdFlags()
 	core := ncore.Boot(bootOptions.Core)
 
 	// Init service
@@ -53,11 +56,7 @@ func main() {
 	router := notification.InitRouter(core.WorkDir, config, handlers)
 
 	// Set server config from env
-	err = config.Server.LoadFromEnv()
-	if err != nil {
-		panic(err)
-	}
-	serverConfig := config.Server
+	serverConfig := processServerConfig(config)
 
 	// Start server
 	log.Infof("%s HTTP Server is listening to port %d", AppSlug, serverConfig.ListenPort)

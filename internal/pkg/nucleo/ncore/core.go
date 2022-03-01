@@ -7,6 +7,6 @@ type Core struct {
 	Manifest    Manifest
 	Environment Environment
 	WorkDir     string
-	NodeNo      int64
+	NodeId      string
 	Responses   *ResponseMap
 }

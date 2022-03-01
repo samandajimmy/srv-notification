@@ -7,9 +7,9 @@ import (
 	"gopkg.in/gomail.v2"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
@@ -17,7 +17,7 @@ import (
 const tmpAttachmentDir = ".tmp/email-attachments"
 
 func (s *ServiceContext) SendEmail(payload *dto.SendEmail) error {
-	var config contract.SMTPConfig
+	var config model.SMTPConfig
 	err := s.loadClientConfig(payload.ApplicationId, constant.SMTP, &config)
 	if err != nil {
 		return ncore.TraceError(err)
@@ -49,7 +49,7 @@ func (s *ServiceContext) SendEmail(payload *dto.SendEmail) error {
 	return nil
 }
 
-func (s *ServiceContext) newMailClient(config contract.SMTPConfig) *gomail.Dialer {
+func (s *ServiceContext) newMailClient(config model.SMTPConfig) *gomail.Dialer {
 	return gomail.NewDialer(config.Host, nval.ParseIntFallback(config.Port, 465), config.Username, config.Password)
 }
 

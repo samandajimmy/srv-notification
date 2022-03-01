@@ -8,24 +8,28 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 
 	_ "github.com/lib/pq"
 )
 
-func NewRepository(config *contract.DataSourcesConfig) (*Repository, error) {
-	configPostgres := config.Postgres
+func NewRepository(config *contract.Config) (*Repository, error) {
+	// Parse options
+	maxIdleConn := nval.ParseIntFallback(config.DatabaseMaxIdleConn, 10)
+	maxOpenConn := nval.ParseIntFallback(config.DatabaseMaxOpenConn, 10)
+	maxConnLifetime := nval.ParseIntFallback(config.DatabaseMaxConnLifetime, 1)
 
 	// Init db
 	db, err := nsql.NewDatabase(nsql.Config{
-		Driver:          configPostgres.Driver,
-		Host:            configPostgres.Host,
-		Port:            configPostgres.Port,
-		Username:        configPostgres.Username,
-		Password:        configPostgres.Password,
-		Database:        configPostgres.Database,
-		MaxIdleConn:     configPostgres.MaxIdleConn,
-		MaxOpenConn:     configPostgres.MaxOpenConn,
-		MaxConnLifetime: configPostgres.MaxConnLifetime,
+		Driver:          config.DatabaseDriver,
+		Host:            config.DatabaseHost,
+		Port:            config.DatabasePort,
+		Username:        config.DatabaseUsername,
+		Password:        config.DatabasePassword,
+		Database:        config.DatabaseName,
+		MaxIdleConn:     &maxIdleConn,
+		MaxOpenConn:     &maxOpenConn,
+		MaxConnLifetime: &maxConnLifetime,
 	})
 	if err != nil {
 		log.Error("failed to initiate connection to db", nlogger.Error(err))

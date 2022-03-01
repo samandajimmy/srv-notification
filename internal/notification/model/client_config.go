@@ -22,3 +22,10 @@ type ClientConfigListResult struct {
 	Rows  []ClientConfigDetailed
 	Count int64
 }
+
+type SMTPConfig struct {
+	Host     string `json:"SMTP_HOST"`
+	Port     string `json:"SMTP_PORT"`
+	Username string `json:"SMTP_USERNAME"`
+	Password string `json:"SMTP_PASSWORD"`
+}

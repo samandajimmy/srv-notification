@@ -1,17 +1,15 @@
 package ncore
 
 import (
+	"github.com/google/uuid"
 	"path"
 )
 
 type BootOptions struct {
 	Manifest        Manifest
-	NodeNo          int64
+	NodeId          string
 	WorkDir         string
-	Environment     Environment
-	EnvFile         string
 	ResponseMapFile string
-	LoadEnvFile     bool
 }
 
 func Boot(args ...BootOptions) *Core {
@@ -20,10 +18,9 @@ func Boot(args ...BootOptions) *Core {
 
 	// Init Core
 	core := Core{
-		Manifest:    options.Manifest,
-		Environment: options.Environment,
-		WorkDir:     options.WorkDir,
-		NodeNo:      options.NodeNo,
+		Manifest: options.Manifest,
+		WorkDir:  options.WorkDir,
+		NodeId:   options.NodeId,
 	}
 
 	// Load responses
@@ -49,18 +46,17 @@ func getBootOptions(args []BootOptions) BootOptions {
 	}
 
 	// If config file is not set, then set default
-	if options.EnvFile == "" {
-		options.EnvFile = path.Join(options.WorkDir, ".env")
-	}
-
-	// If config file is not set, then set default
 	if options.ResponseMapFile == "" {
 		options.ResponseMapFile = path.Join(options.WorkDir, "responses.yml")
 	}
 
-	// If node number is not set, then set to 1
-	if options.NodeNo == 0 {
-		options.NodeNo = 1
+	// If node number is not set, then generate a random uuid
+	if options.NodeId == "" {
+		nodeId, err := uuid.NewUUID()
+		if err != nil {
+			panic(err)
+		}
+		options.NodeId = nodeId.String()
 	}
 
 	return options
