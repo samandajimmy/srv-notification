@@ -23,6 +23,7 @@ COPY .git ./.git
 COPY cmd ./cmd
 COPY internal ./internal
 COPY responses.yml ./
+COPY migrations ./
 
 # Compiling...
 RUN make release

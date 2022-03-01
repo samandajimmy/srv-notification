@@ -34,6 +34,12 @@ func main() {
 	bootOptions := handleCmdFlags()
 	core := ncore.Boot(bootOptions.Core)
 
+	// Check if migration option is set
+	err = bootMigration(core.WorkDir, config)
+	if err != nil {
+		panic(err)
+	}
+
 	// Init service
 	svc, err := contract.NewService(core, config, notification.NewServiceContext)
 	if err != nil {
