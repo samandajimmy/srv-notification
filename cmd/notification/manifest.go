@@ -2,9 +2,9 @@ package main
 
 var (
 	// AppSlug Application Slug Name
-	AppSlug = "pds-svc"
+	AppSlug = "srv-notification"
 	// AppName Application Name
-	AppName = "PDS Service"
+	AppName = "PDS Notification Service"
 	// AppVersion value will be overridden during automated build
 	AppVersion = "0.0.0-local"
 	// BuildHash value will be overridden during automated build

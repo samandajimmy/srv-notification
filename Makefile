@@ -1,19 +1,9 @@
 # --------
 # Manifest
 # --------
-PROJECT_NAME:="PDS Service"
+PROJECT_NAME:="PDS Notification Service"
 PROJECT_PKG:=repo.pegadaian.co.id/ms-pds/srv-notification
 DOCKER_NAMESPACE:=artifactory.pegadaian.co.id:5443
-
-# ---------------
-# Command Aliases
-# ---------------
-GO_CMD:=go
-GO_BUILD:=${GO_CMD} build
-GO_MOD:=${GO_CMD} mod
-GO_CLEAN:=${GO_CMD} clean
-GO_GET:=${GO_CMD} get
-DOCKER_CMD:=docker
 
 # -----------------
 # Project Variables
@@ -25,15 +15,25 @@ PROJECT_CONFIG:=.env
 PROJECT_CONFIG_RELEASE:=.env
 PROJECT_WEB_TEMPLATES=web/templates
 PROJECT_WEB_STATIC=web/static
-PROJECT_DOCKERFILE_DIR?=${PROJECT_ROOT}/deployments/pds-svc
+PROJECT_DOCKERFILE_DIR?=${PROJECT_ROOT}/build/svc
 OUTPUT_DIR:=${PROJECT_ROOT}/bin
 DOCTOR_CMD:=${PROJECT_ROOT}/scripts/doctor.sh
 PROJECT_FIREBASE_CRED = firebase-secret.json
+BINARY_NAME:=notification
+
+# ---------------
+# Command Aliases
+# ---------------
+GO_CMD:=go
+GO_BUILD:=${GO_CMD} build
+GO_MOD:=${GO_CMD} mod
+GO_CLEAN:=${GO_CMD} clean
+GO_GET:=${GO_CMD} get
+DOCKER_CMD:=docker
 
 # ---
 # API
 # ---
-BINARY_NAME:=pds-svc
 PROJECT_MAIN_PKG=cmd/${BINARY_NAME}
 PROJECT_ENV_FILES:=$(addprefix ${PROJECT_ROOT}/,${PROJECT_CONFIG} ${PROJECT_RESPONSES})
 PROJECT_ENV_FILES_RELEASE:=$(addprefix ${PROJECT_ROOT}/,${PROJECT_CONFIG_RELEASE} ${PROJECT_RESPONSES})

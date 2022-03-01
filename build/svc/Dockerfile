@@ -46,4 +46,4 @@ WORKDIR /app
 
 EXPOSE ${ARG_PORT}
 
-ENTRYPOINT ["./pds-svc"]
+ENTRYPOINT ["./notification"]
