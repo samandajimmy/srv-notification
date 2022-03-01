@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.16.2
+
+- [ADDED] Run migration from boot
+- [CHANGED] Change flyway with golang-migrate
+
 ## 0.16.1
 
 - [FIXED] context key avoid basic type
