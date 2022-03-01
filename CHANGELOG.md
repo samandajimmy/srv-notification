@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.16.1
+
+- [FIXED] context key avoid basic type
+- [FIXED] Add Close service connection after finish executed
+
 ## 0.16.0
 
 - [ADDED] Implement fallback to default config if config is not set
