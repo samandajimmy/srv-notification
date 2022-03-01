@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.3
+
+- [FIXED] Fix copy migration files for deployment
+
 ## 0.16.2
 
 - [ADDED] Run migration from boot
