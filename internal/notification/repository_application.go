@@ -32,7 +32,21 @@ func (rc *RepositoryContext) FindApplicationByXID(xid string) (*model.Applicatio
 }
 
 func (rc *RepositoryContext) DeleteApplicationById(id int64) error {
-	_, err := rc.RepositoryStatement.Application.DeleteByID.ExecContext(rc.ctx, id)
+	// Begin transaction
+	tx, err := rc.conn.BeginTxx(rc.ctx, nil)
+	if err != nil {
+		return ncore.TraceError(err)
+	}
+	defer rc.ReleaseTx(tx, &err)
+
+	// Delete all config by application id
+	_, err = tx.Stmt(rc.ClientConfig.DeleteByApplicationID.Stmt).ExecContext(rc.ctx, id)
+	if err != nil {
+		return ncore.TraceError(err)
+	}
+
+	// Delete application
+	_, err = tx.Stmt(rc.RepositoryStatement.Application.DeleteByID.Stmt).ExecContext(rc.ctx, id)
 	return err
 }
 

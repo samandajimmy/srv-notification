@@ -23,6 +23,7 @@ type ClientConfig struct {
 	DeleteByID               *sqlx.Stmt
 	FindJoinApplicationByXID *sqlx.Stmt
 	IsExistsByKey            *sqlx.Stmt
+	DeleteByApplicationID    *sqlx.Stmt
 }
 
 func NewClientConfig(db *nsql.Database) *ClientConfig {
@@ -80,6 +81,10 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		Limit(1).
 		Build()
 
+	deleteByAppId := query.Delete(ClientConfigSchema).
+		Where(query.Equal(query.Column("applicationId"))).
+		Build()
+
 	return &ClientConfig{
 		FindByKey:                db.PrepareRebind(findByKey),
 		FindDefaultByKey:         db.PrepareRebind(findDefaultByKey),
@@ -89,5 +94,6 @@ func NewClientConfig(db *nsql.Database) *ClientConfig {
 		DeleteByID:               db.PrepareRebind(bs.Delete()),
 		FindJoinApplicationByXID: db.PrepareRebind(findJoinApplicationByXID),
 		IsExistsByKey:            db.PrepareRebind(isExistsByKey),
+		DeleteByApplicationID:    db.PrepareRebind(deleteByAppId),
 	}
 }
