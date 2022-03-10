@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.4
+
+- fix(repository-application): Delete client config related applicationId.
+
 ## 0.16.3
 
 - [FIXED] Fix copy migration files for deployment
