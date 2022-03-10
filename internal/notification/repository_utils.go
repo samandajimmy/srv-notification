@@ -5,16 +5,8 @@ import (
 	"github.com/nbs-go/nsql/option"
 	"github.com/nbs-go/nsql/pq/query"
 	"github.com/nbs-go/nsql/schema"
+	qs "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp/querystring"
 )
-
-//func newStatusFilter(s *schema.Schema) nsql.FilterParser {
-//	return func(qv string) (nsql.WhereWriter, []interface{}) {
-//		// Get args
-//		args := parse.IntArgs(qv)
-//		w := query.In(query.Column("statusId", option.Schema(s)), len(args))
-//		return w, args
-//	}
-//}
 
 func newEqualFilter(s *schema.Schema, col string) nsql.FilterParser {
 	return func(qv string) (nsql.WhereWriter, []interface{}) {
@@ -25,14 +17,27 @@ func newEqualFilter(s *schema.Schema, col string) nsql.FilterParser {
 
 func newGreaterThanEqualFilter(s *schema.Schema, col string) nsql.FilterParser {
 	return func(qv string) (nsql.WhereWriter, []interface{}) {
+		// Parse time
+		t, ok := qs.ParseTime(qv)
+		if !ok {
+			return nil, nil
+		}
+
+		// Create schema
 		w := query.GreaterThanEqual(query.Column(col, option.Schema(s)))
-		return w, []interface{}{qv}
+		return w, []interface{}{t.UTC()}
 	}
 }
 
 func newLessThanEqualFilter(s *schema.Schema, col string) nsql.FilterParser {
 	return func(qv string) (nsql.WhereWriter, []interface{}) {
-		w := query.GreaterThanEqual(query.Column(col, option.Schema(s)))
-		return w, []interface{}{qv}
+		// Parse time
+		t, ok := qs.ParseTime(qv)
+		if !ok {
+			return nil, nil
+		}
+
+		w := query.LessThanEqual(query.Column(col, option.Schema(s)))
+		return w, []interface{}{t.UTC()}
 	}
 }
