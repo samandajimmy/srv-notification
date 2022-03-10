@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.5
+
+- fix(application): Fix querystring parsing for Time value
+
 ## 0.16.4
 
 - fix(repository-application): Delete client config related applicationId.
