@@ -1,7 +1,8 @@
 package nhttp
 
 import (
-	"github.com/nbs-go/nlogger"
+	"github.com/nbs-go/nlogger/v2"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"net"
 	"net/http"
 	"strings"
@@ -27,7 +28,7 @@ func GetClientIP(req *http.Request, trustProxy bool) string {
 	if tmp == "" {
 		host, _, err := net.SplitHostPort(req.RemoteAddr)
 		if err != nil {
-			log.Error("unable to get Client IP address", nlogger.Error(err))
+			log.Error("unable to get Client IP address", logOption.Error(err))
 		}
 		tmp = host
 	}

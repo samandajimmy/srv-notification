@@ -1,7 +1,7 @@
 package notification
 
 import (
-	"github.com/nbs-go/nlogger"
+	"github.com/nbs-go/nlogger/v2"
 	"net/http"
 	"path"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"

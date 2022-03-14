@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 )
 
 type HandlerFn = func(ctx context.Context, payload message.Payload) (ack bool, err error)
@@ -34,7 +34,7 @@ func NewWorker(sub message.Subscriber, topic string, args ...interface{}) *Worke
 	// Subscribe
 	messages, err := sub.Subscribe(ctx, topic)
 	if err != nil {
-		log.Error("failed to Subscribe. Topic = %s", logger.Format(topic), logger.Error(err))
+		log.Error("failed to Subscribe. Topic = %s", logOption.Format(topic), logOption.Error(err))
 	}
 
 	return &Worker{
@@ -60,7 +60,7 @@ func (s *Worker) Listen() {
 		// Call handler
 		ack, err := s.handlerFn(msg.Context(), msg.Payload)
 		if err != nil {
-			log.Error("an error occurred while listening to topic %s", logger.Format(s.Topic), logger.Error(err))
+			log.Error("an error occurred while listening to topic %s", logOption.Format(s.Topic), logOption.Error(err))
 		}
 
 		// If not ack, then retry

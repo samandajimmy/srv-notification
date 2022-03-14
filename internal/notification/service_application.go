@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/nbs-go/nlogger"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
@@ -26,12 +26,12 @@ func (s *ServiceContext) AuthApplication(username string, password string) (*dto
 
 	application, err := s.repo.FindApplicationByXID(applicationXid)
 	if err != nil {
-		log.Error("application not found", nlogger.Error(err))
+		log.Error("application not found", logOption.Error(err))
 		return nil, nhttp.UnauthorizedError
 	}
 
 	if application.ApiKey != apiKey {
-		log.Error("Incorrect apiKey", nlogger.Error(err))
+		log.Error("Incorrect apiKey", logOption.Error(err))
 		return nil, nhttp.UnauthorizedError
 	}
 
@@ -99,10 +99,10 @@ func (s *ServiceContext) GetDetailApplication(payload *dto.GetApplication) (*dto
 	res, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data application. err: %v", err)
+			log.Error("error when get data application", logOption.Error(err))
 			return nil, s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data application. err: %v", err)
+		log.Error("error when get data application. err: %v", logOption.Error(err))
 		return nil, err
 	}
 
@@ -119,10 +119,10 @@ func (s *ServiceContext) DeleteApplication(payload *dto.GetApplication) error {
 	res, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data application. err: %v", err)
+			log.Error("error when get data application", logOption.Error(err))
 			return s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data application. err: %v", err)
+		log.Error("error when get data application", logOption.Error(err))
 		return err
 	}
 
@@ -139,7 +139,7 @@ func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApp
 	// Get list application
 	result, err := s.repo.FindApplication(options)
 	if err != nil {
-		log.Error("failed to find data application", nlogger.Error(err))
+		log.Error("failed to find data application", logOption.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -156,7 +156,7 @@ func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApp
 
 func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions) (*dto.ApplicationResponse, error) {
 	if payload.XID == constant.DefaultConfig {
-		log.Warn("cannot update default config app")
+		s.log.Warn("cannot update default config app")
 		return nil, nhttp.ForbiddenError
 	}
 
@@ -164,10 +164,10 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 	app, err := s.repo.FindApplicationByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data application. err: %v", err)
+			s.log.Error("error when get data application", logOption.Error(err))
 			return nil, s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data application. err: %v", err)
+		s.log.Error("error when get data application", logOption.Error(err))
 		return nil, err
 	}
 

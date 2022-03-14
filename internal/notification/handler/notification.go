@@ -6,10 +6,11 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gorilla/mux"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
@@ -42,14 +43,14 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	var payload dto.SendNotificationOptionsRequest
 	err = rx.ParseJSONBody(&payload)
 	if err != nil {
-		log.Error("Error when parse json body from request", logger.Error(err), logger.Context(ctx))
+		log.Error("Error when parse json body from request", logOption.Error(err), logOption.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
 	// Validate payload
 	err = payload.Validate()
 	if err != nil {
-		log.Error("Error when validate payload send notification", logger.Error(err), logger.Context(ctx))
+		log.Error("Error when validate payload send notification", logOption.Error(err), logOption.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -97,7 +98,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		// FCM Section
 		data, errCreate := svc.CreateNotification(&payload)
 		if errCreate != nil {
-			log.Error("error found when create notification", logger.Error(errCreate), logger.Context(ctx))
+			log.Error("error found when create notification", logOption.Error(errCreate), logOption.Context(ctx))
 			return nil, errCreate
 		}
 		payload.Notification = data
@@ -120,7 +121,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		// FCM & SMTP Section
 		data, errCreate := svc.CreateNotification(&payload)
 		if errCreate != nil {
-			log.Error("Error when create notification", logger.Error(errCreate), logger.Context(ctx))
+			log.Error("Error when create notification", logOption.Error(errCreate), logOption.Context(ctx))
 			return nil, errCreate
 		}
 
@@ -160,7 +161,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 	// Get application
 	app, err := getApplication(rx)
 	if err != nil {
-		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -175,7 +176,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 
 	err = payload.Validate()
 	if err != nil {
-		log.Error("error when validate payload", logger.Error(err), logger.Context(ctx))
+		log.Error("error when validate payload", logOption.Error(err), logOption.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -185,7 +186,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 
 	resp, err := svc.GetDetailNotification(&payload)
 	if err != nil {
-		log.Error("error when call service", logger.Error(err), logger.Context(ctx))
+		log.Error("error when call service", logOption.Error(err), logOption.Context(ctx))
 		return nil, err
 	}
 
@@ -199,7 +200,7 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 	// Get application
 	app, err := getApplication(rx)
 	if err != nil {
-		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -238,7 +239,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 	// Get application
 	app, err := getApplication(rx)
 	if err != nil {
-		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -253,7 +254,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 
 	err = payload.Validate()
 	if err != nil {
-		log.Error("request validate error", logger.Error(err), logger.Context(ctx))
+		log.Error("request validate error", logOption.Error(err), logOption.Context(ctx))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -263,7 +264,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 
 	resp, err := svc.CountNotification(&payload)
 	if err != nil {
-		log.Error("error when call service err: %v", logger.Error(err), logger.Context(ctx))
+		log.Error("error when call service err: %v", logOption.Error(err), logOption.Context(ctx))
 		return nil, err
 	}
 
@@ -279,12 +280,12 @@ func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, err
 	// Validate payload
 	ctx := rx.Context()
 	if payload.Filters == nil {
-		log.Error("invalid empty filters query in ListNotification", logger.Context(ctx))
+		log.Error("invalid empty filters query in ListNotification", logOption.Context(ctx))
 		return nil, nhttp.BadRequestError
 	}
 
 	if v, ok := payload.Filters[constant.UserRefIdKey]; !ok || v == "" {
-		log.Error("filters[userId] is required", logger.Context(ctx))
+		log.Error("filters[userId] is required", logOption.Context(ctx))
 		return nil, nhttp.BadRequestError
 	}
 
@@ -314,7 +315,7 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 	// Get application
 	app, err := getApplication(rx)
 	if err != nil {
-		log.Errorf("Error when get application: %s", logger.Format(err), logger.Error(err), logger.Context(ctx))
+		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
 		return nil, ncore.TraceError(err)
 	}
 

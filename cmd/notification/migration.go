@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"path/filepath"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -35,7 +35,7 @@ func bootMigration(workDir string, config *contract.Config) error {
 	log.Error("migration: Connecting to database...")
 	m, err := migrate.New(sourceUri, dbUri)
 	if err != nil {
-		log.Error("migration: Failed to connect database", logger.Error(err))
+		log.Error("migration: Failed to connect database", logOption.Error(err))
 		return err
 	}
 
@@ -45,7 +45,7 @@ func bootMigration(workDir string, config *contract.Config) error {
 			log.Infof("migration: No changes")
 			return nil
 		}
-		log.Error("migration: Failed to run up migration scripts", logger.Error(err))
+		log.Error("migration: Failed to run up migration scripts", logOption.Error(err))
 		return err
 	}
 

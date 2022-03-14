@@ -6,12 +6,11 @@ import (
 	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/nbs-go/nlogger"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"reflect"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
-	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
@@ -22,17 +21,17 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 	application, err := s.repo.FindApplicationByXID(payload.ApplicationXid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data application.", nlogger.Error(err))
+			log.Error("error when get data application.", logOption.Error(err))
 			return nil, s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data application.", nlogger.Error(err))
+		log.Error("error when get data application.", logOption.Error(err))
 		return nil, err
 	}
 
 	// Check if config for certain key has been added
 	isExists, err := s.repo.IsClientConfigExists(application.ID, payload.Key)
 	if err != nil {
-		log.Error("error while query IsClientConfigExists", logger.Error(err))
+		log.Error("error while query IsClientConfigExists", logOption.Error(err))
 		return nil, err
 	}
 
@@ -64,7 +63,7 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 	// Persist client config
 	err = s.repo.InsertClientConfig(clientConfig)
 	if err != nil {
-		log.Error("unable to insert clientConfig.", nlogger.Error(err))
+		log.Error("unable to insert clientConfig.", logOption.Error(err))
 		// Handle pq.Error
 		errCode, _ := nsql.GetPostgresError(err)
 		switch errCode {
@@ -85,7 +84,7 @@ func (s *ServiceContext) ListClientConfig(options *dto.ListPayload) (*dto.Client
 	// Query
 	queryResult, err := s.repo.FindClientConfig(options)
 	if err != nil {
-		log.Error("failed to find data client config.", nlogger.Error(err))
+		log.Error("failed to find data client config.", logOption.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -115,7 +114,7 @@ func (s *ServiceContext) GetDetailClientConfig(payload *dto.ClientConfigRequest)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, s.responses.GetError("E_RES_1")
 		}
-		log.Error("failed to client config", nlogger.Error(err))
+		log.Error("failed to client config", logOption.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -129,7 +128,7 @@ func (s *ServiceContext) UpdateClientConfig(payload *dto.ClientConfigUpdateOptio
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data client config.", nlogger.Error(err))
+		log.Error("error when get data client config.", logOption.Error(err))
 		return nil, err
 	}
 
@@ -200,10 +199,10 @@ func (s *ServiceContext) DeleteClientConfig(payload *dto.GetClientConfig) error 
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("error when get data client config. err: %v", err)
+			log.Error("error when get data client config", logOption.Error(err))
 			return s.responses.GetError("E_RES_1")
 		}
-		log.Error("error when get data client config. err: %v", err)
+		log.Error("error when get data client config", logOption.Error(err))
 		return err
 	}
 
@@ -221,8 +220,8 @@ func (s *ServiceContext) loadClientConfig(appId int64, key string, dest interfac
 	clientConfig, err := s.repo.FindByKey(key, appId)
 	if err != nil {
 		if err != sql.ErrNoRows {
-			s.log.Error("failed to get ClientConfig from db", logger.Error(err),
-				logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+			s.log.Error("failed to get ClientConfig from db", logOption.Error(err),
+				logOption.AddMetadata("key", key), logOption.AddMetadata("applicationId", appId))
 			return ncore.TraceError(err)
 		}
 
@@ -232,16 +231,16 @@ func (s *ServiceContext) loadClientConfig(appId int64, key string, dest interfac
 			if err == sql.ErrNoRows {
 				return ncore.TraceError(fmt.Errorf("default configuration not set for key %s", key))
 			}
-			s.log.Error("failed to get default ClientConfig from db", logger.Error(err),
-				logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+			s.log.Error("failed to get default ClientConfig from db", logOption.Error(err),
+				logOption.AddMetadata("key", key), logOption.AddMetadata("applicationId", appId))
 			return ncore.TraceError(err)
 		}
 	}
 
 	err = json.Unmarshal(clientConfig.Value, dest)
 	if err != nil {
-		s.log.Error("Error when unmarshaling ClientConfig value", logger.Error(err),
-			logger.AddMetadata("key", key), logger.AddMetadata("applicationId", appId))
+		s.log.Error("Error when unmarshaling ClientConfig value", logOption.Error(err),
+			logOption.AddMetadata("key", key), logOption.AddMetadata("applicationId", appId))
 		return ncore.TraceError(err)
 	}
 

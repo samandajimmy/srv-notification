@@ -3,10 +3,9 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
-	"github.com/nbs-go/nlogger"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
@@ -29,7 +28,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	var payload dto.ClientConfigRequest
 	err := rx.ParseJSONBody(&payload)
 	if err != nil {
-		log.Errorf("Error when parse json body from request.", nlogger.Error(err))
+		log.Errorf("Error when parse json body from request.", logOption.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -37,7 +36,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	log.Debugf("Received Create ClientConfig request.")
 	err = payload.Validate()
 	if err != nil {
-		log.Error("Error appear when validate payload.", nlogger.Error(err))
+		log.Error("Error appear when validate payload.", logOption.Error(err))
 		return nil, nhttp.BadRequestError.Wrap(err)
 	}
 
@@ -51,7 +50,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	resp, err := svc.CreateClientConfig(&payload)
 	if err != nil {
-		log.Error("failed to create client.", logger.Error(err))
+		log.Error("failed to create client.", logOption.Error(err))
 		return nil, err
 	}
 
@@ -69,7 +68,7 @@ func (h *ClientConfig) ListClientConfig(rx *nhttp.Request) (*nhttp.Response, err
 	srv := h.Service.WithContext(rx.Context())
 	respData, err := srv.ListClientConfig(payload)
 	if err != nil {
-		log.Error("failed to call service.", nlogger.Error(err))
+		log.Error("failed to call service.", logOption.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 

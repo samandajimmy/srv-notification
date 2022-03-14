@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/nbs-go/nlogger"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nclient"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
@@ -38,7 +38,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	var p dto.SendNotificationOptionsRequest
 	err = json.Unmarshal(payload, &p)
 	if err != nil {
-		log.Error("failed to parse payload. Topic = %s", logger.Format(h.Topic), logger.Error(err))
+		log.Error("failed to parse payload. Topic = %s", logOption.Format(h.Topic), logOption.Error(err))
 		return true, err
 	}
 
@@ -78,7 +78,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	// Send email
 	err = svc.SendEmail(&payloadSendEmail)
 	if err != nil {
-		log.Error("Error when sending email in service", logger.Error(err))
+		log.Error("Error when sending email in service", logOption.Error(err))
 		optionsWebhook.NotificationStatus = constant.NotificationStatusFailed
 		if optionsWebhook.WebhookURL != "" {
 			SendWebhookEmail(optionsWebhook)
@@ -119,6 +119,6 @@ func SendWebhookEmail(options dto.WebhookEmailOptions) {
 	// Send webhook to client
 	_, err := c.PostData(reqHeader, reqBody)
 	if err != nil {
-		log.Error("error when send webhook to client", nlogger.Error(err))
+		log.Error("error when send webhook to client", logOption.Error(err))
 	}
 }

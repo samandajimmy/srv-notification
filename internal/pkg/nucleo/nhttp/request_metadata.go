@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"html"
 	"net/http"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+
 	"time"
 )
 
@@ -64,7 +65,7 @@ func HandleLogRequest(h http.Handler) http.Handler {
 		}
 
 		log.Info("Endpoint: %s %s, RespHTTPStatus: %d, ElapsedTime: %s, ClientIP: %s",
-			logger.Format(r.Method, html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP),
-			logger.Context(r.Context()))
+			logOption.Format(r.Method, html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP),
+			logOption.Context(r.Context()))
 	})
 }

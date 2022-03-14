@@ -6,10 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/nbs-go/nlogger"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
-	model "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	logOption "github.com/nbs-go/nlogger/v2/option"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
@@ -19,7 +18,7 @@ func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptions
 	// Generate temporary id
 	id, err := uuid.NewUUID()
 	if err != nil {
-		s.log.Error("error when get uuid", nlogger.Error(err))
+		s.log.Error("error when get uuid", logOption.Error(err))
 		return nil, err
 	}
 
@@ -45,7 +44,7 @@ func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptions
 
 	opt, err := json.Marshal(options)
 	if err != nil {
-		s.log.Errorf("error marshalling options.", nlogger.Error(err))
+		s.log.Errorf("error marshalling options.", logOption.Error(err))
 		return nil, err
 	}
 
@@ -56,7 +55,7 @@ func (s *ServiceContext) CreateNotification(payload *dto.SendNotificationOptions
 	// Persist Notification
 	err = s.repo.InsertNotification(notification)
 	if err != nil {
-		s.log.Error("unable to insert notification. err: %v", logger.Error(err))
+		s.log.Error("unable to insert notification. err: %v", logOption.Error(err))
 		return nil, err
 	}
 
@@ -67,7 +66,7 @@ func (s *ServiceContext) GetDetailNotification(payload *dto.GetNotification) (*d
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
-		s.log.Error("error when get notification data", nlogger.Error(err))
+		s.log.Error("error when get notification data", logOption.Error(err))
 		if err == sql.ErrNoRows {
 			return nil, s.responses.GetError("E_RES_1")
 		}
@@ -81,7 +80,7 @@ func (s *ServiceContext) DeleteNotification(payload *dto.GetNotification) error 
 	// Get notification by xid
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
-		log.Error("error when get data notification. err: %v", err)
+		log.Error("error when get data notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
 			return s.responses.GetError("E_RES_1")
 		}
@@ -101,7 +100,7 @@ func (s *ServiceContext) CountNotification(payload *dto.GetCountNotification) (*
 	// Get count notification
 	count, err := s.repo.CountNotification(payload)
 	if err != nil {
-		s.log.Error("error when get data count notification. err: %v", err)
+		s.log.Error("error when get data count notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, s.responses.GetError("E_RES_1")
 		}
@@ -117,7 +116,7 @@ func (s *ServiceContext) ListNotification(options *dto.ListPayload) (*dto.ListNo
 	// Get list notification
 	result, err := s.repo.FindNotification(options)
 	if err != nil {
-		s.log.Error("failed to find data notification", nlogger.Error(err))
+		s.log.Error("failed to find data notification", logOption.Error(err))
 		return nil, ncore.TraceError(err)
 	}
 
@@ -138,7 +137,7 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 	// Get detail notification
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
-		s.log.Error("error when get notification data", nlogger.Error(err))
+		s.log.Error("error when get notification data", logOption.Error(err))
 		if err == sql.ErrNoRows {
 			return nil, s.responses.GetError("E_RES_1")
 		}
@@ -157,7 +156,7 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 
 	err = s.repo.UpdateNotificationByID(notification)
 	if err != nil {
-		s.log.Error("error when update notification data", nlogger.Error(err))
+		s.log.Error("error when update notification data", logOption.Error(err))
 		return nil, s.responses.GetError("E_RES_2")
 	}
 

@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/nbs-go/nlogger"
+	jsonLogger "github.com/nbs-go/nlogger-json"
+	"github.com/nbs-go/nlogger/v2"
 	"net/http"
+	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	_ "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )
@@ -16,6 +17,11 @@ import (
 var log nlogger.Logger
 
 func init() {
+	// Register json logger
+	lv := os.Getenv(nlogger.EnvLogLevel)
+	nlogger.Register(jsonLogger.New("srv-notification", lv, os.Stdout))
+
+	// Retrieve logging instance
 	log = nlogger.Get()
 }
 

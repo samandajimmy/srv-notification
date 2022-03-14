@@ -4,7 +4,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
-	handler "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/handler"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/handler"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"time"
 )

@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 	"github.com/google/uuid"
-	constant "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
-	dto "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"

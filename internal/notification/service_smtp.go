@@ -4,11 +4,12 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/google/uuid"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"gopkg.in/gomail.v2"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/logger"
+
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
@@ -29,14 +30,14 @@ func (s *ServiceContext) SendEmail(payload *dto.SendEmail) error {
 	// Set message
 	message, tmpAttachment, err := s.composeEmail(payload)
 	if err != nil {
-		s.log.Error("Error when trying to compose email", logger.Error(err))
+		s.log.Error("Error when trying to compose email", logOption.Error(err))
 		return ncore.TraceError(err)
 	}
 
 	// Send email
 	err = mailClient.DialAndSend(message)
 	if err != nil {
-		s.log.Error("Failed dial and send email", logger.Error(err))
+		s.log.Error("Failed dial and send email", logOption.Error(err))
 		return ncore.TraceError(err)
 	}
 
@@ -90,7 +91,7 @@ func (s *ServiceContext) composeEmail(payload *dto.SendEmail) (*gomail.Message, 
 func (s *ServiceContext) writeEmailAttachmentTempFile(fileExt string, b64FileContent string) (string, error) {
 	fileContent, err := base64.StdEncoding.DecodeString(b64FileContent)
 	if err != nil {
-		s.log.Error("Error when decoding the attachment", logger.Error(err))
+		s.log.Error("Error when decoding the attachment", logOption.Error(err))
 		return "", ncore.TraceError(err)
 	}
 
@@ -106,20 +107,20 @@ func (s *ServiceContext) writeEmailAttachmentTempFile(fileExt string, b64FileCon
 	// Create file
 	f, err := os.Create(fileName)
 	if err != nil {
-		s.log.Error("Error occurred when create temp file", logger.Error(err))
+		s.log.Error("Error occurred when create temp file", logOption.Error(err))
 		return "", ncore.TraceError(err)
 	}
 	defer s.closeFile(f)
 
 	// Write file content
 	if _, err = f.Write(fileContent); err != nil {
-		s.log.Error("Error occurred when write the temp file", logger.Error(err))
+		s.log.Error("Error occurred when write the temp file", logOption.Error(err))
 		return "", ncore.TraceError(err)
 	}
 
 	// Ensure that all the contents you've written are actually stored.
 	if err = f.Sync(); err != nil {
-		s.log.Error("Error occurred when sync the file", logger.Error(err))
+		s.log.Error("Error occurred when sync the file", logOption.Error(err))
 		return "", ncore.TraceError(err)
 	}
 
@@ -129,13 +130,13 @@ func (s *ServiceContext) writeEmailAttachmentTempFile(fileExt string, b64FileCon
 func (s *ServiceContext) closeFile(f *os.File) {
 	err := f.Close()
 	if err != nil {
-		s.log.Error("failed to close file", logger.Error(err))
+		s.log.Error("failed to close file", logOption.Error(err))
 	}
 }
 
 func (s *ServiceContext) deleteEmailAttachmentTempFile(fileName string) {
 	err := os.Remove(fileName)
 	if err != nil {
-		s.log.Error("Failed remove file after email sent!", logger.Error(err))
+		s.log.Error("Failed remove file after email sent!", logOption.Error(err))
 	}
 }

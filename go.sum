@@ -740,8 +740,10 @@ github.com/mutecomm/go-sqlcipher/v4 v4.4.0/go.mod h1:PyN04SaWalavxRGH9E8ZftG6Ju7
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/nakagami/firebirdsql v0.0.0-20190310045651-3c02a58cfed8/go.mod h1:86wM1zFnC6/uDBfZGNwB65O+pR2OFi5q/YQaEUid1qA=
-github.com/nbs-go/nlogger v1.2.0 h1:/Hq0q7eFMCErE9u8a1DqtPEEdIO41fiWjvNAwMwdkms=
-github.com/nbs-go/nlogger v1.2.0/go.mod h1:sWM7094Zu08K6HhkQiEHyIsEDidssNX3RDs99e30wSY=
+github.com/nbs-go/nlogger-json v0.1.0 h1:CXZhvinFFCJjX8NXEcRcGxYEZHeR6I5QtHgv8MgLBAo=
+github.com/nbs-go/nlogger-json v0.1.0/go.mod h1:dfdMzKrJd+zxFeW+3aHNWhiJQ1prXWjzUiFBckSY6dk=
+github.com/nbs-go/nlogger/v2 v2.2.2 h1:TYDTjlAmsKVQzUGTdgR/HiAfFIA224wwEyQrciFgcsw=
+github.com/nbs-go/nlogger/v2 v2.2.2/go.mod h1:XOZewZpRKff0DQXmEZBI2o7APSg1SEwCv8nxAkCZ1cc=
 github.com/nbs-go/nsql v0.5.1 h1:qlXIy9CC7fvZkVJfKzNwlZ4Pi6BNTYogCVAIetsYT9U=
 github.com/nbs-go/nsql v0.5.1/go.mod h1:LIXTjLkKeArePk13tpoqK3w1iVOrlITRnTqeHmNMwOw=
 github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
