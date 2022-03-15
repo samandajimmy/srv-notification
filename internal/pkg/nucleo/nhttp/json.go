@@ -10,7 +10,6 @@ import (
 
 const (
 	ContentTypeJSON = "application/json; charset=utf-8"
-	ContentTypeHTML = "text/html"
 )
 
 type JSONContentWriter struct {
@@ -47,11 +46,14 @@ func (jw *JSONContentWriter) WriteError(w http.ResponseWriter, err error) int {
 	// Get metadata of error
 	metadata, _ := errMeta[MetadataKey].(map[string]interface{})
 
+	// Extract message from error
+	message := getErrorMessage(hErr)
+
 	// Create response
 	resp := Response{
 		Success: false,
 		Code:    hErr.Code(),
-		Message: hErr.Message(),
+		Message: message,
 		Data:    nil,
 	}
 
@@ -80,4 +82,27 @@ func (jw *JSONContentWriter) WriteError(w http.ResponseWriter, err error) int {
 
 	// Return http status
 	return httpStatus
+}
+
+func getErrorMessage(err *errx.Error) string {
+	// Get metadata
+	meta := err.Metadata()
+
+	// If metadata is nil, then return err message
+	if len(meta) == 0 {
+		return err.Message()
+	}
+
+	// Get message from metadata
+	v := meta[OverrideMessageMetadata]
+
+	// Cast type
+	switch msg := v.(type) {
+	case string:
+		if msg != "" {
+			return msg
+		}
+	}
+
+	return err.Message()
 }

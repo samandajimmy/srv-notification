@@ -13,6 +13,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	svcError "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/error"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
 )
@@ -23,7 +24,7 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application.", logOption.Error(err))
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err), nhttp.OverrideMessage("Application not found"))
 		}
 		log.Error("error when get data application.", logOption.Error(err))
 		return nil, errx.Trace(err)
