@@ -23,13 +23,6 @@ func Boot(args ...BootOptions) *Core {
 		NodeId:   options.NodeId,
 	}
 
-	// Load responses
-	responses, err := loadResponseMap(options.ResponseMapFile)
-	if err != nil {
-		panic(err)
-	}
-	core.Responses = responses
-
 	return &core
 }
 

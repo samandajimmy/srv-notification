@@ -1,9 +1,5 @@
 package nhttp
 
-import (
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
-)
-
 type ResponseFlag = int
 
 const (
@@ -11,18 +7,16 @@ const (
 	ContinueRequest
 )
 
-func NewResponse() *Response {
-	return &Response{
-		Header:       make(map[string]string),
-		responseFlag: EndRequest,
-	}
-}
+const (
+	SuccessCode    = "OK"
+	SuccessMessage = "Success"
+)
 
 func OK() *Response {
 	return &Response{
 		Success:      true,
-		Code:         ncore.Success.Code,
-		Message:      ncore.Success.Message,
+		Code:         SuccessCode,
+		Message:      SuccessMessage,
 		Data:         nil,
 		Header:       make(map[string]string),
 		responseFlag: EndRequest,
@@ -32,19 +26,8 @@ func OK() *Response {
 func Success() *Response {
 	return &Response{
 		Success:      true,
-		Code:         ncore.Success.Code,
-		Message:      ncore.Success.Message,
-		Header:       make(map[string]string),
-		responseFlag: EndRequest,
-	}
-}
-
-func BadRequest(data interface{}) *Response {
-	return &Response{
-		Success:      true,
-		Code:         BadRequestError.Code,
-		Message:      BadRequestError.Message,
-		Data:         data,
+		Code:         SuccessCode,
+		Message:      SuccessMessage,
 		Header:       make(map[string]string),
 		responseFlag: EndRequest,
 	}

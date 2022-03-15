@@ -9,11 +9,10 @@ import (
 )
 
 type ServiceContext struct {
-	config    *contract.Config
-	ctx       context.Context
-	repo      *RepositoryContext
-	log       nlogger.Logger
-	responses *ncore.ResponseMap
+	config *contract.Config
+	ctx    context.Context
+	repo   *RepositoryContext
+	log    nlogger.Logger
 }
 
 func NewServiceContext(ctx context.Context, config *contract.Config, core *ncore.Core) contract.ServiceContext {
@@ -24,11 +23,10 @@ func NewServiceContext(ctx context.Context, config *contract.Config, core *ncore
 	}
 
 	return &ServiceContext{
-		config:    config,
-		ctx:       ctx,
-		repo:      repo.WithContext(ctx),
-		log:       nlogger.Get().NewChild(logOption.Context(ctx)),
-		responses: core.Responses,
+		config: config,
+		ctx:    ctx,
+		repo:   repo.WithContext(ctx),
+		log:    nlogger.Get().NewChild(logOption.Context(ctx)),
 	}
 }
 

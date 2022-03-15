@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-	"github.com/google/uuid"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
@@ -105,18 +103,4 @@ func GetSubject(rx *nhttp.Request) *dto.Subject {
 		}
 	}
 	return subject
-}
-
-func GetRequestId(rx *nhttp.Request) string {
-	reqId, ok := rx.GetContextValue(nhttp.RequestIdKey).(string)
-	if !ok {
-		// Generate new request id
-		id, err := uuid.NewUUID()
-		if err != nil {
-			panic(fmt.Errorf("unable to generate new request id. %w", err))
-		}
-		return id.String()
-	}
-
-	return reqId
 }

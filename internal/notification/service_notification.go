@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	svcError "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/error"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
 )
@@ -68,7 +69,7 @@ func (s *ServiceContext) GetDetailNotification(payload *dto.GetNotification) (*d
 	if err != nil {
 		s.log.Error("error when get notification data", logOption.Error(err))
 		if err == sql.ErrNoRows {
-			return nil, s.responses.GetError("E_RES_1")
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		return nil, err
 	}
@@ -82,7 +83,7 @@ func (s *ServiceContext) DeleteNotification(payload *dto.GetNotification) error 
 	if err != nil {
 		log.Error("error when get data notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return s.responses.GetError("E_RES_1")
+			return svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		return err
 	}
@@ -102,7 +103,7 @@ func (s *ServiceContext) CountNotification(payload *dto.GetCountNotification) (*
 	if err != nil {
 		s.log.Error("error when get data count notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, s.responses.GetError("E_RES_1")
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		return nil, err
 	}
@@ -117,7 +118,7 @@ func (s *ServiceContext) ListNotification(options *dto.ListPayload) (*dto.ListNo
 	result, err := s.repo.FindNotification(options)
 	if err != nil {
 		s.log.Error("failed to find data notification", logOption.Error(err))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Set item response
@@ -139,7 +140,7 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 	if err != nil {
 		s.log.Error("error when get notification data", logOption.Error(err))
 		if err == sql.ErrNoRows {
-			return nil, s.responses.GetError("E_RES_1")
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		return nil, err
 	}
@@ -157,7 +158,7 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 	err = s.repo.UpdateNotificationByID(notification)
 	if err != nil {
 		s.log.Error("error when update notification data", logOption.Error(err))
-		return nil, s.responses.GetError("E_RES_2")
+		return nil, svcError.StaleResource.Trace()
 	}
 
 	return composeDetailNotification(notification), nil

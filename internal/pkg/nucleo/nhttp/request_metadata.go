@@ -4,10 +4,8 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	logOption "github.com/nbs-go/nlogger/v2/option"
 	"html"
 	"net/http"
-
 	"time"
 )
 
@@ -30,8 +28,8 @@ func NewCaptureRequestMetadataHandler(trustProxy bool) mux.MiddlewareFunc {
 			})
 
 			// Set request id value
-			reqId, _ := uuid.NewUUID()
-			ctx = context.WithValue(ctx, RequestIdContextKey, reqId.String())
+			reqID, _ := uuid.NewUUID()
+			ctx = context.WithValue(ctx, RequestIDContextKey, reqID.String())
 
 			// Continue
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -49,7 +47,7 @@ func HandleLogRequest(h http.Handler) http.Handler {
 
 		// Get Log Request Metadata
 		var elapsedTime, clientIP string
-		metadata, ok := ctx.Value(RequestMetadataKey).(RequestMetadata)
+		metadata, ok := ctx.Value(RequestMetadataContextKey).(RequestMetadata)
 		if !ok {
 			elapsedTime = "N/A"
 			clientIP = "N/A"
@@ -59,13 +57,12 @@ func HandleLogRequest(h http.Handler) http.Handler {
 		}
 
 		// Get httpStatus
-		httpStatus, ok := ctx.Value(HttpStatusRespKey).(int)
+		httpStatus, ok := ctx.Value(HTTPStatusRespContextKey).(int)
 		if !ok {
 			httpStatus = -1
 		}
 
-		log.Info("Endpoint: %s %s, RespHTTPStatus: %d, ElapsedTime: %s, ClientIP: %s",
-			logOption.Format(r.Method, html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP),
-			logOption.Context(r.Context()))
+		log.Infof("Endpoint: %s %s, RespHTTPStatus: %d, ElapsedTime: %s, ClientIP: %s", r.Method,
+			html.EscapeString(r.URL.Path), httpStatus, elapsedTime, clientIP)
 	})
 }

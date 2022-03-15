@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
+	svcError "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/error"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"time"
@@ -79,7 +80,7 @@ func (s *ServiceContext) CreateApplication(payload *dto.Application) (*dto.Appli
 
 		switch errCode {
 		case nsql.UniqueError:
-			return nil, s.responses.GetError("E_UAL_1").Wrap(err)
+			return nil, svcError.DuplicatedResource.Trace(errx.Source(err))
 		default:
 			return nil, err
 		}
@@ -100,7 +101,7 @@ func (s *ServiceContext) GetDetailApplication(payload *dto.GetApplication) (*dto
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application", logOption.Error(err))
-			return nil, s.responses.GetError("E_RES_1")
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		log.Error("error when get data application. err: %v", logOption.Error(err))
 		return nil, err
@@ -120,7 +121,7 @@ func (s *ServiceContext) DeleteApplication(payload *dto.GetApplication) error {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application", logOption.Error(err))
-			return s.responses.GetError("E_RES_1")
+			return svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		log.Error("error when get data application", logOption.Error(err))
 		return err
@@ -140,7 +141,7 @@ func (s *ServiceContext) ListApplication(options *dto.ListPayload) (*dto.ListApp
 	result, err := s.repo.FindApplication(options)
 	if err != nil {
 		log.Error("failed to find data application", logOption.Error(err))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	rows := make([]*dto.ApplicationItem, len(result.Rows))
@@ -165,7 +166,7 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			s.log.Error("error when get data application", logOption.Error(err))
-			return nil, s.responses.GetError("E_RES_1")
+			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
 		}
 		s.log.Error("error when get data application", logOption.Error(err))
 		return nil, err
@@ -177,7 +178,7 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 			app.Version,
 			payload.Version,
 		)
-		return nil, s.responses.GetError("E_RES_2").Wrap(err)
+		return nil, svcError.StaleResource.Trace()
 	}
 
 	// Copy values from payload to job
@@ -232,11 +233,11 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 		err = s.repo.UpdateApplication(app, payload.Version)
 		if err != nil {
 			if errors.Is(err, nsql.RowNotUpdatedError) {
-				err = s.responses.GetError("E_RES_3").Wrap(err)
+				return nil, svcError.StaleResource.Trace()
 			} else {
 				log.Errorf("failed to persist application update. err: %v", err)
 			}
-			return nil, err
+			return nil, errx.Trace(err)
 		}
 	}
 

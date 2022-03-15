@@ -7,11 +7,13 @@ import (
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nbs-go/nlogger/v2"
+	logOption "github.com/nbs-go/nlogger/v2/option"
 	"net/http"
 	"os"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"time"
 )
 
@@ -63,14 +65,14 @@ func main() {
 	// Init router
 	router := notification.InitRouter(core.WorkDir, config, handlers)
 
-	// Set server config from env
-	serverConfig := processServerConfig(config)
-
 	// Start server
-	log.Infof("%s HTTP Server is listening to port %d", AppSlug, serverConfig.ListenPort)
-	log.Infof("%s HTTP Server Started. Base URL: %s", AppSlug, serverConfig.GetHttpBaseUrl())
-	err = http.ListenAndServe(serverConfig.GetListenPort(), router)
+	log.Infof("Starting %s...", core.Manifest.AppName)
+	log.Infof("NodeId = %s, Environment = %s", core.NodeId, core.GetEnvironmentString())
+	log.Debugf("Boot Time: %s", time.Since(startedAt))
+
+	err = http.ListenAndServe(nhttp.ListenPort(config.Port), router)
 	if err != nil {
-		panic(fmt.Errorf("%s: failed on listen.\n  > %w", AppSlug, err))
+		log.Fatal("failed to serve", logOption.Error(err))
+		os.Exit(2)
 	}
 }

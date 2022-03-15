@@ -3,6 +3,7 @@ package nhttp
 import (
 	"context"
 	"encoding/json"
+	logContext "github.com/nbs-go/nlogger/v2/context"
 	"net/http"
 )
 
@@ -54,21 +55,25 @@ func (r *Request) GetMetadata(k string) interface{} {
 // End set value to Request context.Context to flag that this connection is ending and the next Handler will not
 // continue
 func (r *Request) End(httpStatus int) {
-	r.SetContextValue(HttpStatusRespKey, httpStatus)
+	r.SetContextValue(HTTPStatusRespContextKey, httpStatus)
 }
 
 func (r *Request) HasEnded() bool {
-	v := r.GetContextValue(HttpStatusRespKey)
+	v := r.GetContextValue(HTTPStatusRespContextKey)
 	return v != nil
 }
 
 func (r *Request) GetClientIP() string {
-	metadata, ok := r.Context().Value(RequestMetadataKey).(RequestMetadata)
+	metadata, ok := r.Context().Value(RequestMetadataContextKey).(RequestMetadata)
 	if !ok {
-		return "N/A"
+		return NotApplicable
 	}
 
 	return metadata.ClientIP
+}
+
+func (r *Request) GetRequestId() string {
+	return logContext.GetRequestId(r.Context())
 }
 
 func ParseJSONBody(dest interface{}, r *http.Request) error {
@@ -87,6 +92,7 @@ func WriteJSONError(w http.ResponseWriter, httpStatus int, body interface{}) {
 	// Send JSON response
 	err := json.NewEncoder(w).Encode(body)
 	if err != nil {
-		log.Errorf("failed to write response to json ( payload = %+v )", body)
+		log.Errorf("failed to "+
+			"write response to json ( payload = %+v )", body)
 	}
 }

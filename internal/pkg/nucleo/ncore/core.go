@@ -8,5 +8,14 @@ type Core struct {
 	Environment Environment
 	WorkDir     string
 	NodeId      string
-	Responses   *ResponseMap
+}
+
+func (c *Core) GetEnvironmentString() string {
+	switch c.Environment {
+	case ProductionEnvironment:
+		return "Production"
+	case TestingEnvironment:
+		return "Testing"
+	}
+	return "Development"
 }

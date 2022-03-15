@@ -3,9 +3,9 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	"github.com/nbs-go/errx"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
@@ -39,7 +39,7 @@ func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, err
 	}
 
 	// Set request id
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.Subject = subject
 
 	// Call service
@@ -58,7 +58,7 @@ func (h *Application) CreateApplication(rx *nhttp.Request) (*nhttp.Response, err
 func (h *Application) ListApplication(rx *nhttp.Request) (*nhttp.Response, error) {
 	payload, err := getListPayload(rx)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Call service
@@ -85,7 +85,7 @@ func (h *Application) GetDetailApplication(rx *nhttp.Request) (*nhttp.Response, 
 
 	// Set payload
 	var payload dto.GetApplication
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = xid
 
 	// Call service
@@ -114,7 +114,7 @@ func (h *Application) UpdateApplication(rx *nhttp.Request) (*nhttp.Response, err
 	}
 
 	// Set modifier and id
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = mux.Vars(rx.Request)["xid"]
 	payload.Subject = subject
 
@@ -149,7 +149,7 @@ func (h *Application) DeleteApplication(rx *nhttp.Request) (*nhttp.Response, err
 
 	// Set payload
 	var payload dto.GetApplication
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = xid
 
 	// Call service

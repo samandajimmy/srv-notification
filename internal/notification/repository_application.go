@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"github.com/nbs-go/errx"
 	"github.com/nbs-go/nsql"
 	"github.com/nbs-go/nsql/op"
 	"github.com/nbs-go/nsql/option"
@@ -9,7 +10,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/statement"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	nsqlDep "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 )
 
@@ -35,14 +35,14 @@ func (rc *RepositoryContext) DeleteApplicationById(id int64) error {
 	// Begin transaction
 	tx, err := rc.conn.BeginTxx(rc.ctx, nil)
 	if err != nil {
-		return ncore.TraceError(err)
+		return errx.Trace(err)
 	}
 	defer rc.ReleaseTx(tx, &err)
 
 	// Delete all config by application id
 	_, err = tx.Stmt(rc.ClientConfig.DeleteByApplicationID.Stmt).ExecContext(rc.ctx, id)
 	if err != nil {
-		return ncore.TraceError(err)
+		return errx.Trace(err)
 	}
 
 	// Delete application
@@ -91,13 +91,13 @@ func (rc *RepositoryContext) FindApplication(params *dto.ListPayload) (*model.Ap
 	var rows []model.Application
 	err := rc.conn.SelectContext(rc.ctx, &rows, selectQuery, args...)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	var count int64
 	err = rc.conn.GetContext(rc.ctx, &count, countQuery, args...)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Prepare result

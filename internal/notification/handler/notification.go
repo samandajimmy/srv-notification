@@ -6,12 +6,12 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/gorilla/mux"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
@@ -36,7 +36,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	app, err := getApplication(rx)
 	if err != nil {
 		log.Errorf("error: %v", err)
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Get Payload
@@ -68,7 +68,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	payload.Auth = app
 
 	// -- Set request id
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 
 	// -- Set subject
 	payload.Subject = GetSubject(rx)
@@ -151,7 +151,7 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 		return nhttp.Success().SetData(data), nil
 	}
 
-	return nhttp.BadRequest(nil), nil
+	return nil, nhttp.BadRequestError.Trace()
 }
 
 func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response, error) {
@@ -162,7 +162,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 	app, err := getApplication(rx)
 	if err != nil {
 		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Get id
@@ -170,7 +170,7 @@ func (h *Notification) GetDetailNotification(rx *nhttp.Request) (*nhttp.Response
 
 	// Set payload
 	var payload dto.GetNotification
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.ID = id
 	payload.Application = app
 
@@ -201,7 +201,7 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 	app, err := getApplication(rx)
 	if err != nil {
 		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Get ID
@@ -209,7 +209,7 @@ func (h *Notification) DeleteNotification(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Set payload
 	var payload dto.GetNotification
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.ID = id
 	payload.Application = app
 
@@ -240,7 +240,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 	app, err := getApplication(rx)
 	if err != nil {
 		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Get user id
@@ -248,7 +248,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 
 	// Set payload
 	var payload dto.GetCountNotification
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.UserRefId = userId
 	payload.Application = app
 
@@ -274,7 +274,7 @@ func (h *Notification) CountNotification(rx *nhttp.Request) (*nhttp.Response, er
 func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, error) {
 	payload, err := getListPayload(rx)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Validate payload
@@ -292,7 +292,7 @@ func (h *Notification) ListNotification(rx *nhttp.Request) (*nhttp.Response, err
 	// Set application Id key
 	app, err := getApplication(rx)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 	payload.Filters[constant.ApplicationIdKey] = fmt.Sprintf("%d", app.ID)
 
@@ -316,7 +316,7 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 	app, err := getApplication(rx)
 	if err != nil {
 		log.Errorf("Error when get application: %s", logOption.Format(err), logOption.Error(err), logOption.Context(ctx))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Get user id
@@ -324,7 +324,7 @@ func (h *Notification) UpdateIsReadNotification(rx *nhttp.Request) (*nhttp.Respo
 
 	// Set payload
 	payload := dto.UpdateIsReadNotification{
-		RequestId:   GetRequestId(rx),
+		RequestId:   rx.GetRequestId(),
 		Application: app,
 		ID:          id,
 		Subject:     GetSubject(rx),

@@ -2,20 +2,22 @@ package nhttp
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/nbs-go/errx"
 	"net/http"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
 const (
 	ContentTypeJSON = "application/json; charset=utf-8"
+	ContentTypeHTML = "text/html"
 )
 
 type JSONContentWriter struct {
 	Debug bool
 }
 
-func (jw JSONContentWriter) Write(w http.ResponseWriter, httpStatus int, body interface{}) int {
+func (jw *JSONContentWriter) Write(w http.ResponseWriter, httpStatus int, body interface{}) {
 	// Add content type
 	w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 	// Write http status
@@ -25,52 +27,57 @@ func (jw JSONContentWriter) Write(w http.ResponseWriter, httpStatus int, body in
 	if err != nil {
 		log.Errorf("failed to write response to json ( payload = %+v )", body)
 	}
-	// Return httpStatus
-	return httpStatus
 }
 
-func (jw JSONContentWriter) WriteError(w http.ResponseWriter, err error) int {
-	apiErr, ok := err.(*ncore.Response)
+func (jw *JSONContentWriter) WriteError(w http.ResponseWriter, err error) int {
+	var hErr *errx.Error
+	ok := errors.As(err, &hErr)
 	if !ok {
 		// If assert type fail, create wrap error to an internal error
-		apiErr = ncore.InternalError.Wrap(err)
+		hErr = errx.InternalError().Wrap(err)
 	}
 
 	// Get http status
-	httpStatus, ok := nval.ParseInt(apiErr.Metadata[HttpStatusRespKey])
+	errMeta := hErr.Metadata()
+	httpStatus, ok := nval.ParseInt(errMeta[HttpStatusMetadata])
 	if !ok {
 		httpStatus = http.StatusInternalServerError
 	}
 
 	// Get metadata of error
-	metadata, _ := apiErr.Metadata[MetadataKey].(map[string]interface{})
+	metadata, _ := errMeta[MetadataKey].(map[string]interface{})
 
 	// Create response
 	resp := Response{
 		Success: false,
-		Code:    apiErr.Code,
-		Message: apiErr.Message,
+		Code:    hErr.Code(),
+		Message: hErr.Message(),
 		Data:    nil,
 	}
 
 	// If debug mode, then create error debug data
 	if jw.Debug {
 		// Get response message from source if exist
-		respMessage := ""
-		if apiErr.SourceError != nil {
-			respMessage = apiErr.SourceError.Error()
+		dbgMsg := ""
+		if sourceErr := errors.Unwrap(hErr); sourceErr != nil {
+			dbgMsg = sourceErr.Error()
 		} else {
-			respMessage = apiErr.Message
+			dbgMsg = hErr.Message()
 		}
 
 		// Add error tracing metadata to data
-		resp.Data = errorDataResponse{ErrorDebug: &errorDebug{
-			Message:  respMessage,
-			Traces:   apiErr.Traces,
-			Metadata: metadata,
-		}}
+		resp.Data = map[string]interface{}{
+			"_debug": map[string]interface{}{
+				"message":  dbgMsg,
+				"traces":   hErr.Traces(),
+				"metadata": metadata,
+			},
+		}
 	}
 
 	// Send error json
-	return jw.Write(w, httpStatus, resp)
+	jw.Write(w, httpStatus, resp)
+
+	// Return http status
+	return httpStatus
 }

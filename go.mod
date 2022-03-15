@@ -5,6 +5,7 @@ go 1.17
 require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/ThreeDotsLabs/watermill v1.1.1
+	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/google/uuid v1.3.0
@@ -15,19 +16,18 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
+	github.com/nbs-go/errx v0.5.1
 	github.com/nbs-go/nlogger-json v0.1.0
 	github.com/nbs-go/nlogger/v2 v2.2.2
 	github.com/nbs-go/nsql v0.5.1
 	google.golang.org/api v0.60.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	cloud.google.com/go v0.97.0 // indirect
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	cloud.google.com/go/storage v1.10.0 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/census-instrumentation/opencensus-proto v0.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403 // indirect

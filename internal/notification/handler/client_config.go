@@ -3,10 +3,10 @@ package handler
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
@@ -41,7 +41,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Set request id
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.Subject = subject
 
 	// Call service
@@ -61,7 +61,7 @@ func (h *ClientConfig) CreateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 func (h *ClientConfig) ListClientConfig(rx *nhttp.Request) (*nhttp.Response, error) {
 	payload, err := getListPayload(rx)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Call service
@@ -69,7 +69,7 @@ func (h *ClientConfig) ListClientConfig(rx *nhttp.Request) (*nhttp.Response, err
 	respData, err := srv.ListClientConfig(payload)
 	if err != nil {
 		log.Error("failed to call service.", logOption.Error(err))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Set response
@@ -89,7 +89,7 @@ func (h *ClientConfig) GetDetailClientConfig(rx *nhttp.Request) (*nhttp.Response
 
 	// Set payload
 	var payload dto.ClientConfigRequest
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = xid
 
 	// Call service
@@ -118,7 +118,7 @@ func (h *ClientConfig) UpdateClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 	}
 
 	// Set modifier and id
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = mux.Vars(rx.Request)["xid"]
 	payload.Subject = subject
 
@@ -153,7 +153,7 @@ func (h *ClientConfig) DeleteClientConfig(rx *nhttp.Request) (*nhttp.Response, e
 
 	// Set payload
 	var payload dto.GetClientConfig
-	payload.RequestId = GetRequestId(rx)
+	payload.RequestId = rx.GetRequestId()
 	payload.XID = xid
 
 	// Call service

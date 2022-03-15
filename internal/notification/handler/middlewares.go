@@ -2,11 +2,11 @@ package handler
 
 import (
 	"fmt"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
@@ -34,7 +34,7 @@ func (h *Middlewares) AuthApp(rx *nhttp.Request) (*nhttp.Response, error) {
 	app, err := svc.AuthApplication(username, password)
 	if err != nil {
 		log.Error("failed to call service.", logOption.Error(err))
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Set context

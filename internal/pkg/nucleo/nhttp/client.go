@@ -1,11 +1,12 @@
 package nhttp
 
 import (
-	"github.com/nbs-go/nlogger/v2"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"net"
 	"net/http"
 	"strings"
+
+	"github.com/nbs-go/nlogger/v2"
 )
 
 var log nlogger.Logger

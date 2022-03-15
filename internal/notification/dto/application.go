@@ -3,7 +3,7 @@ package dto
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
+	"github.com/nbs-go/errx"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 )
 
@@ -76,7 +76,7 @@ func (d ApplicationUpdateOptions) Validate() error {
 	}
 
 	if err = Data(d.Data); err != nil {
-		return ncore.TraceError(err)
+		return errx.Trace(err)
 	}
 
 	return err

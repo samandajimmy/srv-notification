@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/nbs-go/errx"
 	logOption "github.com/nbs-go/nlogger/v2/option"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nclient"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"time"
 )
@@ -43,7 +43,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 	}
 
 	// Set request id to context
-	ctx = context.WithValue(ctx, nhttp.RequestIdContextKey, p.RequestId)
+	ctx = context.WithValue(ctx, nhttp.RequestIDContextKey, p.RequestId)
 
 	// Get service context
 	svc := h.Service.WithContext(ctx)
@@ -84,7 +84,7 @@ func (h *SendEmailHandler) sendEmail(ctx context.Context, payload message.Payloa
 			SendWebhookEmail(optionsWebhook)
 		}
 
-		return true, ncore.TraceError(err)
+		return true, errx.Trace(err)
 	}
 
 	// Send Webhook if email sent

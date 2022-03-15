@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"github.com/nbs-go/errx"
 	"github.com/nbs-go/nsql"
 	"github.com/nbs-go/nsql/op"
 	"github.com/nbs-go/nsql/option"
@@ -9,7 +10,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/statement"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	nsqlDep "repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nsql"
 	"strings"
 )
@@ -86,13 +86,13 @@ func (rc *RepositoryContext) FindClientConfig(params *dto.ListPayload) (*model.C
 	var rows []model.ClientConfigDetailed
 	err := rc.conn.SelectContext(rc.ctx, &rows, selectQuery, args...)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	var count int64
 	err = rc.conn.GetContext(rc.ctx, &count, countQuery, args...)
 	if err != nil {
-		return nil, ncore.TraceError(err)
+		return nil, errx.Trace(err)
 	}
 
 	// Prepare result

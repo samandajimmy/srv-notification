@@ -1,7 +1,8 @@
 package nhttp
 
-// HookFunc represents function that will be called after handler.
-// The function does not implement http.Handler and is not
+/// HookFunc represents function that will be called after handler.
+/// The function does not implements http.Handler and is not
+
 type HookFunc func(r *Request) error
 
 func ChainHooks(fnArr ...HookFunc) HookFunc {

@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/nbs-go/errx"
 	"github.com/nbs-go/nlogger/v2"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/ncore"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
 
@@ -37,7 +37,7 @@ func (c *Nclient) PostData(header map[string]string, body map[string]interface{}
 	request, err := http.NewRequest("POST", endPoint, payload)
 	if err != nil {
 		log.Errorf("Error when make new request. err: %s", err)
-		return result, ncore.TraceError(err)
+		return result, errx.Trace(err)
 	}
 
 	// Set header
@@ -49,7 +49,7 @@ func (c *Nclient) PostData(header map[string]string, body map[string]interface{}
 	resp, err := c.Client.Do(request)
 	if err != nil {
 		log.Errorf("Error when request client. err: %s", err)
-		return result, ncore.TraceError(err)
+		return result, errx.Trace(err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
