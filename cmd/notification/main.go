@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
+	// Inject logger before loading other packages
+	_ "repo.pegadaian.co.id/ms-pds/srv-notification/cmd/notification/logger"
+
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/kelseyhightower/envconfig"
-	jsonLogger "github.com/nbs-go/nlogger-json"
 	"github.com/nbs-go/nlogger/v2"
 	"net/http"
 	"os"
@@ -17,11 +18,6 @@ import (
 var log nlogger.Logger
 
 func init() {
-	// Register json logger
-	lv := os.Getenv(nlogger.EnvLogLevel)
-	nlogger.Register(jsonLogger.New("srv-notification", lv, os.Stdout))
-
-	// Retrieve logging instance
 	log = nlogger.Get()
 }
 
