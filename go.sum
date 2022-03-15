@@ -738,8 +738,8 @@ github.com/mutecomm/go-sqlcipher/v4 v4.4.0/go.mod h1:PyN04SaWalavxRGH9E8ZftG6Ju7
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/nakagami/firebirdsql v0.0.0-20190310045651-3c02a58cfed8/go.mod h1:86wM1zFnC6/uDBfZGNwB65O+pR2OFi5q/YQaEUid1qA=
-github.com/nbs-go/errx v0.5.1 h1:lgoC1lB9f+d42rm1oH30p8m8Ed43x8hDh2QxVFj1tSc=
-github.com/nbs-go/errx v0.5.1/go.mod h1:XZsCrIXn5Ox+ArE3GjEMEZnsAXhBDy+s/IFTstY7PAw=
+github.com/nbs-go/errx v0.6.0 h1:C4dh3zM5nKNJjdE1LtrHx+TzlUx7X403BsPn8h/68Dk=
+github.com/nbs-go/errx v0.6.0/go.mod h1:XZsCrIXn5Ox+ArE3GjEMEZnsAXhBDy+s/IFTstY7PAw=
 github.com/nbs-go/nlogger-json v0.1.0 h1:CXZhvinFFCJjX8NXEcRcGxYEZHeR6I5QtHgv8MgLBAo=
 github.com/nbs-go/nlogger-json v0.1.0/go.mod h1:dfdMzKrJd+zxFeW+3aHNWhiJQ1prXWjzUiFBckSY6dk=
 github.com/nbs-go/nlogger/v2 v2.2.2 h1:TYDTjlAmsKVQzUGTdgR/HiAfFIA224wwEyQrciFgcsw=

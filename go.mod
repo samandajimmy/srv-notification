@@ -16,7 +16,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
-	github.com/nbs-go/errx v0.5.1
+	github.com/nbs-go/errx v0.6.0
 	github.com/nbs-go/nlogger-json v0.1.0
 	github.com/nbs-go/nlogger/v2 v2.2.2
 	github.com/nbs-go/nsql v0.5.1
