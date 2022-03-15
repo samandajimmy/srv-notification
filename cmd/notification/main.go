@@ -70,7 +70,10 @@ func main() {
 	log.Infof("NodeId = %s, Environment = %s", core.NodeId, core.GetEnvironmentString())
 	log.Debugf("Boot Time: %s", time.Since(startedAt))
 
-	err = http.ListenAndServe(nhttp.ListenPort(config.Port), router)
+	port := nhttp.ListenPort(config.Port)
+	log.Debugf("Listen Port %s", port)
+
+	err = http.ListenAndServe(port, router)
 	if err != nil {
 		log.Fatal("failed to serve", logOption.Error(err))
 		os.Exit(2)
