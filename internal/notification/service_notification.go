@@ -11,6 +11,7 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
 	svcError "repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/error"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/model"
+	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 	"time"
 )
@@ -68,8 +69,10 @@ func (s *ServiceContext) GetDetailNotification(payload *dto.GetNotification) (*d
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
 		s.log.Error("error when get notification data", logOption.Error(err))
-		if err == sql.ErrNoRows {
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Notification not found"))
 		}
 		return nil, err
 	}
@@ -83,7 +86,9 @@ func (s *ServiceContext) DeleteNotification(payload *dto.GetNotification) error 
 	if err != nil {
 		log.Error("error when get data notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return svcError.ResourceNotFound.Trace(errx.Source(err))
+			return svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Notification not found"))
 		}
 		return err
 	}
@@ -103,7 +108,9 @@ func (s *ServiceContext) CountNotification(payload *dto.GetCountNotification) (*
 	if err != nil {
 		s.log.Error("error when get data count notification", logOption.Error(err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Notification not found"))
 		}
 		return nil, err
 	}
@@ -139,8 +146,10 @@ func (s *ServiceContext) UpdateIsRead(payload *dto.UpdateIsReadNotification) (*d
 	notification, err := s.repo.FindNotificationByID(payload.ID)
 	if err != nil {
 		s.log.Error("error when get notification data", logOption.Error(err))
-		if err == sql.ErrNoRows {
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Notification not found"))
 		}
 		return nil, err
 	}
