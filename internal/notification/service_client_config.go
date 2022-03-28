@@ -24,7 +24,9 @@ func (s *ServiceContext) CreateClientConfig(payload *dto.ClientConfigRequest) (*
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application.", logOption.Error(err))
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err), nhttp.OverrideMessage("Application not found"))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Application not found"))
 		}
 		log.Error("error when get data application.", logOption.Error(err))
 		return nil, errx.Trace(err)
@@ -114,7 +116,9 @@ func (s *ServiceContext) GetDetailClientConfig(payload *dto.ClientConfigRequest)
 	res, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Client Config not found"))
 		}
 		log.Error("failed to client config", logOption.Error(err))
 		return nil, errx.Trace(err)
@@ -128,7 +132,9 @@ func (s *ServiceContext) UpdateClientConfig(payload *dto.ClientConfigUpdateOptio
 	row, err := s.repo.FindClientConfigByXID(payload.XID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Client Config not found"))
 		}
 		log.Error("error when get data client config.", logOption.Error(err))
 		return nil, err
@@ -202,7 +208,9 @@ func (s *ServiceContext) DeleteClientConfig(payload *dto.GetClientConfig) error 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data client config", logOption.Error(err))
-			return svcError.ResourceNotFound.Trace(errx.Source(err))
+			return svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Client Config not found"))
 		}
 		log.Error("error when get data client config", logOption.Error(err))
 		return err
