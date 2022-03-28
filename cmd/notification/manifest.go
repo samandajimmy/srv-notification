@@ -1,8 +1,6 @@
 package main
 
 var (
-	// AppSlug Application Slug Name
-	AppSlug = "srv-notification"
 	// AppName Application Name
 	AppName = "PDS Notification Service"
 	// AppVersion value will be overridden during automated build
