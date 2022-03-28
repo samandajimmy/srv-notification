@@ -101,7 +101,9 @@ func (s *ServiceContext) GetDetailApplication(payload *dto.GetApplication) (*dto
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application", logOption.Error(err))
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Application not found"))
 		}
 		log.Error("error when get data application. err: %v", logOption.Error(err))
 		return nil, err
@@ -121,7 +123,9 @@ func (s *ServiceContext) DeleteApplication(payload *dto.GetApplication) error {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("error when get data application", logOption.Error(err))
-			return svcError.ResourceNotFound.Trace(errx.Source(err))
+			return svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Application not found"))
 		}
 		log.Error("error when get data application", logOption.Error(err))
 		return err
@@ -166,7 +170,9 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			s.log.Error("error when get data application", logOption.Error(err))
-			return nil, svcError.ResourceNotFound.Trace(errx.Source(err))
+			return nil, svcError.ResourceNotFound.Trace(
+				errx.Source(err),
+				nhttp.OverrideMessage("Application not found"))
 		}
 		s.log.Error("error when get data application", logOption.Error(err))
 		return nil, err
