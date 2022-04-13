@@ -35,15 +35,14 @@ FROM artifactory.pegadaian.co.id:8084/alpine:3.15
 
 ARG ARG_PORT=3000
 
+WORKDIR /usr/src/app
+
 RUN apk add --no-cache tzdata ca-certificates \
     # Create temporary dir for attachment
-    && mkdir -p .tmp/email-attachments
+    && mkdir -p /usr/src/app/.tmp/email-attachments
 
-COPY --from=builder /usr/src/app/bin/release /app
-COPY migrations /app/migrations
-
-# Running...
-WORKDIR /app
+COPY --from=builder /usr/src/app/bin/release /usr/src/app
+COPY migrations /usr/src/app/migrations
 
 EXPOSE ${ARG_PORT}
 
