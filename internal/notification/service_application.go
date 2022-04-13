@@ -214,7 +214,7 @@ func (s *ServiceContext) UpdateApplication(payload *dto.ApplicationUpdateOptions
 			changesCount += 1
 		case "webhookUrl":
 			// If title is empty, or value is still the same, then skip
-			if d.WebhookURL == "" || d.WebhookURL == app.WebhookURL.String {
+			if d.WebhookURL == app.WebhookURL.String {
 				changelog[k] = false
 				continue
 			}
