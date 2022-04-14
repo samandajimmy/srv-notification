@@ -11,7 +11,6 @@ import (
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/constant"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/contract"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/notification/dto"
-
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nhttp"
 	"repo.pegadaian.co.id/ms-pds/srv-notification/internal/pkg/nucleo/nval"
 )
@@ -58,6 +57,8 @@ func (h *Notification) PostCreateNotification(rx *nhttp.Request) (*nhttp.Respons
 	// -- Set user id on fcm options
 	if o := payload.Options.FCM; o != nil {
 		o.UserId = payload.UserId
+		// Debug FCM Token
+		log.Debug("FCM Token Debug: %s", logOption.Format(payload.Options.FCM.Token))
 	}
 
 	if o := payload.Options.SMTP; o != nil {
